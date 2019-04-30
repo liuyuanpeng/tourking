@@ -22,15 +22,15 @@ function AuthComponent({ children, location, routerData }) {
         }
       }
     });
-    if (authorities instanceof Array) {
-      authorities.push('admin')
-    }
     return authorities;
   };
+  if (!isLogin) {
+    return <Redirect to="/user/login"/>
+  }
   return (
     <Authorized
       authority={getRouteAuthority(location.pathname, routerData)}
-      noMatch={isLogin ? <Exception403 /> : <Redirect to="/user/login" />}
+      noMatch={<Exception403 />}
     >
       {children}
     </Authorized>
