@@ -49,7 +49,7 @@ const PageHeaderWrapper = ({
   return (
     <div style={{ margin: '-24px -24px 0' }} className={classNames(classNames, styles.main)}>
       {top}
-      {title && content && (
+      {(
         <MenuContext.Consumer>
           {value => {
             return (

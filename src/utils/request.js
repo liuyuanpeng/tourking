@@ -69,4 +69,10 @@ const request = extend({
   credentials: 'include', // 默认请求是否带上cookie
 });
 
-export default request;
+const requestWithHeader = (url, options) => {
+  if (localStorage.getItem('token')) {
+    return request(url, {...options, headers: {token: localStorage.getItem('token')}})
+  }
+  return request(url, options)
+}
+export default requestWithHeader;

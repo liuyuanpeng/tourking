@@ -1,4 +1,14 @@
-import { query as queryUsers, queryCurrent } from '@/services/user';
+import { queryUser, queryAuthority} from '@/services/user';
+import { setAuthority } from '@/utils/authority';
+import { reloadAuthorized } from '@/utils/Authorized';
+
+const mergeRoles = roles => {
+  let arr = []
+  roles && roles.forEach(role => {
+    role.extend && (arr = [...arr, ...role.extend.split(',')])
+  })
+  return Array.from(new Set(arr))
+}
 
 export default {
   namespace: 'user',
@@ -9,44 +19,30 @@ export default {
   },
 
   effects: {
-    *fetch(_, { call, put }) {
-      const response = yield call(queryUsers);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-    },
-    *fetchCurrent(_, { call, put }) {
-      const response = yield call(queryCurrent);
-      yield put({
-        type: 'saveCurrentUser',
-        payload: response,
-      });
-    },
+    *fetchUser(_, {call, put}) {
+      console.log('call fetchUser...')
+      const response = yield call(queryUser);
+      if (response.code === 'SUCCESS') {
+        yield put({
+          type: 'save',
+          payload: {
+            ...response.data.user,
+            authority: mergeRoles(response.data.roles)
+          }
+        })
+        reloadAuthorized()
+      }
+    }
   },
 
   reducers: {
     save(state, action) {
+      console.log('authority: ', action.payload.authority)
+      setAuthority(action.payload.authority)
       return {
         ...state,
-        list: action.payload,
+        currentUser: action.payload,
       };
-    },
-    saveCurrentUser(state, action) {
-      return {
-        ...state,
-        currentUser: action.payload || {},
-      };
-    },
-    changeNotifyCount(state, action) {
-      return {
-        ...state,
-        currentUser: {
-          ...state.currentUser,
-          notifyCount: action.payload.totalCount,
-          unreadCount: action.payload.unreadCount,
-        },
-      };
-    },
+    }
   },
 };

@@ -7,11 +7,9 @@ import GridContent from '@/components/PageHeaderWrapper/GridContent';
 import styles from './Center.less';
 
 @connect(({ loading, user, project }) => ({
-  listLoading: loading.effects['list/fetch'],
   currentUser: user.currentUser,
-  currentUserLoading: loading.effects['user/fetchCurrent'],
-  project,
-  projectLoading: loading.effects['project/fetchNotice'],
+  currentUserLoading: loading.effects['user/fetchUser'],
+  project
 }))
 class Center extends PureComponent {
   state = {
@@ -23,16 +21,7 @@ class Center extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: 'user/fetchCurrent',
-    });
-    dispatch({
-      type: 'list/fetch',
-      payload: {
-        count: 8,
-      },
-    });
-    dispatch({
-      type: 'project/fetchNotice',
+      type: 'user/fetchUser',
     });
   }
 

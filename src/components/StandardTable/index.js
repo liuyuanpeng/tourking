@@ -109,6 +109,7 @@ class StandardTable extends PureComponent {
           rowKey={rowKey || 'key'}
           rowSelection={rowSelection}
           dataSource={list}
+          style={this.props.tableStyle || {}}
           pagination={paginationProps}
           onChange={this.handleTableChange}
           {...rest}

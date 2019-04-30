@@ -22,6 +22,9 @@ function AuthComponent({ children, location, routerData }) {
         }
       }
     });
+    if (authorities instanceof Array) {
+      authorities.push('admin')
+    }
     return authorities;
   };
   return (

@@ -31,6 +31,7 @@ export const getBreadcrumb = (breadcrumbNameMap, url) => {
       }
     });
   }
+  console.log('breadcrumb: ', breadcrumb)
   return breadcrumb || {};
 };
 

@@ -103,6 +103,13 @@ export async function updateFakeList(params) {
   });
 }
 
+export async function accountLogin(params) {
+  return request('/server/user/login', {
+    method: 'POST',
+    data: params
+  })
+}
+
 export async function fakeAccountLogin(params) {
   return request('/api/login/account', {
     method: 'POST',

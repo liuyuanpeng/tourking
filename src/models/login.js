@@ -1,9 +1,18 @@
 import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
-import { fakeAccountLogin, getFakeCaptcha } from '@/services/api';
-import { setAuthority } from '@/utils/authority';
+import { accountLogin, getFakeCaptcha } from '@/services/api';
 import { getPageQuery } from '@/utils/utils';
+import { local } from 'd3-selection';
 import { reloadAuthorized } from '@/utils/Authorized';
+import { setAuthority } from '@/utils/authority';
+
+const mergeRoles = roles => {
+  let arr = []
+  roles && roles.forEach(role => {
+    role.extend && (arr = [...arr, ...role.extend.split(',')])
+  })
+  return Array.from(new Set(arr))
+}
 
 export default {
   namespace: 'login',
@@ -14,14 +23,18 @@ export default {
 
   effects: {
     *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
-      yield put({
-        type: 'changeLoginStatus',
-        payload: response,
-      });
+      const response = yield call(accountLogin, payload);
       // Login successfully
-      if (response.status === 'ok') {
-        reloadAuthorized();
+      if (response.code === 'SUCCESS') {
+        yield put({
+          type: 'changeLoginStatus',
+          payload: response.data
+        })
+
+        localStorage.setItem('token', response.data.token_session.token)
+        localStorage.setItem('user-id', response.data.user.id)
+        setAuthority(mergeRoles(response.data.roles))
+        reloadAuthorized()
         const urlParams = new URL(window.location.href);
         const params = getPageQuery();
         let { redirect } = params;
@@ -52,7 +65,9 @@ export default {
           currentAuthority: 'guest',
         },
       });
-      reloadAuthorized();
+      localStorage.removeItem('token')
+      localStorage.removeItem('user-id')
+      localStorage.removeItem('authority')
       // redirect
       if (window.location.pathname !== '/user/login') {
         yield put(
@@ -69,11 +84,9 @@ export default {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      setAuthority(payload.currentAuthority);
+      console.log('payload: ', payload)
       return {
-        ...state,
-        status: payload.status,
-        type: payload.type,
+        status: 'ok'
       };
     },
   },

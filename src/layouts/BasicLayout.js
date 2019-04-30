@@ -50,8 +50,9 @@ class BasicLayout extends React.Component {
       route: { routes, path, authority },
     } = this.props;
     dispatch({
-      type: 'user/fetchCurrent',
-    });
+      type: 'user/fetchUser'
+    })
+    console.log('fetchUser...')
     dispatch({
       type: 'setting/getSetting',
     });
@@ -138,7 +139,7 @@ class BasicLayout extends React.Component {
           <Content className={styles.content} style={contentStyle}>
             {children}
           </Content>
-          <Footer />
+          {/* <Footer /> */}
         </Layout>
       </Layout>
     );
@@ -153,7 +154,7 @@ class BasicLayout extends React.Component {
             )}
           </ContainerQuery>
         </DocumentTitle>
-        <Suspense fallback={null}>{this.renderSettingDrawer()}</Suspense>
+        {/* <Suspense fallback={null}>{this.renderSettingDrawer()}</Suspense> */}
       </React.Fragment>
     );
   }
