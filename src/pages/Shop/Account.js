@@ -116,7 +116,7 @@ export default class Account extends PureComponent {
 
     return (
       <Form onSubmit={this.handleSearch} layout='inline'>
-      <Row gutter={16} type="flex" monospaced arrangement>
+      <Row gutter={16} type="flex" monospaced="true" arrangement="true">
       <Col span={5}>
       <FormItem label="精确查找">
       {

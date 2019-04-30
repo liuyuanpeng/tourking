@@ -18,6 +18,7 @@ import { connect } from "dva";
 import styles from "./Book.less";
 import { getFileItem } from "antd/lib/upload/utils";
 import StandardTable from "@/components/StandardTable";
+import LocationInput from "@/components/LocationInput";
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -61,7 +62,6 @@ const NewOrder = Form.create()(props => {
             })(
               <Select
                 style={{ width: "60%" }}
-                defaultValue="1"
                 placeholder="请选择类型"
               >
                 <Option value="1">类型1</Option>
@@ -88,6 +88,22 @@ const NewOrder = Form.create()(props => {
               />
             )}
           </FormItem>
+        </Col>
+        <Col>
+        <FormItem {...labelLayout} label="上车地点">
+        {
+          form.getFieldDecorator('address', {
+            rules: [
+              {
+                required: true,
+                message: "请选择上车地点"
+              }
+            ]
+          })(
+            <LocationInput/>
+          )
+        }
+        </FormItem>
         </Col>
       </Row>
     </Modal>
@@ -230,12 +246,11 @@ export default class Book extends PureComponent {
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
-        <Row gutter={16} type="flex" monospaced arrangement>
+        <Row gutter={16} type="flex" monospaced="true" arrangement="true">
           <Col span={5}>
             <FormItem label="订单状态">
               {getFieldDecorator("status")(
                 <Select
-                  defaultValue="all"
                   placeholder="请选择"
                   style={{ width: "100%" }}
                 >
