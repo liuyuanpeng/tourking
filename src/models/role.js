@@ -1,5 +1,4 @@
 import {queryRoles, saveRole, deleteRole} from '@/services/role'
-import { stat } from 'fs';
 
 export default {
   namespace: 'role',
@@ -12,6 +11,7 @@ export default {
     *getRoles({ payload }, { call, put }) {
       const response = yield call(queryRoles)
       if (response.code === 'SUCCESS') {
+        localStorage.setItem('roles', JSON.stringify(response.data))
         yield put({
           type: 'refreshList',
           payload: response.data
@@ -33,11 +33,27 @@ export default {
       }
     },
     *deleteRole({payload}, {call, put}) {
-      const response = yield call(deleteRole, payload.roleId)
+      const response = yield call(deleteRole, payload)
       if (response.code === 'SUCCESS') {
-        yield put({
-          type: 'deleteOK'
-        })
+        const res = yield call(queryRoles)
+        if (res.code === 'SUCCESS') {
+          yield put({
+            type: 'refreshList',
+            payload: res.data
+          })
+        }
+      }
+    },
+    *addRole({payload}, {call, put}) {
+      const response = yield call(saveRole, payload)
+      if (response.call === 'SUCCESS') {
+        const res = yield call(queryRoles)
+        if (res.code === 'SUCCESS') {
+          yield put({
+            type: 'refreshList',
+            payload: res.data
+          })
+        }
       }
     }
   },

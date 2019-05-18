@@ -7,7 +7,9 @@ export async function queryRoles() {
 }
 
 export async function deleteRole(id) {
-  return request(`/server/rbac/role/delete?role_id=${id}`)
+  return request(`/server/rbac/role/delete?role_id=${id}`, {
+    method: 'POST'
+  })
 }
 
 export async function saveRole(params) {

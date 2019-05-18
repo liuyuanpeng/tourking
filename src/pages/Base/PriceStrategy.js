@@ -6,7 +6,6 @@ export default class PriceStrategy extends Component {
   }
 
   render() {
-    console.log('routes: ', this.props.route)
     return (
       <div>
         Price Strategy

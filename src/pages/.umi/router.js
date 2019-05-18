@@ -179,8 +179,7 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__UserManager__models__account.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/account.js').then(m => { return { namespace: 'account',...m.default}}),
-  import(/* webpackChunkName: 'p__UserManager__models__role.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/role.js').then(m => { return { namespace: 'role',...m.default}})
+  import(/* webpackChunkName: 'p__UserManager__models__account.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/account.js').then(m => { return { namespace: 'account',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__UserManager__Role" */'../UserManager/Role'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
@@ -194,8 +193,7 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__UserManager__models__account.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/account.js').then(m => { return { namespace: 'account',...m.default}}),
-  import(/* webpackChunkName: 'p__UserManager__models__role.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/role.js').then(m => { return { namespace: 'role',...m.default}})
+  import(/* webpackChunkName: 'p__UserManager__models__account.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/account.js').then(m => { return { namespace: 'account',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__UserManager__Account" */'../UserManager/Account'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,

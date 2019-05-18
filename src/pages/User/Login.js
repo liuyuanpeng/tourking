@@ -77,10 +77,9 @@ class LoginPage extends Component {
           }}
         >
           <Tab key="account" tab={formatMessage({ id: 'app.login.tab-login-credentials' })}>
-            {login.status === 'error' &&
-              login.type === 'account' &&
+            {login.status != 'ok' &&
               !submitting &&
-              this.renderMessage(formatMessage({ id: 'app.login.message-invalid-credentials' }))}
+              this.renderMessage(login.status || formatMessage({ id: 'app.login.message-invalid-credentials' }))}
             <UserName
               name="username"
               placeholder={`${formatMessage({ id: 'app.login.userName' })}`}

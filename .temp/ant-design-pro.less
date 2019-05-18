@@ -3559,6 +3559,68 @@ a.antd-pro-pages-list-articles-listItemMetaTitle {
 }
 
 /* 
+  Convert to from  src/pages/Order/Shuttle.less
+ */
+
+th {
+  white-space: nowrap;
+}
+
+.antd-pro-pages-order-shuttle-tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  .antd-pro-pages-order-shuttle-tableBody {
+    min-width: 1500px;
+  }
+}
+
+.antd-pro-pages-order-shuttle-tableList {
+  .antd-pro-pages-order-shuttle-tableListOperator {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    button {
+      margin-right: 8px;
+    }
+  }
+}
+
+.antd-pro-pages-order-shuttle-tableListForm {
+  .ant-form-item {
+    display: flex;
+    margin-right: 0;
+    margin-bottom: 24px;
+    > .ant-form-item-label {
+      width: auto;
+      padding-right: 8px;
+      line-height: 32px;
+    }
+    .ant-form-item-control {
+      line-height: 32px;
+    }
+  }
+  .ant-form-item-control-wrapper {
+    flex: 1;
+  }
+  .antd-pro-pages-order-shuttle-submitButtons {
+    display: block;
+    margin-bottom: 24px;
+    white-space: nowrap;
+  }
+}
+
+@media screen and (max-width: @screen-lg) {
+  .tableListForm :global(.ant-form-item) {
+    margin-right: 24px;
+  }
+}
+
+@media screen and (max-width: @screen-md) {
+  .tableListForm :global(.ant-form-item) {
+    margin-right: 8px;
+  }
+}
+
+/* 
   Convert to from  src/pages/Profile/AdvancedProfile.less
  */
 
@@ -3686,6 +3748,7 @@ a.antd-pro-pages-list-articles-listItemMetaTitle {
 
 .antd-pro-pages-shop-book-tableList {
   .antd-pro-pages-shop-book-tableListOperator {
+    margin-top: 16px;
     margin-bottom: 16px;
     button {
       margin-right: 8px;
@@ -3836,6 +3899,55 @@ a.antd-pro-pages-list-articles-listItemMetaTitle {
     a + a {
       margin-left: 8px;
     }
+  }
+}
+
+/* 
+  Convert to from  src/pages/UserManager/Account.less
+ */
+
+.antd-pro-pages-user-manager-account-tableList {
+  .antd-pro-pages-user-manager-account-tableListOperator {
+    margin-bottom: 16px;
+    button {
+      margin-right: 8px;
+    }
+  }
+}
+
+.antd-pro-pages-user-manager-account-tableListForm {
+  .ant-form-item {
+    display: flex;
+    margin-right: 0;
+    margin-bottom: 24px;
+    > .ant-form-item-label {
+      width: auto;
+      padding-right: 8px;
+      line-height: 32px;
+    }
+    .ant-form-item-control {
+      line-height: 32px;
+    }
+  }
+  .ant-form-item-control-wrapper {
+    flex: 1;
+  }
+  .antd-pro-pages-user-manager-account-submitButtons {
+    display: block;
+    margin-bottom: 24px;
+    white-space: nowrap;
+  }
+}
+
+@media screen and (max-width: @screen-lg) {
+  .tableListForm :global(.ant-form-item) {
+    margin-right: 24px;
+  }
+}
+
+@media screen and (max-width: @screen-md) {
+  .tableListForm :global(.ant-form-item) {
+    margin-right: 8px;
   }
 }
 

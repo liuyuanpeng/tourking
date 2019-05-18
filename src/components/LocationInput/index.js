@@ -1,13 +1,17 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Input, Icon, Modal } from "antd";
+import { Input, Icon, Modal, Button } from "antd";
 import { Map, Marker } from "react-amap";
+
+const Search = Input.Search;
 
 // 定义地图中心点(厦门火车站)
 const CENTER = {
-  longitude: 118.116295,
-  latitude: 24.467455
+  longitude: 118.116217,
+  latitude: 24.467527
 };
+
+const AMAP_KEY = "40f23cf8d5e782d1905f8a4ffcdd4e3b";
 
 // 自定义定位图标
 const LOCATION_ICON = () => (
@@ -20,17 +24,33 @@ const LOCATION_ICON = () => (
 );
 
 export default class LocationInput extends Component {
+  static getDerivedStateFromProps(nextProps) {
+    if ("value" in nextProps) {
+      return {
+        ...(nextProps.value || {})
+      };
+    }
+    return null;
+  }
   constructor(props) {
     super(props);
     this.map = null;
     this.marker = null;
     this.geoCode = null;
+    const value = props.value || {
+      location: CENTER,
+      address: ""
+    };
+    this.state = {
+      modalVisible: false,
+      position: value.location,
+      address: value.address,
+      mapCenter: value.location,
+      mapPosition: value.location,
+      mapAddress: value.address,
+      keywords: ''
+    };
   }
-  state = {
-    modalVisible: false,
-    position: CENTER,
-    currentPosition: ""
-  };
 
   handleModalVisible = flag => {
     this.setState({
@@ -38,23 +58,52 @@ export default class LocationInput extends Component {
     });
   };
 
+  triggerChange = value => {
+    const onChange = this.props.onChange;
+    if (onChange) {
+      onChange(value);
+    }
+  };
   okHandle = () => {
+    this.setState({
+      address: this.state.mapAddress,
+      position: this.state.mapPosition
+    });
+    this.triggerChange({
+      address: this.state.mapAddress,
+      location: this.state.mapPosition
+    });
     this.handleModalVisible();
   };
 
   mapEvens = {
     created: map => {
-      window.AMap.plugin("AMap.Geocoder", () => {
-        this.geoCode = new AMap.Geocoder({
-          city: "010" //城市, 默认全国
-        });
-      });
+      window.AMap.plugin(
+        ["AMap.Geocoder", "AMap.PlaceSearch", "AMap.Autocomplete"],
+        () => {
+          this.geoCode = new AMap.Geocoder({
+            city: "010" //城市, 默认全国
+          });
+          this.placeSearch = new AMap.PlaceSearch({
+            pageSize: 5,
+            pageIndex: 1,
+            city: "010"
+          });
+          this.autoComplete = new AMap.Autocomplete({
+            city: "010",
+            input: "search-input"
+          });
+        }
+      );
     },
     click: e => {
       const lnglat = e.lnglat;
       this.setState({
-        position: lnglat,
-        currentPosition: "正在加载..."
+        mapPosition: {
+          longitude: lnglat.getLng(),
+          latitude: lnglat.getLat()
+        },
+        mapAddress: "正在加载..."
       });
       this.getAddress(lnglat);
     }
@@ -65,30 +114,56 @@ export default class LocationInput extends Component {
       this.geoCode.getAddress(lnglat, (status, result) => {
         if (status === "complete") {
           if (result.regeocode) {
-            console.log(result.regeocode.formattedAddress);
             this.setState({
-              currentPosition: result.regeocode.formattedAddress || "未知地点"
+              mapAddress: result.regeocode.formattedAddress || "未知地点"
             });
           } else {
             this.setState({
-              currentPosition: "未知地点"
+              mapAddress: "未知地点"
             });
           }
         } else {
           this.setState({
-            currentPosition: "未知地点"
+            mapAddress: "未知地点"
           });
         }
       });
   };
 
+  onKeywordChange = e => {
+    this.setState({
+      keywords: e.target.value
+    });
+  };
+  handleSearch = wtfValue => {
+    const value = window.document.getElementById("search-input").value;
+    this.setState({
+      keywords: value
+    });
+    if (value && value.trim()) {
+      this.placeSearch.search(value.trim(), (status, result) => {
+        if (status === "complete" && result.poiList.count) {
+          const location = result.poiList.pois[0].location;
+          const lct = {
+            longitude: location.lng,
+            latitude: location.lat
+          };
+          this.getAddress(location);
+          this.setState({
+            mapPosition: lct
+          });
+        }
+      });
+    }
+  };
+
   render() {
-    const { modalVisible, position, currentPosition } = this.state;
+    const { modalVisible, address, mapPosition, mapAddress } = this.state;
     return (
       <div>
         <Input
-          disabled
-          value={currentPosition}
+          readOnly
+          value={address}
           addonAfter={
             <Icon
               component={LOCATION_ICON}
@@ -99,8 +174,9 @@ export default class LocationInput extends Component {
           }
         />
         <Modal
-          width={550}
+          width={window.innerWidth}
           destroyOnClose
+          centered
           title="地址定位"
           visible={modalVisible}
           onOk={() => {
@@ -110,9 +186,27 @@ export default class LocationInput extends Component {
             this.handleModalVisible();
           }}
         >
-          <div style={{ width: "500px", height: "400px" }}>
-            <Map center={CENTER} events={this.mapEvens}>
-              <Marker position={position} />
+          <Search
+            id="search-input"
+            enterButton
+            value={this.state.keywords}
+            onChange={this.onKeywordChange}
+            onSearch={this.handleSearch}
+          />
+          <span>{`当前位置: ${mapAddress}`}</span>
+          <div
+            style={{
+              width: `${window.innerWidth - 50}px`,
+              height: `${window.innerHeight - 220}px`
+            }}
+          >
+            <Map
+              amapkey={AMAP_KEY}
+              zoom={13}
+              center={mapPosition}
+              events={this.mapEvens}
+            >
+              <Marker position={mapPosition} />
             </Map>
           </div>
         </Modal>

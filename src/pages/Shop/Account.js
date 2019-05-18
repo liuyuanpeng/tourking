@@ -105,7 +105,6 @@ export default class Account extends PureComponent {
   };
 
   handleAdd = fields => {
-    console.log("handleAdd: ", fields);
     this.handleModalVisible();
   };
 
@@ -185,9 +184,9 @@ export default class Account extends PureComponent {
       handleModalVisible: this.handleModalVisible
     }
     return(
-      <PageHeaderWrap title="账号管理">
+      <PageHeaderWrap title="账户管理">
       <Card bordered={false}>
-      <div className={styleMedia.tableList}>
+      <div className={styles.tableList}>
       <div className={styles.tableListForm}>
       <div className={styles.tableListOperator}>
       <Button icon='plus' type='primary' onClick={()=>this.handleModalVisible(true)}>新增账号</Button>

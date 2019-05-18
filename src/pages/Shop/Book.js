@@ -36,7 +36,7 @@ const NewOrder = Form.create()(props => {
 
   const labelLayout = {
     labelCol: { span: 5 },
-    wrapperCol: { span: 15 }
+    wrapperCol: { span: 19 }
   };
 
   return (
@@ -200,7 +200,6 @@ export default class Book extends PureComponent {
   };
 
   handleAdd = fields => {
-    console.log("handleAdd: ", fields);
     this.handleModalVisible();
   };
 
@@ -235,8 +234,6 @@ export default class Book extends PureComponent {
     if (sorter.field) {
       params.sorter = `${sorter.field}_${sorter.order}`;
     }
-
-    console.log("handleStandardTableChange: ", params);
   };
 
   renderForm() {
@@ -247,7 +244,7 @@ export default class Book extends PureComponent {
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
-          <Col span={5}>
+          <Col span={6}>
             <FormItem label="订单状态">
               {getFieldDecorator("status")(
                 <Select
@@ -261,7 +258,7 @@ export default class Book extends PureComponent {
               )}
             </FormItem>
           </Col>
-          <Col span={5}>
+          <Col span={7}>
             <FormItem label="时间类型">
               {getFieldDecorator("timeType")(
                 <Select placeholder="请选择" style={{ width: "100%" }}>

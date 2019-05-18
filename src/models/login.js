@@ -28,7 +28,9 @@ export default {
       if (response.code === 'SUCCESS') {
         yield put({
           type: 'changeLoginStatus',
-          payload: response.data
+          payload: {
+            status: 'ok'
+          }
         })
 
         localStorage.setItem('token', response.data.token_session.token)
@@ -50,6 +52,14 @@ export default {
           }
         }
         yield put(routerRedux.replace(redirect || '/'));
+      } else {
+        yield put({
+          type: 'changeLoginStatus',
+          payload: {
+            status: response.message,
+            currentAuthority: 'guest'
+          }
+        })
       }
     },
 
@@ -84,9 +94,9 @@ export default {
 
   reducers: {
     changeLoginStatus(state, { payload }) {
-      console.log('payload: ', payload)
       return {
-        status: 'ok'
+        ...state,
+        status: payload.status
       };
     },
   },

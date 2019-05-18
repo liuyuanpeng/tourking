@@ -1,6 +1,6 @@
 import './polyfills';
-import '../../global.js';
 import '@tmp/initHistory';
+import '../../global.js';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
