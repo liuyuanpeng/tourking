@@ -1,4 +1,4 @@
-import React, { PureComponent, Fragment } from "react";
+import React, { PureComponent } from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
 import {
@@ -8,7 +8,6 @@ import {
   Row,
   Col,
   Button,
-  Select,
   Input,
   Table,
   Divider,
@@ -17,7 +16,7 @@ import {
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { connect } from "dva";
-import styles from "./Role.less";
+import styles from "./index.less";
 
 const { TextArea } = Input;
 const FormItem = Form.Item;
@@ -85,8 +84,8 @@ const PermissionSetting = Form.create()(props => {
     handlePermissionSetting(result);
   };
 
-  const onSelect = (selectKeys, e) => {
-    result = selectKeys;
+  const onSelect = keys => {
+    result = keys;
   };
 
   const renderTreeNodes = data =>
@@ -101,11 +100,6 @@ const PermissionSetting = Form.create()(props => {
       return <TreeNode {...item} />;
     });
 
-  const labelLayout = {
-    labelCol: { span: 0 },
-    wrapperCol: { span: 24 }
-  };
-
   const treeData = [
     {
       title: "合作商家",
@@ -118,6 +112,20 @@ const PermissionSetting = Form.create()(props => {
         {
           title: "账户管理",
           key: "shopaccount"
+        }
+      ]
+    },
+    {
+      title: "订单管理",
+      key: "order",
+      children: [
+        {
+          title: "接送机站",
+          key: "shuttle"
+        },
+        {
+          title: "派单预警",
+          key: "dispatch"
         }
       ]
     },
@@ -148,8 +156,12 @@ const PermissionSetting = Form.create()(props => {
           key: "pricestrategy"
         },
         {
-          title: "车型分级",
+          title: "车辆分类",
           key: "cartype"
+        },
+        {
+          title: "车型分级",
+          key: "carlevel"
         },
         {
           title: "车辆管理",
@@ -187,8 +199,8 @@ const PermissionSetting = Form.create()(props => {
     >
       <Tree
         autoExpandParent
-        onCheck={(selectKeys, e) => {
-          onSelect(selectKeys, e);
+        onCheck={(keysSelect, e) => {
+          onSelect(keysSelect, e);
         }}
         defaultCheckedKeys={selectKeys}
         checkable
@@ -204,56 +216,18 @@ const PermissionSetting = Form.create()(props => {
   data: role.roles
 }))
 @Form.create()
-export default class Role extends PureComponent {
+class Role extends PureComponent {
   static propTypes = {
     role: PropTypes.object
   };
 
+  static defaultProps = {
+    role: {}
+  }
+
   state = {
     permissionModalVisible: false,
-    modalVisible: false,
-    formValues: {}
-  };
-
-  handleModalVisible = flag => {
-    this.setState({
-      modalVisible: !!flag
-    });
-  };
-
-  handleAdd = fields => {
-    this.props.dispatch({
-      type: "role/addRole",
-      payload: {
-        ...fields,
-        role_type: 'APPLICATION_USER_CUSTOM'
-      }
-    });
-    this.handleModalVisible();
-  };
-
-  handlePermissionModalVisible = flag => {
-    this.setState({
-      permissionModalVisible: !!flag
-    });
-  };
-
-  handlePermissionSetting = result => {
-    result &&
-      this.props.dispatch({
-        type: "role/saveRole",
-        payload: {
-          ...this.record,
-          extend: result.toString()
-        }
-      });
-    this.handlePermissionModalVisible();
-  };
-
-  onPermissionClick = record => {
-    record.extend && (this.selectKeys = record.extend.split(","));
-    record.id && (this.record = record);
-    this.handlePermissionModalVisible(true);
+    modalVisible: false
   };
 
   columns = [
@@ -271,40 +245,91 @@ export default class Role extends PureComponent {
       title: "添加时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: (text, record) => moment(text).format("YYYY-MM-DD hh:mm:ss")
+      render: (text) => moment(text).format("YYYY-MM-DD hh:mm")
     },
     {
       title: "操作",
       key: "action",
-      render: (text, record) => record.is_init ? null : (
-        <span>
-          <a href="javascript:;" onClick={() => this.onPermissionClick(record)}>
-            权限设置
-          </a>
-          <Divider type="vertical" />
-          <Popconfirm
-            title="确定删除该角色吗?"
-            onConfirm={() => {this.confirmDelete(record)}}
-            okText="是"
-            cancelText="否"
-          >
-            <a href="javascript:;">删除角色</a>
-          </Popconfirm>
-        </span>
-      )
+      render: (text, record) =>
+        record.is_init ? null : (
+          <span>
+            <a
+              href="javascript:;"
+              onClick={() => this.onPermissionClick(record)}
+            >
+              权限设置
+            </a>
+            <Divider type="vertical" />
+            <Popconfirm
+              title="确定删除该角色吗?"
+              onConfirm={() => {
+                this.confirmDelete(record);
+              }}
+              okText="是"
+              cancelText="否"
+            >
+              <a href="javascript:;">删除角色</a>
+            </Popconfirm>
+          </span>
+        )
     }
   ];
 
+  handleModalVisible = flag => {
+    this.setState({
+      modalVisible: !!flag
+    });
+  };
+
+  handleAdd = fields => {
+    const {dispatch} = this.props
+    dispatch({
+      type: "role/addRole",
+      payload: {
+        ...fields,
+        role_type: "APPLICATION_USER_CUSTOM"
+      }
+    });
+    this.handleModalVisible();
+  };
+
+  handlePermissionModalVisible = flag => {
+    this.setState({
+      permissionModalVisible: !!flag
+    });
+  };
+
+  handlePermissionSetting = result => {
+    if (result){
+      const {dispatch} = this.props
+      dispatch({
+        type: "role/saveRole",
+        payload: {
+          ...this.record,
+          extend: result.toString()
+        }
+      });}
+    this.handlePermissionModalVisible();
+  };
+
+  onPermissionClick = record => {
+    record.extend && (this.selectKeys = record.extend.split(","));
+    record.id && (this.record = record);
+    this.handlePermissionModalVisible(true);
+  };
+
   confirmDelete = record => {
-    record && record.role_type === 'APPLICATION_USER_CUSTOM' &&
-      this.props.dispatch({
+    if (record && record.role_type === "APPLICATION_USER_CUSTOM"){
+      const {dispatch} = this.props
+      dispatch({
         type: "role/deleteRole",
         payload: record.id
       });
-  }
+    }
+  };
 
   render() {
-    const { loading, data = [] } = this.props;
+    const { loading, data } = this.props;
     const { modalVisible, permissionModalVisible } = this.state;
 
     const parentMethods = {
@@ -335,9 +360,9 @@ export default class Role extends PureComponent {
               <Table
                 rowKey={record => record.id}
                 loading={loading}
-                dataSource={this.props.data}
+                dataSource={data}
                 columns={this.columns}
-                pagination = {false}
+                pagination={false}
               />
             </div>
           </div>
@@ -351,3 +376,4 @@ export default class Role extends PureComponent {
     );
   }
 }
+export default Role;

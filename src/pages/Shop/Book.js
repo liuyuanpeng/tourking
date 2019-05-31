@@ -1,5 +1,4 @@
-import React, { PureComponent, Fragment } from "react";
-import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
 import {
   Modal,
   Input,
@@ -10,39 +9,109 @@ import {
   Card,
   Form,
   Row,
-  Col
+  Col,
+  Popconfirm,
+  message,
+  Divider
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
-import { formatMessage, FormattedMessage } from "umi-plugin-react/locale";
+import { formatMessage } from "umi-plugin-react/locale";
 import { connect } from "dva";
-import styles from "./Book.less";
-import { getFileItem } from "antd/lib/upload/utils";
-import StandardTable from "@/components/StandardTable";
 import LocationInput from "@/components/LocationInput";
+import moment from "moment";
+import NumberInput from "@/components/NumberInput";
+import ORDER_STATUS from "../Order/orderStatus";
+import styles from "./index.less";
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const NewOrder = Form.create()(props => {
-  const { modalVisible, form, handleAdd, handleModalVisible } = props;
+  const {
+    handleAddOrder,
+    carTypes,
+    type,
+    handleEdit,
+    modalVisible,
+    form,
+    handleModalVisible,
+    formValues,
+    updateFormValue
+  } = props;
+
+  let origin = null;
+  let destination = null;
+  if (formValues.start_longitude && formValues.start_latitude) {
+    origin = {
+      longitude: formValues.start_longitude,
+      latitude: formValues.start_latitude
+    };
+  }
+  if (formValues.target_longitude && formValues.target_latitude) {
+    destination = {
+      longitude: formValues.target_longitude,
+      latitude: formValues.target_latitude
+    };
+  }
+  const labelLayout = {
+    labelCol: { span: 6 },
+    wrapperCol: { span: 18 }
+  };
+
+  const readonly = type === "readonly";
+
   const okHandle = () => {
+    if (readonly) return handleModalVisible();
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
-      handleAdd(fieldsValue);
+      if (type === "edit") {
+        handleEdit(fieldsValue);
+      } else {
+        handleAddOrder(fieldsValue);
+      }
     });
+    return null;
   };
 
-  const labelLayout = {
-    labelCol: { span: 5 },
-    wrapperCol: { span: 19 }
+  form.getFieldDecorator("route", {
+    initialValue: null
+  });
+
+  const updateRoute = value => {
+    if (value.time && value.distance) {
+      form.setFieldsValue({
+        route: {
+          time: value.time || 0,
+          kilo: value.distance ? value.distance / 1000 : 0
+        }
+      });
+    }
+  };
+
+  const originChange = value => {
+    updateFormValue({
+      start_longitude: value.location.longitude,
+      start_latitude: value.location.latitude,
+      start_place: value.address
+    });
+    updateRoute(value);
+  };
+
+  const destinationChange = value => {
+    updateFormValue({
+      target_longitude: value.location.longitude,
+      target_latitude: value.location.latitude,
+      target_place: value.address
+    });
+    updateRoute(value);
   };
 
   return (
     <Modal
       destroyOnClose
-      title="新增订单"
+      title={type === "edit" ? "编辑" : "详情"}
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => {
@@ -52,35 +121,56 @@ const NewOrder = Form.create()(props => {
       <Row>
         <Col>
           <FormItem {...labelLayout} label="类型">
-            {form.getFieldDecorator("type", {
-              rules: [
-                {
-                  required: true,
-                  message: "请选择类型"
-                }
-              ]
-            })(
-              <Select
-                style={{ width: "60%" }}
-                placeholder="请选择类型"
-              >
-                <Option value="1">类型1</Option>
-                <Option value="2">类型2</Option>
-              </Select>
+            {readonly ? (
+              <span>{formValues.scene === "JIEJI" ? "接机" : "送机"}</span>
+            ) : (
+              form.getFieldDecorator("scene", {
+                rules: [{ required: true, message: "请选择订单类型" }],
+                initialValue: formValues.scene || ""
+              })(
+                <Select style={{ width: "100%" }}>
+                  <Option value="JIEJI">接机</Option>
+                  <Option value="SONGJI">送机</Option>
+                </Select>
+              )
+            )}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="车型">
+            {readonly ? (
+              <span>{formValues.car_config_id || ""}</span>
+            ) : (
+              form.getFieldDecorator("car_config_id", {
+                rules: [{ required: true, message: "请选择车型" }],
+                initialValue: formValues.car_config_id || ""
+              })(
+                <Select style={{ width: "100%" }}>
+                  {carTypes.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              )
             )}
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="上车时间">
-            {form.getFieldDecorator("time", {
+            {form.getFieldDecorator("start_time", {
               rules: [
                 {
                   required: true,
                   message: "请选择上车时间"
                 }
-              ]
+              ],
+              initialValue: formValues.start_time
+                ? moment(formValues.start_time)
+                : null
             })(
               <DatePicker
+                format="YYYY-MM-DD hh:mm"
                 showTime={{ format: "HH:mm" }}
                 placeholder="上车时间"
                 style={{ width: "100%" }}
@@ -90,108 +180,415 @@ const NewOrder = Form.create()(props => {
           </FormItem>
         </Col>
         <Col>
-        <FormItem {...labelLayout} label="上车地点">
-        {
-          form.getFieldDecorator('address', {
-            rules: [
-              {
-                required: true,
-                message: "请选择上车地点"
-              }
-            ]
-          })(
-            <LocationInput/>
-          )
-        }
-        </FormItem>
+          <FormItem {...labelLayout} label="上车地点">
+            {form.getFieldDecorator("start_location", {
+              rules: [
+                {
+                  required: true,
+                  message: "请选择上车地点"
+                }
+              ],
+              initialValue:
+                type === "edit"
+                  ? {
+                      address: formValues.start_place,
+                      location: {
+                        longitude: formValues.start_longitude,
+                        latitude: formValues.start_latitude
+                      }
+                    }
+                  : undefined
+            })(
+              <LocationInput
+                destination={destination}
+                onChange={originChange}
+              />
+            )}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="目的地">
+            {form.getFieldDecorator("end_location", {
+              rules: [
+                {
+                  required: true,
+                  message: "请选择目的地"
+                }
+              ],
+              initialValue:
+                type === "edit"
+                  ? {
+                      address: formValues.target_place,
+                      location: {
+                        longitude: formValues.target_longitude,
+                        latitude: formValues.target_latitude
+                      }
+                    }
+                  : undefined
+            })(<LocationInput origin={origin} onChange={destinationChange} />)}
+          </FormItem>
+        </Col>
+
+        <Col>
+          <FormItem {...labelLayout} label="航班号">
+            {form.getFieldDecorator("air_no", {
+              rules: [
+                {
+                  required: true,
+                  message: "请输入航班号"
+                }
+              ],
+              initialValue: formValues.air_no || ""
+            })(<Input />)}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="乘客姓名">
+            {form.getFieldDecorator("username", {
+              rules: [
+                {
+                  required: true,
+                  message: "请输入乘客姓名"
+                }
+              ],
+              initialValue: formValues.username || ""
+            })(<Input />)}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="联系电话">
+            {form.getFieldDecorator("mobile", {
+              rules: [
+                {
+                  required: true,
+                  message: "请输入联系电话"
+                },
+                {
+                  len: 11,
+                  message: "请输入正确的手机号码"
+                }
+              ],
+              initialValue: formValues.mobile || ""
+            })(<NumberInput numberType="positive integer" />)}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="紧急联系人">
+            {form.getFieldDecorator("contact", {
+              rules: [
+                {
+                  required: true,
+                  message: "请输入紧急联系人"
+                }
+              ],
+              initialValue: formValues.contact || ""
+            })(<Input />)}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="紧急联系人电话">
+            {form.getFieldDecorator("contact_mobile", {
+              rules: [
+                {
+                  required: true,
+                  message: "请输入紧急联系人电话"
+                },
+                {
+                  len: 11,
+                  message: "请输入正确的手机号码"
+                }
+              ],
+              initialValue: formValues.contact_mobile || ""
+            })(<NumberInput numberType="positive integer" />)}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="用户备注">
+            {form.getFieldDecorator("remark", {
+              initialValue: formValues.remark || ""
+            })(<Input />)}
+          </FormItem>
         </Col>
       </Row>
     </Modal>
   );
 });
 
-@connect(({ loading }) => ({
-  submitting: loading.effects["form/submitRegularForm"]
+@connect(({ order, user, car_type, loading }) => ({
+  loading: loading.effects["order/fetchOrderPage"],
+  data: order.list,
+  page: order.page,
+  total: order.total,
+  carTypes: car_type.list,
+  shop_id: user.shopId,
+  shop_name: user.shopName
 }))
 @Form.create()
-export default class Book extends PureComponent {
-  static propTypes = {
-  };
+class Book extends PureComponent {
+  static propTypes = {};
 
   state = {
     modalVisible: false,
     formValues: {},
-    selectedRows: []
+    timeType: undefined,
+    type: "add",
+    selectedRowKeys: []
   };
 
   columns = [
     {
       title: "乘车人姓名",
-      dataIndex: "name"
+      dataIndex: "username",
+      key: "username"
     },
     {
       title: "类型",
-      dataIndex: "type"
+      dataIndex: "scene",
+      key: "scene",
+      render: text => (text === "JIEJI" ? "接机" : "送机")
     },
     {
       title: "上车地点",
-      dataIndex: "address"
-    },
-    {
-      title: "目的地",
-      dataIndex: "destination"
+      dataIndex: "start_place",
+      key: "start_place"
     },
     {
       title: "上车时间",
-      dataIndex: "time"
+      dataIndex: "start_time",
+      key: "start_time",
+      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+    },
+    {
+      title: "目的地",
+      dataIndex: "target_place",
+      key: "target_place"
     },
     {
       title: "航班号/班次",
-      dataIndex: "number"
+      dataIndex: "air_no",
+      key: "air_no"
     },
     {
-      title: "电话",
-      dataIndex: "phone"
+      title: "联系电话",
+      dataIndex: "mobile",
+      key: "mobile"
     },
     {
       title: "紧急联系人",
-      dataIndex: "emergency"
+      dataIndex: "contact",
+      key: "contact"
     },
     {
       title: "备注",
-      dataIndex: "backup"
+      dataIndex: "remark",
+      key: "remark"
     },
     {
       title: "下单时间",
-      dataIndex: "orderTime"
+      dataIndex: "create_time",
+      key: "create_time",
+      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
     },
     {
       title: "订单ID",
-      dataIndex: "orderNumber"
+      dataIndex: "id",
+      key: "id"
     },
     {
       title: "订单状态",
-      dataIndex: "OrderStatus"
+      dataIndex: "order_status",
+      key: "order_status",
+      render: text => {
+        const status = ORDER_STATUS.find(item => item.name === text);
+        return text && status ? status.desc : "";
+      }
     },
     {
       title: "操作",
+      fixed: "right",
+      key: "aciton",
+      width: 150,
       render: (text, record) => (
-        <Fragment>
-          <a href="javascript:;" onClick={() => this.handleEdit(record)}>编辑</a>}
-          <a href="javascript:;" onClick={() => this.handleCancel(record)}>取消</a>}
-          <a href="javascript:;" onClick={() => this.handlePush(record)}>推送</a>}
-        </Fragment>
+        <span>
+          <a href="javascript:;" onClick={() => this.onReadonly(record)}>
+            查看
+          </a>
+          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
+            <Divider type="vertical" />
+          )}
+          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
+            <a href="javascript:;" onClick={() => this.onEdit(record)}>
+              编辑
+            </a>
+          )}
+          {record.order_status === "ACCEPTED" && <Divider type="vertical" />}
+          {record.order_status === "ACCEPTED" && (
+            <Popconfirm
+              title="确定取消该订单吗?"
+              onConfirm={() => {
+                this.handleCancel(record);
+              }}
+              okText="是"
+              cancelText="否"
+            >
+              <a href="javascript:;">取消</a>
+            </Popconfirm>
+          )}
+          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
+            <Divider type="vertical" />
+          )}
+          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
+            <a href="javascript:;" onClick={() => this.handlePush(record)}>
+              推送
+            </a>
+          )}
+        </span>
       )
     }
   ];
 
-  handleEdit = record => {};
+  rowSelection = {
+    onChange: selectedRowKeys => {
+      this.setState({
+        selectedRowKeys
+      });
+    },
+    getCheckboxProps: record => ({
+      disabled: record.order_status !== "WAIT_APPROVAL_OR_PAY"
+    })
+  };
 
-  handleCancel = record => {};
+  componentDidMount() {
+    const { dispatch, shop_id } = this.props;
+    this.searchKeys = { shop_id };
+    dispatch({
+      type: "car_type/fetchCarTypes",
+      payload: {
+        onFailure: msg => {
+          message.error(msg || "获取车辆分类列表失败");
+        }
+      }
+    });
+    if (shop_id) {
+      dispatch({
+        type: "order/fetchOrderPage",
+        payload: {
+          page: 0,
+          size: 10,
+          ...this.searchKeys,
+          onFailure: msg => {
+            message.error(msg || "获取订单列表失败");
+          }
+        }
+      });
+    }
+  }
 
-  handlePush = record => {};
+  componentWillReceiveProps(nextProps) {
+    const { shop_id, dispatch } = this.props;
+    if (shop_id !== nextProps.shop_id) {
+      this.searchKeys = { ...this.searchKeys, shop_id: nextProps.shop_id };
+      dispatch({
+        type: "order/fetchOrderPage",
+        payload: {
+          page: 0,
+          size: 10,
+          ...this.searchKeys,
+          onFailure: msg => {
+            message.error(msg || "获取订单列表失败");
+          }
+        }
+      });
+    }
+  }
 
-  handleMultiplePush = () => {};
+  onReadonly = record => {
+    this.setState({
+      formValues: { ...record },
+      modalVisible: true,
+      type: "readonly"
+    });
+  };
+
+  onEdit = record => {
+    this.setState({
+      formValues: { ...record },
+      modalVisible: true,
+      type: "edit"
+    });
+  };
+
+  onAdd = e => {
+    e.preventDefault();
+    this.setState({
+      modalVisible: true,
+      type: "add"
+    });
+  };
+
+  handleCancel = record => {
+    const { dispatch, page } = this.props;
+    dispatch({
+      type: "shuttle/cancelOrder",
+      payload: {
+        data: record.id,
+        params: {
+          ...this.searchKeys
+        },
+        page,
+        size: 10,
+        onSuccess: () => {
+          message.success("取消订单成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "取消订单失败");
+        }
+      }
+    });
+  };
+
+  handlePush = record => {
+    const { dispatch, page } = this.props;
+    dispatch({
+      type: "order/shopApproval",
+      payload: {
+        id: record.id,
+        ...this.searchKeys,
+        page,
+        size: 10,
+        onSuccess: () => {
+          message.success("推送成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "推送失败");
+        }
+      }
+    });
+  };
+
+  handleMultiPush = () => {
+    const { dispatch, page } = this.props;
+    const { selectedRowKeys } = this.state;
+    const { searchKeys } = this;
+    dispatch({
+      type: "order/batchShopApproval",
+      payload: {
+        ids: selectedRowKeys.toString(),
+        ...searchKeys,
+        page,
+        size: 10,
+        onSuccess: () => {
+          message.success("批量推送成功");
+          this.setState({
+            selectedRowKeys: []
+          });
+        },
+        onFailure: msg => {
+          message.error(msg || "批量推送失败");
+        }
+      }
+    });
+  };
 
   handleModalVisible = flag => {
     this.setState({
@@ -199,41 +596,230 @@ export default class Book extends PureComponent {
     });
   };
 
-  handleAdd = fields => {
-    this.handleModalVisible();
-  };
-
   handleExport = () => {};
 
-  handleSearch = () => {};
-
-  handleReset = () => {};
-
-  handleSelectRows = rows => {
-    this.setState({
-      selectedRows: rows
+  handleSearch = e => {
+    const { dispatch, page, form, shop_id } = this.props;
+    e.preventDefault();
+    form.validateFieldsAndScroll((err, values) => {
+      if (err) return;
+      this.searchKeys = { ...values, shop_id };
+      Object.keys(this.searchKeys).forEach(key => {
+        if (!this.searchKeys[key]) {
+          delete this.searchKeys[key];
+        }
+      });
+      if (this.searchKeys.time_range) {
+        delete this.searchKeys.time_range;
+        this.searchKeys = {
+          ...this.searchKeys,
+          start: values.time_range[0].startOf("day").valueOf(),
+          end: values.time_range[1].endOf("day").valueOf()
+        };
+      }
+      dispatch({
+        type: "order/fetchOrderPage",
+        payload: {
+          page,
+          size: 10,
+          ...this.searchKeys,
+          onFailure: msg => {
+            message.error(msg || "获取订单列表失败!");
+          }
+        }
+      });
     });
   };
 
-  handleStandardTableChange = (pagination, filtersArg, sorter) => {
-    const { dispatch } = this.props;
-    const { formValues } = this.state;
+  handleReset = () => {
+    const { dispatch, form, shop_id } = this.props;
+    form.resetFields();
+    this.searchKeys = { shop_id };
+    dispatch({
+      type: "order/fetchOrderPage",
+      payload: {
+        page: 0,
+        size: 10,
+        ...this.searchKeys,
+        onFailure: msg => {
+          message.error(msg || "获取订单列表失败!");
+        }
+      }
+    });
+  };
 
-    const filters = Object.keys(filtersArg).reduce((obj, key) => {
-      const newObj = { ...obj };
-      newObj[key] = getValue(filtersArg[key]);
-      return newObj;
-    }, {});
+  handleRefresh = () => {
+    const { dispatch, page } = this.props;
+    dispatch({
+      type: "order/fetchOrderPage",
+      payload: {
+        page,
+        size: 10,
+        ...this.searchKeys,
+        onFailure: msg => {
+          message.error(msg || "获取订单列表失败!");
+        }
+      }
+    });
+  };
+
+  onTypeChange = type => {
+    this.setState({
+      timeType: type
+    });
+  };
+
+  disabledDate = current => {
+    const { timeType } = this.state;
+    if (timeType === "2") return false;
+    return current && current > moment().endOf("day");
+  };
+
+  handleAddOrder = value => {
+    const { dispatch, page, shop_id, shop_name } = this.props;
+    const {
+      start_time,
+      start_location,
+      end_location,
+      route,
+      ...others
+    } = value;
+    const params = {
+      start_time: start_time.valueOf(),
+      start_place: start_location.address,
+      start_longitude: start_location.location.longitude,
+      start_latitude: start_location.location.latitude,
+      target_place: end_location.address,
+      target_longitude: end_location.location.longitude,
+      target_latitude: end_location.location.latitude
+    };
+    if (route && route.time && route.kilo) {
+      params.priceParams = {
+        kilo: route.kilo,
+        time: route.time
+      };
+    }
+
+    dispatch({
+      type: "order/createOrder",
+      payload: {
+        ...others,
+        ...params,
+        order_source: "SHOP",
+        common_scene: "ORDER",
+        shop_id,
+        searchParams: {
+          ...this.searchKeys
+        },
+        onSuccess: () => {
+          message.success("操作成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "操作失败");
+        }
+      }
+    });
+
+    this.handleModalVisible();
+  };
+
+  handleEdit = info => {
+    const { dispatch, page } = this.props;
+    const { formValues } = this.state;
+    const {
+      start_time,
+      car_config_id,
+      start_location,
+      end_location,
+      route,
+      ...others
+    } = info;
 
     const params = {
-      currentPage: pagination.current,
-      pageSize: pagination.pageSize,
-      ...formValues,
-      ...filters
+      start_time: start_time.valueOf(),
+      car_config_id,
+      start_place: start_location.address,
+      start_longitude: start_location.location.longitude,
+      start_latitude: start_location.location.latitude,
+      target_place: end_location.address,
+      target_longitude: end_location.location.longitude,
+      target_latitude: end_location.location.latitude
     };
-    if (sorter.field) {
-      params.sorter = `${sorter.field}_${sorter.order}`;
+
+    if (route && route.time && route.kilo) {
+      params.priceParams = {
+        kilo: route.kilo,
+        time: route.time
+      };
     }
+
+    if (
+      car_config_id !== formValues.car_config_id ||
+      others.scene !== formValues.scene
+    ) {
+      if (!params.priceParams) {
+        if (formValues.kilo && formValues.time) {
+          params.priceParams = {
+            kilo: formValues.kilo,
+            time: formValues.time
+          };
+        } else {
+          message.error("上车地点或者目的地数据有误，请重新编辑!");
+          return;
+        }
+      }
+    }
+
+    dispatch({
+      type: "order/updateOrder",
+      payload: {
+        data: {
+          ...formValues,
+          ...others,
+          ...params,
+          searchParams: {
+            ...this.searchKeys,
+            page,
+            size: 10
+          }
+        },
+        onSuccess: () => {
+          message.success("操作成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "操作失败");
+        }
+      }
+    });
+    this.setState({
+      formValues: {},
+      modalVisible: false
+    });
+  };
+
+  handlePageChange = (page, size) => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "order/fetchOrderPage",
+      payload: {
+        page,
+        size,
+        ...this.searchKeys,
+        onFailure: msg => {
+          message.error(msg || "获取订单列表失败");
+        }
+      }
+    });
+  };
+
+  updateFormValue = params => {
+    const { formValues } = this.state;
+    this.setState({
+      formValues: {
+        ...formValues,
+        ...params
+      }
+    });
   };
 
   renderForm() {
@@ -241,71 +827,88 @@ export default class Book extends PureComponent {
       form: { getFieldDecorator }
     } = this.props;
 
+    const { timeType } = this.state;
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
-          <Col span={6}>
+          <Col span={8}>
             <FormItem label="订单状态">
-              {getFieldDecorator("status")(
+              {getFieldDecorator("order_status")(
                 <Select
                   placeholder="请选择"
+                  allowClear
                   style={{ width: "100%" }}
                 >
-                  <Option value="all">全部</Option>
-                  <Option value="2">状态1</Option>
-                  <Option value="3">状态2</Option>
+                  {ORDER_STATUS.map(item => (
+                    <Option key={item.name} value={item.name}>
+                      {item.desc}
+                    </Option>
+                  ))}
                 </Select>
               )}
             </FormItem>
           </Col>
-          <Col span={7}>
+          <Col span={8}>
             <FormItem label="时间类型">
-              {getFieldDecorator("timeType")(
-                <Select placeholder="请选择" style={{ width: "100%" }}>
-                  <Option value="0">上车时间</Option>
+              {getFieldDecorator("type")(
+                <Select
+                  placeholder="请选择"
+                  allowClear
+                  onChange={this.onTypeChange}
+                  style={{ width: "100%" }}
+                >
                   <Option value="1">下单时间</Option>
+                  <Option value="2">上车时间</Option>
                 </Select>
               )}
             </FormItem>
           </Col>
-          <Col>
-            <FormItem label="时间段">
-              {getFieldDecorator("date", {
-                rules: [
-                  {
-                    message: formatMessage({ id: "validation.date.required" })
-                  }
-                ]
-              })(
-                <RangePicker
-                  showTime={{ format: "HH:mm" }}
-                  style={{ width: "100%" }}
-                  placeholder={[
-                    formatMessage({ id: "form.date.placeholder.start" }),
-                    formatMessage({ id: "form.date.placeholder.end" })
-                  ]}
-                />
+          {timeType && (
+            <Col>
+              <FormItem label="选择时间">
+                {getFieldDecorator("time_range", {
+                  rules: [
+                    {
+                      required: true,
+                      message: formatMessage({ id: "validation.date.required" })
+                    }
+                  ]
+                })(
+                  <RangePicker
+                    disabledDate={this.disabledDate}
+                    style={{ width: "100%" }}
+                    placeholder={[
+                      formatMessage({ id: "form.date.placeholder.start" }),
+                      formatMessage({ id: "form.date.placeholder.end" })
+                    ]}
+                  />
+                )}
+              </FormItem>
+            </Col>
+          )}
+          <Col span={8}>
+            <FormItem label="订单类型">
+              {getFieldDecorator("scene")(
+                <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
+                  <Option key="JIEJI">接机</Option>
+                  <Option key="SONGJI">送机</Option>
+                </Select>
               )}
             </FormItem>
           </Col>
           <Col>
             <FormItem label="输入查找">
-              {getFieldDecorator("keyword")(
+              {getFieldDecorator("value")(
                 <Input placeholder="姓名/手机号/订单ID" />
               )}
             </FormItem>
           </Col>
           <Col>
-            <Button
-              onClick={() => {
-                this.handleReset;
-              }}
-            >
-              重置
-            </Button>
+            <Button onClick={this.handleReset}>重置</Button>
           </Col>
           <Col>
-            <Button type="primary" onClick={() => this.handleSearch}>
+            <Button type="primary" onClick={this.handleSearch}>
               查询
             </Button>
           </Col>
@@ -315,47 +918,60 @@ export default class Book extends PureComponent {
   }
 
   render() {
-    const { loading, data = [] } = this.props;
-    const { selectedRows = [], modalVisible } = this.state;
+    const { loading, data, page, total, carTypes } = this.props;
+    const { modalVisible, formValues, type, selectedRowKeys } = this.state;
 
     const parentMethods = {
-      handleAdd: this.handleAdd,
-      handleModalVisible: this.handleModalVisible
+      type,
+      carTypes,
+      formValues,
+      handleModalVisible: this.handleModalVisible,
+      handleEdit: this.handleEdit,
+      updateFormValue: this.updateFormValue,
+      handleAddOrder: this.handleAddOrder
     };
 
     return (
-      <PageHeaderWrap title="预约管理">
+      <PageHeaderWrap title="预约订单管理">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button
-                icon="plus"
-                type="primary"
-                onClick={() => this.handleModalVisible(true)}
-              >
-                新建
+              <Button icon="plus" type="primary" onClick={this.onAdd}>
+                新增订单
               </Button>
-              {selectedRows.length > 0 && (
-                <span>
-                  <Button onClick={() => this.handleMultiplePush}>
-                    批量推送
-                  </Button>
-                </span>
+              {selectedRowKeys && selectedRowKeys.length > 0 && (
+                <Button type="primary" onClick={this.handleMultiPush}>
+                  批量推送
+                </Button>
               )}
-              <Button type="primary" onClick={() => this.handleExport}>
+              <Button icon="reload" type="primary" onClick={this.handleRefresh}>
+                刷新
+              </Button>
+              <Button
+                icon="export"
+                type="primary"
+                onClick={() => this.handleExport}
+              >
                 导出查询
               </Button>
             </div>
             <div className={styles.tableWrapper}>
-              <StandardTable
-                selectedRows={selectedRows}
+              <Table
+                rowKey={record => record.id}
+                rowSelection={this.rowSelection}
                 loading={loading}
-                data={data}
-                tableStyle={{ minWidth: "1200px", overflow: scroll }}
+                pagination={{
+                  pageSize: 10,
+                  current: page + 1,
+                  total: total * 10,
+                  onChange: (curPage, pageSize) => {
+                    this.handlePageChange(curPage - 1, pageSize);
+                  }
+                }}
+                dataSource={data}
                 columns={this.columns}
-                onSelectRow={this.handleSelectRows}
-                onChange={this.handleStandardTableChange}
+                scroll={{ x: 2080 }}
               />
             </div>
           </div>
@@ -365,3 +981,5 @@ export default class Book extends PureComponent {
     );
   }
 }
+
+export default Book;

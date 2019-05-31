@@ -1,21 +1,20 @@
-import React, { Component } from 'react';
-import { connect } from 'dva';
-import { formatMessage, FormattedMessage } from 'umi-plugin-react/locale';
-import Link from 'umi/link';
-import { Checkbox, Alert, message, Icon } from 'antd';
-import Login from '@/components/Login';
-import styles from './Login.less';
+import React, { Component } from "react";
+import { connect } from "dva";
+import { formatMessage, FormattedMessage } from "umi-plugin-react/locale";
 
-const { Tab, UserName, Password, Mobile, Captcha, Submit } = Login;
+import { Alert, message } from "antd";
+import Login from "@/components/Login";
+import styles from "./Login.less";
+
+const { Tab, UserName, Password, Submit } = Login;
 
 @connect(({ login, loading }) => ({
   login,
-  submitting: loading.effects['login/login'],
+  submitting: loading.effects["login/login"]
 }))
 class LoginPage extends Component {
   state = {
-    type: 'account',
-    autoLogin: true,
+    type: "account"
   };
 
   onTabChange = type => {
@@ -24,48 +23,48 @@ class LoginPage extends Component {
 
   onGetCaptcha = () =>
     new Promise((resolve, reject) => {
-      this.loginForm.validateFields(['mobile'], {}, (err, values) => {
+      this.loginForm.validateFields(["mobile"], {}, (err, values) => {
         if (err) {
           reject(err);
         } else {
           const { dispatch } = this.props;
           dispatch({
-            type: 'login/getCaptcha',
-            payload: values.mobile,
+            type: "login/getCaptcha",
+            payload: values.mobile
           })
             .then(resolve)
             .catch(reject);
-          message.warning(formatMessage({ id: 'app.login.verification-code-warning' }));
+          message.warning(
+            formatMessage({ id: "app.login.verification-code-warning" })
+          );
         }
       });
     });
 
   handleSubmit = (err, values) => {
-    const { type } = this.state;
     if (!err) {
       const { dispatch } = this.props;
       dispatch({
-        type: 'login/login',
+        type: "login/login",
         payload: {
           ...values
-        },
+        }
       });
     }
   };
 
-  changeAutoLogin = e => {
-    this.setState({
-      autoLogin: e.target.checked,
-    });
-  };
-
   renderMessage = content => (
-    <Alert style={{ marginBottom: 24 }} message={content} type="error" showIcon />
+    <Alert
+      style={{ marginBottom: 24 }}
+      message={content}
+      type="error"
+      showIcon
+    />
   );
 
   render() {
     const { login, submitting } = this.props;
-    const { type, autoLogin } = this.state;
+    const { type } = this.state;
     return (
       <div className={styles.main}>
         <Login
@@ -76,28 +75,34 @@ class LoginPage extends Component {
             this.loginForm = form;
           }}
         >
-          <Tab key="account" tab={formatMessage({ id: 'app.login.tab-login-credentials' })}>
-            {login.status != 'ok' &&
+          <Tab
+            key="account"
+            tab={formatMessage({ id: "app.login.tab-login-credentials" })}
+          >
+            {login.status === "error" &&
               !submitting &&
-              this.renderMessage(login.status || formatMessage({ id: 'app.login.message-invalid-credentials' }))}
+              this.renderMessage(
+                login.message ||
+                  formatMessage({ id: "app.login.message-invalid-credentials" })
+              )}
             <UserName
               name="username"
-              placeholder={`${formatMessage({ id: 'app.login.userName' })}`}
+              placeholder={`${formatMessage({ id: "app.login.userName" })}`}
               rules={[
                 {
                   required: true,
-                  message: formatMessage({ id: 'validation.userName.required' }),
-                },
+                  message: formatMessage({ id: "validation.userName.required" })
+                }
               ]}
             />
             <Password
               name="password"
-              placeholder={`${formatMessage({ id: 'app.login.password' })}`}
+              placeholder={`${formatMessage({ id: "app.login.password" })}`}
               rules={[
                 {
                   required: true,
-                  message: formatMessage({ id: 'validation.password.required' }),
-                },
+                  message: formatMessage({ id: "validation.password.required" })
+                }
               ]}
               onPressEnter={e => {
                 e.preventDefault();
@@ -108,7 +113,6 @@ class LoginPage extends Component {
           <Submit loading={submitting}>
             <FormattedMessage id="app.login.login" />
           </Submit>
-          
         </Login>
       </div>
     );

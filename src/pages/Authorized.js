@@ -25,7 +25,7 @@ function AuthComponent({ children, location, routerData }) {
     return authorities;
   };
   if (!isLogin) {
-    return <Redirect to="/user/login"/>
+    return <Redirect to="/user/login" />
   }
   return (
     <Authorized

@@ -1,7 +1,5 @@
-import React, { PureComponent, Fragment } from "react";
-import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
 import {
-  Tree,
   Card,
   Form,
   Row,
@@ -9,7 +7,6 @@ import {
   Button,
   Select,
   Input,
-  InputNumber,
   Table,
   Divider,
   Modal,
@@ -19,13 +16,12 @@ import {
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
-import styles from "./Account.less";
-import { local } from "d3-selection";
 import moment from "moment";
+import styles from "./index.less";
 
-const Option = Select.Option;
+const { Option } = Select;
 const FormItem = Form.Item;
-const confirm = Modal.confirm;
+const { confirm } = Modal;
 
 const NewAccount = Form.create()(props => {
   const {
@@ -58,8 +54,8 @@ const NewAccount = Form.create()(props => {
   };
 
   const checkDriverEvaluate = (rule, value, callback) => {
-    if (value < 1 || value > 5) {
-      callback("请输入范围1~5的整数");
+    if (value < 1 || value > 10) {
+      callback("请输入范围1~10的整数");
     }
     callback();
   };
@@ -159,10 +155,10 @@ const NewAccount = Form.create()(props => {
   searchLoading: loading.effects["user/searchUser"],
   data: user.list,
   totalPages: user.total,
-  currentPage: user.current
+  currentPage: user.page
 }))
 @Form.create()
-export default class Account extends PureComponent {
+class Account extends PureComponent {
   static propTypes = {};
 
   state = {
@@ -170,9 +166,79 @@ export default class Account extends PureComponent {
     formValues: {},
     selectRole: {},
     roleOptions: [],
-    currentRoleIndex: 0,
     type: "add"
   };
+
+  columns = [
+    {
+      title: "账号",
+      dataIndex: "user.mobile",
+      key: "name"
+    },
+    {
+      title: "联系人",
+      dataIndex: "user.name",
+      key: "contact"
+    },
+    {
+      title: "角色名称",
+      dataIndex: "role_name",
+      key: "role_name",
+      render: (text, record) => {
+        const roles = [];
+        if (record.roles) {
+          record.roles.forEach(item => {
+            item && roles.push(item.name);
+          });
+        }
+        return roles.toString();
+      }
+    },
+    {
+      title: "商家名称",
+      dataIndex: "user.shop_name",
+      key: "shop_name"
+    },
+    {
+      title: "添加时间",
+      dataIndex: "user.create_time",
+      key: "create_time",
+      render: text => moment(text).format("YYYY-MM-DD hh:mm")
+    },
+    {
+      title: "最后登录",
+      dataIndex: "token_session.update_time",
+      key: "token_session.update_time",
+      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+    },
+    {
+      title: "操作",
+      key: "action",
+      render: (text, record) => (
+        <span>
+          <a
+            href="javascript:;"
+            onClick={() => {
+              this.onEdit(record);
+            }}
+          >
+            编辑
+          </a>
+          <Divider type="vertical" />
+          <Popconfirm
+            title="确定删除该账号吗?"
+            onConfirm={() => {
+              this.handleDelete(record);
+            }}
+            okText="是"
+            cancelText="否"
+          >
+            <a href="javascript:;">删除</a>
+          </Popconfirm>
+        </span>
+      )
+    }
+  ];
 
   componentDidMount() {
     try {
@@ -186,28 +252,31 @@ export default class Account extends PureComponent {
       return;
     }
 
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: "user/fetchUserList",
       payload: {
         page: 0,
         size: 10,
-        onFailure: msg=>{
-          message.error(msg || '获取账号列表失败')
+        onFailure: msg => {
+          message.error(msg || "获取账号列表失败");
         }
       }
     });
   }
 
   handleRoleChange = value => {
-    this.state.roleOptions &&
-      this.state.roleOptions.forEach(item => {
-        if (item.id === value) {
-          this.setState({
-            selectRole: item
-          });
-          return;
-        }
-      });
+    const { roleOptions } = this.state;
+    if (!roleOptions) return;
+    roleOptions.forEach(item => {
+      if (item.id === value) {
+        this.setState({
+          selectRole: item
+        });
+        return null;
+      }
+      return null;
+    });
   };
 
   handleSearch = e => {
@@ -225,8 +294,8 @@ export default class Account extends PureComponent {
               payload: {
                 page: 0,
                 size: 10,
-                onFailure: msg=>{
-                  message.error(msg || '获取账号列表失败')
+                onFailure: msg => {
+                  message.error(msg || "获取账号列表失败");
                 }
               }
             });
@@ -259,7 +328,7 @@ export default class Account extends PureComponent {
         },
         onCanAddRole: payload => {
           const { roleOptions } = this.state;
-          let addRole = roleOptions.find(
+          const addRole = roleOptions.find(
             item => item.id === payload.params.role_id
           );
           confirm({
@@ -288,18 +357,10 @@ export default class Account extends PureComponent {
     this.handleModalVisible();
   };
 
-  onSelectRole = value => {
-    this.setState({
-      currentRoleIndex: value
-    });
-  };
-
-  renderForm = roleOptions => {
+  renderForm = () => {
     const {
-      searchLoading,
       form: { getFieldDecorator }
     } = this.props;
-    const { currentRoleIndex } = this.state;
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
@@ -319,75 +380,6 @@ export default class Account extends PureComponent {
       </Form>
     );
   };
-
-  columns = [
-    {
-      title: "账号",
-      dataIndex: "user.mobile",
-      key: "name"
-    },
-    {
-      title: "联系人",
-      dataIndex: "user.name",
-      key: "contact"
-    },
-    {
-      title: "角色名称",
-      dataIndex: "role_name",
-      key: "role_name",
-      render: (text, record) => {
-        let roles = [];
-        record.roles &&
-          record.roles.forEach(item => {
-            item && roles.push(item.name);
-          });
-        return roles.toString();
-      }
-    },
-    {
-      title: "商家名称",
-      dataIndex: "user.shop_name",
-      key: "shop_name"
-    },
-    {
-      title: "添加时间",
-      dataIndex: "user.create_time",
-      key: "create_time",
-      render: text => moment(text).format("YYYY-MM-DD hh:mm:ss")
-    },
-    {
-      title: "最后登录",
-      dataIndex: "recent_login",
-      key: "recent_login"
-    },
-    {
-      title: "操作",
-      key: "action",
-      render: (text, record) => (
-        <span>
-          <a
-            href="javascript:;"
-            onClick={() => {
-              this.onEdit(record);
-            }}
-          >
-            编辑
-          </a>
-          <Divider type="vertical" />
-          <Popconfirm
-            title="确定删除该账号吗?"
-            onConfirm={() => {
-              this.handleDelete(record);
-            }}
-            okText="是"
-            cancelText="否"
-          >
-            <a href="javascript:;">删除</a>
-          </Popconfirm>
-        </span>
-      )
-    }
-  ];
 
   handleEdit = info => {
     const { dispatch, currentPage } = this.props;
@@ -434,21 +426,22 @@ export default class Account extends PureComponent {
         onSuccess: () => {
           message.success("删除成功");
         },
-        onFailure: () => {
-          message.error("删除失败");
+        onFailure: msg => {
+          message.error(msg || "删除失败");
         }
       }
     });
   };
 
   handlePageChange = (page, size) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: "user/fetchUserList",
       payload: {
         page,
         size,
-        onFailure: msg=>{
-          message.error(msg || '获取账号列表失败')
+        onFailure: msg => {
+          message.error(msg || "获取账号列表失败");
         }
       }
     });
@@ -457,12 +450,18 @@ export default class Account extends PureComponent {
   render() {
     const { loading, data, currentPage, totalPages } = this.props;
 
-    const { modalVisible, roleOptions, type, formValues } = this.state;
+    const {
+      modalVisible,
+      roleOptions,
+      type,
+      formValues,
+      selectRole
+    } = this.state;
 
     const parentMethods = {
       handleAdd: this.handleAdd,
       handleModalVisible: this.handleModalVisible,
-      selectRole: this.state.selectRole,
+      selectRole,
       roleOptions: roleOptions || [],
       handleRoleChange: this.handleRoleChange,
       type: type || "add",
@@ -491,13 +490,12 @@ export default class Account extends PureComponent {
                 loading={loading}
                 pagination={{
                   pageSize: 10,
-                  current: currentPage,
-                  total: totalPages,
+                  current: currentPage + 1,
+                  total: 10 * totalPages,
                   onChange: (page, pageSize) => {
-                    this.handlePageChange(page, pageSize);
+                    this.handlePageChange(page - 1, pageSize);
                   }
                 }}
-                loading={loading}
                 dataSource={data}
                 columns={this.columns}
               />
@@ -509,3 +507,5 @@ export default class Account extends PureComponent {
     );
   }
 }
+
+export default Account;

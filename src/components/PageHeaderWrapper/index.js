@@ -1,13 +1,13 @@
-import React from 'react';
-import { FormattedMessage } from 'umi-plugin-react/locale';
-import Link from 'umi/link';
-import { PageHeader, Tabs, Typography } from 'antd';
-import { connect } from 'dva';
-import classNames from 'classnames';
-import GridContent from './GridContent';
-import styles from './index.less';
-import MenuContext from '@/layouts/MenuContext';
-import { conversionBreadcrumbList } from './breadcrumb';
+import React from "react";
+import { FormattedMessage } from "umi-plugin-react/locale";
+import Link from "umi/link";
+import { PageHeader, Tabs, Typography } from "antd";
+import { connect } from "dva";
+import classNames from "classnames";
+import GridContent from "./GridContent";
+import styles from "./index.less";
+import MenuContext from "@/layouts/MenuContext";
+import { conversionBreadcrumbList } from "./breadcrumb";
 
 const { Title } = Typography;
 
@@ -16,7 +16,12 @@ const { Title } = Typography;
  * In order to be compatible with the old version of the PageHeader
  * basically all the functions are implemented.
  */
-const renderFooter = ({ tabList, tabActiveKey, onTabChange, tabBarExtraContent }) => {
+const renderFooter = ({
+  tabList,
+  tabActiveKey,
+  onTabChange,
+  tabBarExtraContent
+}) => {
   return tabList && tabList.length ? (
     <Tabs
       className={styles.tabs}
@@ -47,22 +52,25 @@ const PageHeaderWrapper = ({
   ...restProps
 }) => {
   return (
-    <div style={{ margin: '-24px -24px 0' }} className={classNames(classNames, styles.main)}>
+    <div
+      style={{ margin: "-24px -24px 0" }}
+      className={classNames(classNames, styles.main)}
+    >
       {top}
-      {(
+      {
         <MenuContext.Consumer>
           {value => {
             return (
               <PageHeader
-                wide={contentWidth === 'Fixed'}
+                wide={contentWidth === "Fixed"}
                 title={
                   <Title
                     level={4}
                     style={{
-                      marginBottom: 0,
+                      marginBottom: 0
                     }}
                   >
-                    {title}
+                    {title || null}
                   </Title>
                 }
                 key="pageheader"
@@ -70,7 +78,9 @@ const PageHeaderWrapper = ({
                 breadcrumb={conversionBreadcrumbList({
                   ...value,
                   ...restProps,
-                  home: <FormattedMessage id="menu.home" defaultMessage="Home" />,
+                  home: (
+                    <FormattedMessage id="menu.home" defaultMessage="Home" />
+                  )
                 })}
                 className={styles.pageHeader}
                 linkElement={Link}
@@ -80,8 +90,14 @@ const PageHeaderWrapper = ({
                   {logo && <div className={styles.logo}>{logo}</div>}
                   <div className={styles.main}>
                     <div className={styles.row}>
-                      {content && <div className={styles.content}>{content}</div>}
-                      {extraContent && <div className={styles.extraContent}>{extraContent}</div>}
+                      {content && (
+                        <div className={styles.content}>{content}</div>
+                      )}
+                      {extraContent && (
+                        <div className={styles.extraContent}>
+                          {extraContent}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -89,9 +105,9 @@ const PageHeaderWrapper = ({
             );
           }}
         </MenuContext.Consumer>
-      )}
+      }
       {children ? (
-        <div className={styles['children-content']}>
+        <div className={styles["children-content"]}>
           <GridContent>{children}</GridContent>
         </div>
       ) : null}
@@ -100,5 +116,5 @@ const PageHeaderWrapper = ({
 };
 
 export default connect(({ setting }) => ({
-  contentWidth: setting.contentWidth,
+  contentWidth: setting.contentWidth
 }))(PageHeaderWrapper);

@@ -141,7 +141,11 @@ models: () => [
             "name": "shuttle",
             "authority": "shuttle",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
+  import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Order__Shuttle" */'../Order/Shuttle'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -152,7 +156,11 @@ models: () => [
             "name": "dispatch",
             "authority": "dispatch",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
+  import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Order__Dispatch" */'../Order/Dispatch'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -177,10 +185,7 @@ models: () => [
             "name": "role",
             "authority": "role",
             "component": _dvaDynamic({
-  app: window.g_app,
-models: () => [
-  import(/* webpackChunkName: 'p__UserManager__models__account.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/account.js').then(m => { return { namespace: 'account',...m.default}})
-],
+  
   component: () => import(/* webpackChunkName: "p__UserManager__Role" */'../UserManager/Role'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -191,10 +196,7 @@ models: () => [
             "name": "account",
             "authority": "account",
             "component": _dvaDynamic({
-  app: window.g_app,
-models: () => [
-  import(/* webpackChunkName: 'p__UserManager__models__account.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/account.js').then(m => { return { namespace: 'account',...m.default}})
-],
+  
   component: () => import(/* webpackChunkName: "p__UserManager__Account" */'../UserManager/Account'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -211,6 +213,7 @@ models: () => [
         "authority": [
           "pricestrategy",
           "cartype",
+          "carlevel",
           "carmanager",
           "dispatchstrategy",
           "address",
@@ -223,7 +226,13 @@ models: () => [
             "name": "pricestrategy",
             "authority": "pricestrategy",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Base__PriceStrategy" */'../Base/PriceStrategy'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -234,8 +243,31 @@ models: () => [
             "name": "cartype",
             "authority": "cartype",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Base__CarType" */'../Base/CarType'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/base/carlevel",
+            "name": "carlevel",
+            "authority": "carlevel",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Base__CarLevel" */'../Base/CarLevel'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true
@@ -245,7 +277,13 @@ models: () => [
             "name": "carmanager",
             "authority": "carmanager",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Base__CarManager" */'../Base/CarManager'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -256,7 +294,13 @@ models: () => [
             "name": "dispatchstrategy",
             "authority": "dispatchstrategy",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Base__DispatchStrategy" */'../Base/DispatchStrategy'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -267,7 +311,13 @@ models: () => [
             "name": "address",
             "authority": "address",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Base__Address" */'../Base/Address'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -278,7 +328,13 @@ models: () => [
             "name": "driver",
             "authority": "driver",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Base__Driver" */'../Base/Driver'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),

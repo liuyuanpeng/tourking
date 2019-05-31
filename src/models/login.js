@@ -2,7 +2,6 @@ import { routerRedux } from 'dva/router';
 import { stringify } from 'qs';
 import { accountLogin, getFakeCaptcha } from '@/services/api';
 import { getPageQuery } from '@/utils/utils';
-import { local } from 'd3-selection';
 import { reloadAuthorized } from '@/utils/Authorized';
 import { setAuthority } from '@/utils/authority';
 
@@ -56,7 +55,8 @@ export default {
         yield put({
           type: 'changeLoginStatus',
           payload: {
-            status: response.message,
+            status: 'error',
+            message: response.message,
             currentAuthority: 'guest'
           }
         })
@@ -78,6 +78,9 @@ export default {
       localStorage.removeItem('token')
       localStorage.removeItem('user-id')
       localStorage.removeItem('authority')
+      localStorage.removeItem('shop-name')
+      localStorage.removeItem('shop-id')
+      localStorage.removeItem('shop-role')
       // redirect
       if (window.location.pathname !== '/user/login') {
         yield put(
@@ -96,6 +99,7 @@ export default {
     changeLoginStatus(state, { payload }) {
       return {
         ...state,
+        message: payload.message || '',
         status: payload.status
       };
     },

@@ -1,12 +1,9 @@
 import React, { PureComponent } from "react";
-import { FormattedMessage, formatMessage } from "umi-plugin-react/locale";
-import { Spin, Tag, Menu, Icon, Avatar, Tooltip, message } from "antd";
+import { FormattedMessage } from "umi-plugin-react/locale";
+import { Spin, Tag, Menu, Icon } from "antd";
 import moment from "moment";
 import groupBy from "lodash/groupBy";
-import NoticeIcon from "../NoticeIcon";
-import HeaderSearch from "../HeaderSearch";
 import HeaderDropdown from "../HeaderDropdown";
-import SelectLang from "../SelectLang";
 import styles from "./index.less";
 
 export default class GlobalHeaderRight extends PureComponent {
@@ -66,10 +63,7 @@ export default class GlobalHeaderRight extends PureComponent {
   render() {
     const {
       currentUser,
-      fetchingNotices,
-      onNoticeVisibleChange,
       onMenuClick,
-      onNoticeClear,
       theme
     } = this.props;
     const menu = (
@@ -80,8 +74,6 @@ export default class GlobalHeaderRight extends PureComponent {
         </Menu.Item>
       </Menu>
     );
-    const noticeData = this.getNoticeData();
-    const unreadMsg = this.getUnreadData(noticeData);
     let className = styles.right;
     if (theme === "dark") {
       className = `${styles.right}  ${styles.dark}`;

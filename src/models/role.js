@@ -1,84 +1,84 @@
-import {queryRoles, saveRole, deleteRole} from '@/services/role'
+import { queryRoles, saveRole, deleteRole } from "@/services/role";
 
 export default {
-  namespace: 'role',
+  namespace: "role",
 
   state: {
     roles: []
   },
 
   effects: {
-    *getRoles({ payload }, { call, put }) {
-      const response = yield call(queryRoles)
-      if (response.code === 'SUCCESS') {
-        localStorage.setItem('roles', JSON.stringify(response.data))
+    *getRoles(_, { call, put }) {
+      const response = yield call(queryRoles);
+      if (response.code === "SUCCESS") {
+        localStorage.setItem("roles", JSON.stringify(response.data));
         yield put({
-          type: 'refreshList',
+          type: "refreshList",
           payload: response.data
-        })
+        });
       }
     },
-    *saveRole({payload}, {call, put}) {
-      const response = yield call(saveRole, payload)
-      if (response.code === 'SUCCESS') {
+    *saveRole({ payload }, { call, put }) {
+      const response = yield call(saveRole, payload);
+      if (response.code === "SUCCESS") {
         if (payload.id) {
           yield put({
-            type: 'saveOK'
-          })
+            type: "saveOK"
+          });
         }
       } else {
         yield put({
-          type: 'createOK'
-        })
+          type: "createOK"
+        });
       }
     },
-    *deleteRole({payload}, {call, put}) {
-      const response = yield call(deleteRole, payload)
-      if (response.code === 'SUCCESS') {
-        const res = yield call(queryRoles)
-        if (res.code === 'SUCCESS') {
+    *deleteRole({ payload }, { call, put }) {
+      const response = yield call(deleteRole, payload);
+      if (response.code === "SUCCESS") {
+        const res = yield call(queryRoles);
+        if (res.code === "SUCCESS") {
           yield put({
-            type: 'refreshList',
+            type: "refreshList",
             payload: res.data
-          })
+          });
         }
       }
     },
-    *addRole({payload}, {call, put}) {
-      const response = yield call(saveRole, payload)
-      if (response.call === 'SUCCESS') {
-        const res = yield call(queryRoles)
-        if (res.code === 'SUCCESS') {
+    *addRole({ payload }, { call, put }) {
+      const response = yield call(saveRole, payload);
+      if (response.call === "SUCCESS") {
+        const res = yield call(queryRoles);
+        if (res.code === "SUCCESS") {
           yield put({
-            type: 'refreshList',
+            type: "refreshList",
             payload: res.data
-          })
+          });
         }
       }
     }
   },
 
   reducers: {
-    refreshList(state, {payload}) {
+    refreshList(state, { payload }) {
       return {
         ...state,
         roles: payload
-      }
+      };
     },
-    saveOK(state, {payload}) {
+    saveOK(state) {
       return {
         ...state
-      }
+      };
     },
-    createOK(state, {payload}) {
+    createOK(state) {
       return {
         ...state
-      }
+      };
     },
-    deleteOK(state, {payload}) {
+    deleteOK(state) {
       return {
         ...state
-      }
+      };
     }
-  },
+  }
 };

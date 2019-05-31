@@ -1,12 +1,12 @@
-import { stringify } from 'qs';
-import request from '@/utils/request';
+import { stringify } from "qs";
+import request from "@/utils/request";
 
 export async function queryProjectNotice() {
-  return request('/api/project/notice');
+  return request("/api/project/notice");
 }
 
 export async function queryActivities() {
-  return request('/api/activities');
+  return request("/api/activities");
 }
 
 export async function queryRule(params) {
@@ -14,48 +14,48 @@ export async function queryRule(params) {
 }
 
 export async function removeRule(params) {
-  return request('/api/rule', {
-    method: 'POST',
+  return request("/api/rule", {
+    method: "POST",
     data: {
       ...params,
-      method: 'delete',
-    },
+      method: "delete"
+    }
   });
 }
 
 export async function addRule(params) {
-  return request('/api/rule', {
-    method: 'POST',
+  return request("/api/rule", {
+    method: "POST",
     data: {
       ...params,
-      method: 'post',
-    },
+      method: "post"
+    }
   });
 }
 
 export async function updateRule(params = {}) {
   return request(`/api/rule?${stringify(params.query)}`, {
-    method: 'POST',
+    method: "POST",
     data: {
       ...params.body,
-      method: 'update',
-    },
+      method: "update"
+    }
   });
 }
 
 export async function fakeSubmitForm(params) {
-  return request('/api/forms', {
-    method: 'POST',
-    data: params,
+  return request("/api/forms", {
+    method: "POST",
+    data: params
   });
 }
 
 export async function fakeChartData() {
-  return request('/api/fake_chart_data');
+  return request("/api/fake_chart_data");
 }
 
 export async function queryTags() {
-  return request('/api/tags');
+  return request("/api/tags");
 }
 
 export async function queryBasicProfile(id) {
@@ -63,7 +63,7 @@ export async function queryBasicProfile(id) {
 }
 
 export async function queryAdvancedProfile() {
-  return request('/api/profile/advanced');
+  return request("/api/profile/advanced");
 }
 
 export async function queryFakeList(params) {
@@ -73,54 +73,54 @@ export async function queryFakeList(params) {
 export async function removeFakeList(params) {
   const { count = 5, ...restParams } = params;
   return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
+    method: "POST",
     data: {
       ...restParams,
-      method: 'delete',
-    },
+      method: "delete"
+    }
   });
 }
 
 export async function addFakeList(params) {
   const { count = 5, ...restParams } = params;
   return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
+    method: "POST",
     data: {
       ...restParams,
-      method: 'post',
-    },
+      method: "post"
+    }
   });
 }
 
 export async function updateFakeList(params) {
   const { count = 5, ...restParams } = params;
   return request(`/api/fake_list?count=${count}`, {
-    method: 'POST',
+    method: "POST",
     data: {
       ...restParams,
-      method: 'update',
-    },
+      method: "update"
+    }
   });
 }
 
 export async function accountLogin(params) {
-  return request('/server/user/login', {
-    method: 'POST',
+  return request("/server/user/login", {
+    method: "POST",
     data: params
-  })
+  });
 }
 
 export async function fakeAccountLogin(params) {
-  return request('/api/login/account', {
-    method: 'POST',
-    data: params,
+  return request("/api/login/account", {
+    method: "POST",
+    data: params
   });
 }
 
 export async function fakeRegister(params) {
-  return request('/api/register', {
-    method: 'POST',
-    data: params,
+  return request("/api/register", {
+    method: "POST",
+    data: params
   });
 }
 

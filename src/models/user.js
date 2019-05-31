@@ -1,24 +1,25 @@
 import {
   queryUser,
-  queryAuthority,
   queryUserList,
   searchUser,
   createUser,
   checkUser,
-  addUserRole,
+  addUser,
   updateUser,
-  killUser
+  killUser,
+  queryShopUserList
 } from "@/services/user";
 import { setAuthority } from "@/utils/authority";
 import { reloadAuthorized } from "@/utils/Authorized";
-import { instanceOf } from "prop-types";
+import { queryShopList } from "@/services/shop";
 
 const mergeRoles = roles => {
   let arr = [];
-  roles &&
+  if (roles) {
     roles.forEach(role => {
       role.extend && (arr = [...arr, ...role.extend.split(",")]);
     });
+  }
   return Array.from(new Set(arr));
 };
 
@@ -29,10 +30,24 @@ export default {
     list: [],
     page: 0,
     size: 10,
-    currentUser: {}
+    currentUser: {},
+    shopName: "",
+    shopId: "",
+    shopUserList: []
   },
 
   effects: {
+    *fetchShopUserList({ payload }, { call, put }) {
+      const response = yield call(queryShopUserList, payload.shop_id);
+      if (response.code === "SUCCESS") {
+        yield put({
+          type: "shopUser",
+          payload: response.data
+        });
+      } else {
+        payload.onFailure && payload.onFailure(response.message);
+      }
+    },
     *fetchUser(_, { call, put }) {
       const response = yield call(queryUser);
       if (response.code === "SUCCESS") {
@@ -44,6 +59,28 @@ export default {
           }
         });
         reloadAuthorized();
+        const shopRole = response.data.roles.find(
+          item => item.role_type === "PLATFORM_USER_INIT"
+        );
+        if (shopRole) {
+          // 商家
+          const shopRes = yield call(queryShopList, response.data.user.id);
+          if (shopRes.code === "SUCCESS") {
+            if (shopRes.data && shopRes.data.length) {
+              const shopInfo = shopRes.data[0];
+              localStorage.setItem("shop-name", shopInfo.name);
+              localStorage.setItem("shop-id", shopInfo.id);
+              localStorage.setItem("shop-role", shopRole.id);
+              yield put({
+                type: "saveShopInfo",
+                payload: {
+                  shopName: shopInfo.name,
+                  shopId: shopInfo.id
+                }
+              });
+            }
+          }
+        }
       }
     },
     *fetchUserList({ payload }, { call, put }) {
@@ -75,13 +112,13 @@ export default {
         });
       }
     },
-    *tryCreateUser({ payload }, { call, put }) {
+    *tryCreateShopUser({ payload }, { call, put }) {
       const response = yield call(checkUser, payload.data);
       if (response.code === "SUCCESS") {
         if (response.data) {
           let roleExist = false;
           if (response.data.roles instanceof Array) {
-            for (let i = 0; i < response.data.roles.length; i++) {
+            for (let i = 0; i < response.data.roles.length; i += 1) {
               const role = response.data.roles[i];
               if (role.id === payload.data.role_id) {
                 roleExist = true;
@@ -96,6 +133,64 @@ export default {
                 params: payload.data
               })
             : payload.onFailure("该账号已存在!");
+        } else {
+          const res = yield call(createUser, payload.data);
+          if (res.code === "SUCCESS") {
+            yield put({
+              type: "fetchShopUserList",
+              payload: {
+                shop_id: localStorage.getItem("shop-id")
+              }
+            });
+            payload.onSuccess();
+          } else {
+            payload.onFailure(res.message);
+          }
+        }
+      } else {
+        payload.onFailure(response.message);
+      }
+    },
+    *addShopUserRole({ payload }, { call, put }) {
+      const response = yield call(addUser, {
+        userId: payload.user.user.id,
+        ...payload.params
+      });
+      if (response.code === "SUCCESS") {
+        payload.onSuccess();
+        yield put({
+          type: "fetchShopUserList",
+          payload: {
+            shop_id: localStorage.getItem("shop-id")
+          }
+        });
+      } else {
+        payload.onFailure(response.message);
+      }
+    },
+    *tryCreateUser({ payload }, { call, put }) {
+      const response = yield call(checkUser, payload.data);
+      if (response.code === "SUCCESS") {
+        if (response.data) {
+          let roleExist = false;
+          if (response.data.roles instanceof Array) {
+            for (let i = 0; i < response.data.roles.length; i += 1) {
+              const role = response.data.roles[i];
+              if (role.id === payload.data.role_id) {
+                roleExist = true;
+                break;
+              }
+            }
+          }
+
+          if (roleExist) {
+            payload.onFailure("该账号已存在!");
+          } else {
+            payload.onCanAddRole({
+              user: response.data,
+              params: payload.data
+            })
+          }
         } else {
           const res = yield call(createUser, payload.data);
           if (res.code === "SUCCESS") {
@@ -116,41 +211,13 @@ export default {
       }
     },
     *addUserRole({ payload }, { call, put }) {
-      const response = yield call(addUserRole, {
-        user_id: payload.user.id,
+      const response = yield call(addUser, {
+        userId: payload.user.user.id,
+        ...payload.params,
         role_id: payload.role.id
       });
       if (response.code === "SUCCESS") {
-        if (payload.role.role_type === "PLATFORM_USER_INIT") {
-          // 商家
-          const res = yield call(updateUser, {
-            ...payload.user,
-            user_id: payload.user.id,
-            shop_name: payload.params.shop_name
-          });
-          if (res.code === "SUCCESS") {
-            payload.onSuccess();
-          } else {
-            payload.onFailure(res.message);
-          }
-        } else if (
-          payload.role.role_type === "APPLICATION_USER_CUSTOM" &&
-          payload.role.is_init
-        ) {
-          // 司机
-          const res = yield call(updateUser, {
-            ...payload.user,
-            user_id: payload.user.id,
-            driver_evaluate: payload.params.driver_evaluate
-          });
-          if (res.code === "SUCCESS") {
-            payload.onSuccess();
-          } else {
-            payload.onFailure(res.message);
-          }
-        } else {
-          payload.onSuccess();
-        }
+        payload.onSuccess();
         yield put({
           type: "fetchUserList",
           payload: {
@@ -177,6 +244,20 @@ export default {
         payload.onFailure(response.message);
       }
     },
+    *deleteShopUser({ payload }, { call, put }) {
+      const response = yield call(killUser, payload.id);
+      if (response.code === "SUCCESS") {
+        yield put({
+          type: "fetchShopUserList",
+          payload: {
+            shop_id: localStorage.getItem("shop-id")
+          }
+        });
+        payload.onSuccess();
+      } else {
+        payload.onFailure(response.message);
+      }
+    },
     *updateUser({ payload }, { call, put }) {
       const response = yield call(updateUser, payload.data);
       if (response.code === "SUCCESS") {
@@ -185,6 +266,20 @@ export default {
           payload: {
             page: 0,
             size: 10
+          }
+        });
+        payload.onSuccess();
+      } else {
+        payload.onFailure(response.message);
+      }
+    },
+    *updateShopUser({ payload }, { call, put }) {
+      const response = yield call(updateUser, payload.data);
+      if (response.code === "SUCCESS") {
+        yield put({
+          type: "fetchShopUserList",
+          payload: {
+            shop_id: localStorage.getItem("shop-id")
           }
         });
         payload.onSuccess();
@@ -206,9 +301,22 @@ export default {
       return {
         ...state,
         list: action.payload.data_list,
-        page: action.payload.page,
-        size: action.payload.size,
-        total: action.payload.total_pages
+        page: action.payload.page || 0,
+        size: action.payload.size || 10,
+        total: action.payload.total_pages || 1
+      };
+    },
+    saveShopInfo(state, action) {
+      return {
+        ...state,
+        shopName: action.payload.shopName,
+        shopId: action.payload.shopId
+      };
+    },
+    shopUser(state, action) {
+      return {
+        ...state,
+        shopUserList: action.payload
       };
     }
   }

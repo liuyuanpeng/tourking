@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { Input, Icon, Modal, Button } from "antd";
+import { Input, Icon, Modal } from "antd";
 import { Map, Marker } from "react-amap";
 
-const Search = Input.Search;
+const { Search } = Input;
 
 // 定义地图中心点(厦门火车站)
 const CENTER = {
@@ -32,6 +31,53 @@ export default class LocationInput extends Component {
     }
     return null;
   }
+
+  mapEvens = {
+    created: () => {
+      window.AMap.plugin(
+        [
+          "AMap.Geocoder",
+          "AMap.PlaceSearch",
+          "AMap.Autocomplete",
+          "AMap.Driving"
+        ],
+        () => {
+          this.geoCode = new window.AMap.Geocoder({
+            city: "010" // 城市, 默认全国
+          });
+          this.placeSearch = new window.AMap.PlaceSearch({
+            pageSize: 5,
+            pageIndex: 1,
+            city: "010"
+          });
+          this.autoComplete = new window.AMap.Autocomplete({
+            city: "010",
+            input: "search-input"
+          });
+
+          this.driving = new window.AMap.Driving({
+            policy: window.AMap.DrivingPolicy.LEAST_TIME
+          });
+        }
+      );
+    },
+    click: e => {
+      const { lnglat } = e;
+      this.setState({
+        mapPosition: {
+          longitude: lnglat.getLng(),
+          latitude: lnglat.getLat()
+        },
+        markPosition: {
+          longitude: lnglat.getLng(),
+          latitude: lnglat.getLat()
+        },
+        mapAddress: "正在加载..."
+      });
+      this.getAddress(lnglat);
+    }
+  };
+
   constructor(props) {
     super(props);
     this.map = null;
@@ -43,74 +89,82 @@ export default class LocationInput extends Component {
     };
     this.state = {
       modalVisible: false,
-      position: value.location,
       address: value.address,
-      mapCenter: value.location,
       mapPosition: value.location,
       mapAddress: value.address,
-      keywords: ''
+      keywords: "",
+      markPosition: { longitude: 0, latitude: 0 }
     };
   }
 
-  handleModalVisible = flag => {
-    this.setState({
-      modalVisible: !!flag
-    });
-  };
-
   triggerChange = value => {
-    const onChange = this.props.onChange;
+    const { onChange } = this.props;
     if (onChange) {
       onChange(value);
     }
   };
+
   okHandle = () => {
+    const { mapAddress, mapPosition } = this.state;
     this.setState({
-      address: this.state.mapAddress,
-      position: this.state.mapPosition
+      address: mapAddress
     });
     this.triggerChange({
-      address: this.state.mapAddress,
-      location: this.state.mapPosition
+      address: mapAddress,
+      location: mapPosition
     });
+    const { origin, destination } = this.props;
+    if (origin) {
+      const mapOrigin = new window.AMap.LngLat(
+        origin.longitude,
+        origin.latitude
+      );
+      const mapDestination = new window.AMap.LngLat(
+        mapPosition.longitude,
+        mapPosition.latitude
+      );
+      this.driving.search(mapOrigin, mapDestination, (status, result) => {
+        if (status === "complete") {
+          if (result.routes.length) {
+            const route = result.routes[0];
+            this.triggerChange({
+              address: mapAddress,
+              location: mapPosition,
+              time: route.time,
+              distance: route.distance
+            });
+          }
+        }
+      });
+    }
+    if (destination) {
+      const mapOrigin = new window.AMap.LngLat(
+        mapPosition.longitude,
+        mapPosition.latitude
+      );
+      const mapDestination = new window.AMap.LngLat(
+        destination.longitude,
+        destination.latitude
+      );
+      this.driving.search(mapOrigin, mapDestination, (status, result) => {
+        if (status === "complete") {
+          if (result.routes.length) {
+            const route = result.routes[0];
+            this.triggerChange({
+              address: mapAddress,
+              location: mapPosition,
+              time: route.time,
+              distance: route.distance
+            });
+          }
+        }
+      });
+    }
     this.handleModalVisible();
   };
 
-  mapEvens = {
-    created: map => {
-      window.AMap.plugin(
-        ["AMap.Geocoder", "AMap.PlaceSearch", "AMap.Autocomplete"],
-        () => {
-          this.geoCode = new AMap.Geocoder({
-            city: "010" //城市, 默认全国
-          });
-          this.placeSearch = new AMap.PlaceSearch({
-            pageSize: 5,
-            pageIndex: 1,
-            city: "010"
-          });
-          this.autoComplete = new AMap.Autocomplete({
-            city: "010",
-            input: "search-input"
-          });
-        }
-      );
-    },
-    click: e => {
-      const lnglat = e.lnglat;
-      this.setState({
-        mapPosition: {
-          longitude: lnglat.getLng(),
-          latitude: lnglat.getLat()
-        },
-        mapAddress: "正在加载..."
-      });
-      this.getAddress(lnglat);
-    }
-  };
-
   getAddress = lnglat => {
-    this.geoCode &&
+    if (!this.geoCode) return
       this.geoCode.getAddress(lnglat, (status, result) => {
         if (status === "complete") {
           if (result.regeocode) {
@@ -130,27 +184,35 @@ export default class LocationInput extends Component {
       });
   };
 
+  handleModalVisible = flag => {
+    this.setState({
+      modalVisible: !!flag
+    });
+  };
+
   onKeywordChange = e => {
     this.setState({
       keywords: e.target.value
     });
   };
-  handleSearch = wtfValue => {
-    const value = window.document.getElementById("search-input").value;
+
+  handleSearch = () => {
+    const { value } = window.document.getElementById("search-input");
     this.setState({
       keywords: value
     });
     if (value && value.trim()) {
       this.placeSearch.search(value.trim(), (status, result) => {
         if (status === "complete" && result.poiList.count) {
-          const location = result.poiList.pois[0].location;
+          const { location } = result.poiList.pois[0];
           const lct = {
             longitude: location.lng,
             latitude: location.lat
           };
           this.getAddress(location);
           this.setState({
-            mapPosition: lct
+            mapPosition: lct,
+            markPosition: lct
           });
         }
       });
@@ -158,7 +220,14 @@ export default class LocationInput extends Component {
   };
 
   render() {
-    const { modalVisible, address, mapPosition, mapAddress } = this.state;
+    const {
+      modalVisible,
+      address,
+      mapPosition,
+      mapAddress,
+      markPosition,
+      keywords
+    } = this.state;
     return (
       <div>
         <Input
@@ -189,7 +258,7 @@ export default class LocationInput extends Component {
           <Search
             id="search-input"
             enterButton
-            value={this.state.keywords}
+            value={keywords}
             onChange={this.onKeywordChange}
             onSearch={this.handleSearch}
           />
@@ -206,7 +275,7 @@ export default class LocationInput extends Component {
               center={mapPosition}
               events={this.mapEvens}
             >
-              <Marker position={mapPosition} />
+              <Marker position={markPosition} />
             </Map>
           </div>
         </Modal>

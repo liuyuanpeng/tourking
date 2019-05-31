@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { Layout } from "antd";
 import DocumentTitle from "react-document-title";
 import { connect } from "dva";
@@ -6,7 +6,6 @@ import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
 import Media from "react-media";
 import logo from "../assets/logo.svg";
-import Footer from "./Footer";
 import Header from "./Header";
 import Context from "./MenuContext";
 import SiderMenu from "@/components/SiderMenu";
@@ -98,7 +97,7 @@ class BasicLayout extends React.Component {
   renderSettingDrawer = () => {
     // Do not render SettingDrawer in production
     // unless it is deployed in preview.pro.ant.design as demo
-    if (process.env.NODE_ENV === "production" && APP_TYPE !== "site") {
+    if (process.env.NODE_ENV === "production" && window.APP_TYPE !== "site") {
       return null;
     }
     return <SettingDrawer />;

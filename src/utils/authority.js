@@ -13,7 +13,7 @@ export function getAuthority(str) {
   if (typeof authority === 'string') {
     return [authority];
   }
-  if (!authority && APP_TYPE === 'site') {
+  if (!authority && window.APP_TYPE === 'site') {
     return ['admin'];
   }
   return authority;

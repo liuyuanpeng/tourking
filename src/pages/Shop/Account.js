@@ -1,32 +1,43 @@
-import React, { PureComponent, Fragment } from "react";
-import PropTypes from "prop-types";
+import React, { PureComponent } from "react";
 import {
-  Tree,
   Card,
   Form,
-  Row,
-  Col,
   Button,
-  Select,
   Input,
-  InputNumber,
   Table,
   Divider,
-  Modal
+  Modal,
+  Popconfirm,
+  message
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
+import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
-import styles from "./Account.less";
+import moment from "moment";
+import styles from "./index.less";
 
 const FormItem = Form.Item;
+const { confirm } = Modal;
 
 const NewAccount = Form.create()(props => {
-  const { modalVisible, form, handleAdd, handleModalVisible } = props;
+  const {
+    modalVisible,
+    formValues,
+    form,
+    handleAdd,
+    handleModalVisible,
+    type,
+    handleEdit
+  } = props;
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
-      handleAdd(fieldsValue);
+      if (type === "add") {
+        handleAdd(fieldsValue);
+      } else {
+        handleEdit(fieldsValue);
+      }
     });
   };
 
@@ -35,172 +46,291 @@ const NewAccount = Form.create()(props => {
     wrapperCol: { span: 15 }
   };
 
+  const readonly = type === "readonly";
+
   return (
     <Modal
       destroyOnClose
-      title="新增账号"
+      title={type === "add" ? "新增账号" : "编辑账号"}
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => {
         handleModalVisible();
       }}
     >
-      <Row>
-        <Col>
-          <FormItem {...labelLayout} label="手机号">
-            {form.getFieldDecorator("phone", {
-              rules: [
-                { required: true, message: "请输入手机号" },
-                { len:11, message: '请输入正确的手机号'}
-              ]
-            })(
-              <InputNumber style={{ width: "100%" }} />
-            )}
-          </FormItem>
-        </Col>
-        <Col>
-          <FormItem {...labelLayout} label="登录密码">
+      <FormItem {...labelLayout} label="手机号">
+        {type === "edit" ? (
+          <span>{formValues.mobile || ""}</span>
+        ) : (
+          form.getFieldDecorator("mobile", {
+            initialValue: formValues.mobile || "",
+            rules: [
+              { required: true, message: "请输入手机号" },
+              { len: 11, message: "请输入正确的手机号" }
+            ]
+          })(<NumberInput style={{ width: "100%" }} />)
+        )}
+      </FormItem>
+      {type === "add" && (
+        <FormItem {...labelLayout} label="登录密码">
           {form.getFieldDecorator("password", {
-              rules: [
-                { required: true, message: "请输入登录密码" },
-                { min:6, message: '请输入大于6个字符的密码'},
-                { max:20, message: '密码长度不能超过20个字符'}
-              ]
-            })(
-              <Input style={{ width: "100%" }} />
-            )}
-          </FormItem>
-          <FormItem {...labelLayout} label="员工姓名">
-          {form.getFieldDecorator("name", {
-              rules: [
-                { required: true, message: "请输入员工姓名" }
-              ]
-            })(
-              <Input style={{ width: "100%" }} />
-            )}
-          </FormItem>
-        </Col>
-      </Row>
+            initialValue: formValues.password || "",
+            rules: [
+              { required: true, message: "请输入登录密码" },
+              { min: 5, message: "请输入大于6个字符的密码" },
+              { max: 20, message: "密码长度不能超过20个字符" }
+            ]
+          })(<Input style={{ width: "100%" }} />)}
+        </FormItem>
+      )}
+      <FormItem {...labelLayout} label="员工姓名">
+        {readonly ? (
+          <span>{formValues.name || ""}</span>
+        ) : (
+          form.getFieldDecorator("name", {
+            initialValue: formValues.name || "",
+            rules: [{ required: true, message: "请输入员工姓名" }]
+          })(<Input style={{ width: "100%" }} />)
+        )}
+      </FormItem>
     </Modal>
   );
 });
 
-export default class Account extends PureComponent {
-  static propTypes = {
-  };
+@connect(({ user, loading }) => ({
+  loading: loading.effects["user/fetchShopUserList"],
+  data: user.shopUserList
+}))
+@Form.create()
+class Account extends PureComponent {
+  static propTypes = {};
 
   state = {
     modalVisible: false,
-    formValues: {}
+    formValues: {},
+    type: "add"
+  };
+
+  columns = [
+    {
+      title: "姓名",
+      dataIndex: "name",
+      key: "name"
+    },
+    {
+      title: "手机号",
+      dataIndex: "mobile",
+      key: "mobile"
+    },
+    {
+      title: "添加时间",
+      dataIndex: "create_time",
+      key: "create_time",
+      render: text => moment(text).format("YYYY-MM-DD hh:mm")
+    },
+    {
+      title: "最后登录",
+      dataIndex: "recent_login",
+      key: "recent_login"
+    },
+    {
+      title: "操作",
+      key: "action",
+      render: (text, record) => (
+        <span>
+          <a
+            href="javascript:;"
+            onClick={() => {
+              this.onEdit(record);
+            }}
+          >
+            编辑
+          </a>
+          <Divider type="vertical" />
+          <Popconfirm
+            title="确定删除该账号吗?"
+            onConfirm={() => {
+              this.handleDelete(record);
+            }}
+            okText="是"
+            cancelText="否"
+          >
+            <a href="javascript:;">删除</a>
+          </Popconfirm>
+        </span>
+      )
+    }
+  ];
+
+  componentDidMount() {
+    const shop_id = localStorage.getItem("shop-id");
+    const { dispatch } = this.props;
+    dispatch({
+      type: "user/fetchShopUserList",
+      payload: {
+        shop_id,
+        onFailure: msg => {
+          message.error(msg || "获取账号列表失败");
+        }
+      }
+    });
   }
 
-  handleSearch = () => {
-
-  }
-
-  handleModalVisible = flag => {
+  handleModalVisible = (flag, type) => {
     this.setState({
-      modalVisible: !!flag
+      modalVisible: !!flag,
+      type: type || "add",
+      formValues: {}
     });
   };
 
   handleAdd = fields => {
+    const { dispatch } = this.props;
+
+    const roles = JSON.parse(localStorage.getItem("roles"));
+    const employeeRole = roles.find(
+      item => item.role_type === "APPLICATION_ADMIN_INIT"
+    );
+    if (!employeeRole) {
+      message.error("员工角色不存在,创建失败");
+      return;
+    }
+    const shop_id = localStorage.getItem("shop-id");
+    const shop_name = localStorage.getItem("shop-name");
+    employeeRole &&
+      shop_id &&
+      shop_name &&
+      dispatch({
+        type: "user/tryCreateShopUser",
+        payload: {
+          data: {
+            ...fields,
+            role_id: employeeRole.id,
+            shop_id,
+            shop_name
+          },
+          onSuccess: () => {
+            message.success("新增成功!");
+          },
+          onFailure: msg => {
+            message.error(msg || "新增失败!");
+          },
+          onCanAddRole: payload => {
+            confirm({
+              title: "确认添加账号?",
+              content: `该账号已存在，为该角色添加商家角色权限?`,
+              onOk: () => {
+                dispatch({
+                  type: "user/addShopUserRole",
+                  payload: {
+                    user: payload.user,
+                    params: payload.params,
+                    onSuccess: () => {
+                      message.success("成功添加角色");
+                    },
+                    onFailure: msg => {
+                      msg && message.error(msg);
+                    }
+                  }
+                });
+              }
+            });
+          }
+        }
+      });
     this.handleModalVisible();
   };
 
-  renderForm = () => {
-    const {
-      form: {getFieldDecorator}
-    } = this.props;
-
-    return (
-      <Form onSubmit={this.handleSearch} layout='inline'>
-      <Row gutter={16} type="flex" monospaced="true" arrangement="true">
-      <Col span={5}>
-      <FormItem label="精确查找">
-      {
-        getFieldDecorator('key')(
-          <Input placeholder="用户名/手机号"/>
-        )
+  handleEdit = info => {
+    const { dispatch } = this.props;
+    const { formValues } = this.state;
+    dispatch({
+      type: "user/updateShopUser",
+      payload: {
+        data: {
+          ...formValues,
+          ...info,
+          user_id: formValues.id
+        },
+        onSuccess: () => {
+          message.success("操作成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "操作失败");
+        }
       }
-      </FormItem>
-      </Col>
-      <Col span={5}>
-      <Button onClick={()=>{this.handleSearch}}>查询</Button>
-      </Col>
-      </Row>
-      </Form>
-    )
-  }
+    });
+    this.setState({
+      formValues: {},
+      modalVisible: false,
+      type: "add"
+    });
+  };
 
-  columns = [
-    {
-      title: '姓名',
-      dataIndex: 'name',
-      key: 'name'
-    },
-    {
-      title: '手机号',
-      dataIndex: 'phone',
-      key: 'phone'
-    },
-    {
-      title: '添加时间',
-      dataIndex: 'createTime',
-      key: 'createTime'
-    },
-    {
-      title: '最后登录',
-      dataIndex: 'lastLogin',
-      key: 'lastLogin'
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: (text, record) => (
-        <span>
-          <a href="javascript:;">编辑</a>
-          <Divider type="vertical"/>
-          <a href="javascript:;">删除</a>
-        </span>
-      )
-    }
-  ]
+  onEdit = record => {
+    this.setState({
+      formValues: { ...record },
+      modalVisible: true,
+      type: "edit"
+    });
+  };
+
+  handleDelete = record => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: "user/deleteShopUser",
+      payload: {
+        id: record.user.id,
+        onSuccess: () => {
+          message.success("删除成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "删除失败");
+        }
+      }
+    });
+  };
 
   render() {
-    const {loading} = this.props;
+    const { loading, data } = this.props;
 
-    const data = [
-      {
-        name: 'test name',
-        phone: '12132321312312',
-        createTime: '2019-01-01',
-        lastLogin: '2019-01-01'
-      }]
-    const {modalVisible} = this.state
-    
+    const { modalVisible, type, formValues } = this.state;
+
     const parentMethods = {
       handleAdd: this.handleAdd,
-      handleModalVisible: this.handleModalVisible
-    }
-    return(
+      handleModalVisible: this.handleModalVisible,
+      type: type || "add",
+      handleEdit: this.handleEdit,
+      formValues
+    };
+    return (
       <PageHeaderWrap title="账户管理">
-      <Card bordered={false}>
-      <div className={styles.tableList}>
-      <div className={styles.tableListForm}>
-      <div className={styles.tableListOperator}>
-      <Button icon='plus' type='primary' onClick={()=>this.handleModalVisible(true)}>新增账号</Button>
-      </div>
-      <Table
-      loading={loading}
-      dataSource={data}
-      columns={this.columns}
-      />
-      </div>
-      </div>
-      </Card>
-      <NewAccount {...parentMethods} modalVisible={modalVisible}/>
+        <Card bordered={false}>
+          <div className={styles.tableList}>
+            <div className={styles.tableListForm}>
+              <div className={styles.tableListOperator}>
+                <Button
+                  icon="plus"
+                  type="primary"
+                  onClick={() => this.handleModalVisible(true)}
+                >
+                  新增账号
+                </Button>
+              </div>
+              <Table
+                rowKey={record => record.id}
+                loading={loading}
+                pagination={false}
+                dataSource={data}
+                columns={this.columns}
+              />
+            </div>
+          </div>
+        </Card>
+        <NewAccount {...parentMethods} modalVisible={modalVisible} />
       </PageHeaderWrap>
-    )
+    );
   }
 }
+
+export default Account;
