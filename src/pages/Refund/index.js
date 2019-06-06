@@ -14,6 +14,7 @@ import {
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { connect } from "dva";
+import moment from 'moment'
 import styles from "./index.less";
 import NumberInput from "@/components/NumberInput";
 
@@ -28,11 +29,6 @@ const RefundSetting = Form.create()(props => {
     formValues,
     handleConfig
   } = props;
-
-  const labelLayout = {
-    labelCol: { span: 0 },
-    wrapperCol: { span: 18 }
-  };
 
   const okHandle = () => {
     form.validateFields((err, fieldsValue) => {
@@ -62,7 +58,11 @@ const RefundSetting = Form.create()(props => {
         小时，手续费
         <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
           {form.getFieldDecorator("first_fund", {
-            initialValue: formValues.first_fund || ""
+            initialValue:
+              formValues.first_fund === undefined ||
+              formValues.first_fund === null
+                ? ""
+                : formValues.first_fund
           })(<NumberInput />)}
         </FormItem>
       </Row>
@@ -76,7 +76,11 @@ const RefundSetting = Form.create()(props => {
         小时，手续费
         <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
           {form.getFieldDecorator("second_fund", {
-            initialValue: formValues.second_fund || ""
+            initialValue:
+              formValues.second_fund === undefined ||
+              formValues.second_fund === null
+                ? ""
+                : formValues.second_fund
           })(<NumberInput />)}
         </FormItem>
       </Row>
@@ -84,7 +88,11 @@ const RefundSetting = Form.create()(props => {
         超过
         <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
           {form.getFieldDecorator("limit_fund", {
-            initialValue: formValues.limit_fund || ""
+            initialValue:
+              formValues.limit_fund === undefined ||
+              formValues.limit_fund === null
+                ? ""
+                : formValues.limit_fund
           })(<NumberInput />)}
         </FormItem>
         元，需人工审核
@@ -112,15 +120,15 @@ class Refund extends PureComponent {
   columns = [
     {
       title: "退款状态",
-      dataIndex: "order_status",
-      key: "order_status",
+      dataIndex: "has_refund",
+      key: "has_refund",
       render: text =>
-        text && text.indexOf("CANCEL") >= 0 ? "已退款" : "待退款"
+        text === true ? "已退款" : "待退款"
     },
     {
       title: "微信号",
-      dataIndex: "user_wxname",
-      key: "user_wxname"
+      dataIndex: "wechat",
+      key: "wechat"
     },
     {
       title: "乘客姓名",
@@ -144,26 +152,30 @@ class Refund extends PureComponent {
     },
     {
       title: "申请时间",
-      dataIndex: "time",
-      key: "time"
+      dataIndex: "create_time",
+      key: "create_time",
+      render: text => text ? moment(text).format('YYYY-MM-DD hh:mm:ss') : ''
     },
     {
       title: "订单ID",
-      dataIndex: "id",
-      key: "id"
+      dataIndex: "order_id",
+      key: "order_id"
     },
     {
       title: "操作",
       fixed: "right",
       key: "aciton",
       width: 150,
-      render: (text, record) => (
-        <span>
-          <a href="javascript:;" onClick={() => this.handleRefund(record)}>
-            放款
-          </a>
-        </span>
-      )
+      render: (text, record) =>
+        record.has_refund ? (
+          ""
+        ) : (
+          <span>
+            <a href="javascript:;" onClick={() => this.handleRefund(record)}>
+              放款
+            </a>
+          </span>
+        )
     }
   ];
 
@@ -190,7 +202,7 @@ class Refund extends PureComponent {
     dispatch({
       type: "order/refundOrder",
       payload: {
-        id: record.id,
+        id: record.order_id,
         ...this.searchKeys,
         page,
         size: 10,
@@ -216,11 +228,11 @@ class Refund extends PureComponent {
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
       this.searchKeys = { ...values };
-      Object.keys(this.searchKeys).forEach(key=>{
+      Object.keys(this.searchKeys).forEach(key => {
         if (!this.searchKeys[key]) {
-          delete this.searchKeys[key]
+          delete this.searchKeys[key];
         }
-      })
+      });
       if (this.searchKeys.has_refund) {
         this.searchKeys.has_refund = this.searchKeys.has_refund === "true";
       }
@@ -253,6 +265,7 @@ class Refund extends PureComponent {
         }
       }
     });
+    this.handleModalVisible();
   };
 
   handlePageChange = (page, size) => {

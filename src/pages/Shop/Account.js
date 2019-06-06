@@ -77,7 +77,7 @@ const NewAccount = Form.create()(props => {
             initialValue: formValues.password || "",
             rules: [
               { required: true, message: "请输入登录密码" },
-              { min: 5, message: "请输入大于6个字符的密码" },
+              { min: 6, message: "请输入大于6个字符的密码" },
               { max: 20, message: "密码长度不能超过20个字符" }
             ]
           })(<Input style={{ width: "100%" }} />)}

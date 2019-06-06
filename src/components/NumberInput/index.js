@@ -59,7 +59,7 @@ export default class NumberInput extends Component {
   // '.' at the end or only '-' in the input box.
   onBlur = () => {
     const { value, onBlur, onChange } = this.props;
-    if (value && (value.charAt(value.length - 1) === "." || value === "-")) {
+    if (value && ((value.charAt && value.charAt(value.length - 1) === ".") || value === "-")) {
       onChange(value.slice(0, -1));
     }
     if (onBlur) {

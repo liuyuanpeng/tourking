@@ -12,7 +12,10 @@ import {
   shopApproval,
   shopCancel,
   updateOrder,
-  querySettledPage
+  querySettledPage,
+  exportOrder,
+  exportSettled,
+  exportWarning
 } from "@/services/order";
 
 import { getPrice } from "@/services/price";
@@ -59,6 +62,7 @@ export default {
           type: "saveConfig",
           payload: response.data
         });
+        payload.onSuccess && payload.onSuccess();
       } else {
         payload.onFailure && payload.onFailure(response.message);
       }
@@ -129,6 +133,15 @@ export default {
       } else {
         payload.onFailure && payload.onFailure(response.message);
       }
+    },
+    *exportOrder({ payload, callback }, { call }) {
+      callback(yield call(exportOrder, payload));
+    },
+    *exportSettled({ payload, callback }, { call }) {
+      callback(yield call(exportSettled, payload));
+    },
+    *exportWarning({ payload, callback }, { call }) {
+      callback(yield call(exportWarning, payload));
     },
     *cancelOrder({ payload }, { call, put }) {
       const { id, onSuccess, onFailure, ...others } = payload;

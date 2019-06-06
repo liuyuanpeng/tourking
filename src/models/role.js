@@ -19,41 +19,39 @@ export default {
       }
     },
     *saveRole({ payload }, { call, put }) {
-      const response = yield call(saveRole, payload);
+      const { onSuccess, onFailure, ...others } = payload;
+      const response = yield call(saveRole, others);
       if (response.code === "SUCCESS") {
-        if (payload.id) {
-          yield put({
-            type: "saveOK"
-          });
-        }
-      } else {
+        onSuccess && onSuccess();
         yield put({
-          type: "createOK"
+          type: "getRoles"
         });
+      } else {
+        onFailure && onFailure(response.message);
       }
     },
     *deleteRole({ payload }, { call, put }) {
-      const response = yield call(deleteRole, payload);
+      const { onSuccess, onFailure, id } = payload;
+      const response = yield call(deleteRole, id);
       if (response.code === "SUCCESS") {
-        const res = yield call(queryRoles);
-        if (res.code === "SUCCESS") {
-          yield put({
-            type: "refreshList",
-            payload: res.data
-          });
-        }
+        onSuccess && onSuccess();
+        yield put({
+          type: "getRoles"
+        });
+      } else {
+        onFailure && onFailure(response.message);
       }
     },
     *addRole({ payload }, { call, put }) {
-      const response = yield call(saveRole, payload);
-      if (response.call === "SUCCESS") {
-        const res = yield call(queryRoles);
-        if (res.code === "SUCCESS") {
-          yield put({
-            type: "refreshList",
-            payload: res.data
-          });
-        }
+      const { onSuccess, onFailure, ...others } = payload;
+      const response = yield call(saveRole, others);
+      if (response.code === "SUCCESS") {
+        onSuccess && onSuccess();
+        yield put({
+          type: "getRoles"
+        });
+      } else {
+        onFailure && onFailure(response.message);
       }
     }
   },

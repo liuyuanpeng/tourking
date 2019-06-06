@@ -24,6 +24,7 @@ import { connect } from "dva";
 import styles from "./index.less";
 import moment from "moment";
 import CarStrategySelection from "./CarStrategySelection";
+import {uniqArr} from "@/utils/utils"
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -50,8 +51,8 @@ const NewLevel = Form.create()(props => {
       if (err) return;
       const { car_levels } = fieldsValue;
       const car_type_ids = car_levels.map(item => item.config_id);
-      const car_type_ids_fixed = new Set(car_type_ids);
-      if (car_type_ids_fixed.size !== car_type_ids.length) {
+      const car_type_ids_fixed = uniqArr(car_type_ids);
+      if (car_type_ids_fixed.length !== car_type_ids.length) {
         message.error("不允许对同一个类型的车型使用两种价格策略");
         return;
       }

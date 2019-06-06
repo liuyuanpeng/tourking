@@ -199,6 +199,56 @@ class Settlement extends PureComponent {
     });
   };
 
+  handleExport = e => {
+    const { dispatch, form } = this.props;
+    e.preventDefault();
+    form.validateFieldsAndScroll((err, values) => {
+      if (err) return;
+      const { create_range, settled_range, ...others } = values;
+      this.searchKeys = { ...others };
+      Object.keys(this.searchKeys).forEach(key => {
+        if (!this.searchKeys[key]) {
+          delete this.searchKeys[key];
+        }
+      });
+      if (create_range && create_range.length) {
+        this.searchKeys = {
+          ...this.searchKeys,
+          create_start: create_range[0].startOf("day").valueOf(),
+          create_end: create_range[1].endOf("day").valueOf()
+        };
+      }
+      if (settled_range && settled_range.length) {
+        this.searchKeys = {
+          ...this.searchKeys,
+          settled_start: settled_range[0].startOf("day").valueOf(),
+          settled_end: settled_range[1].endOf("day").valueOf()
+        };
+      }
+
+      dispatch({
+        type: "order/exportSettled",
+        payload: {
+          ...this.searchKeys
+        },
+        callback: response => {
+          if (response.type.indexOf('application/json') !== -1) {
+            message.error(response.message || '导出失败')
+            return
+          }
+          const blob = new Blob([response], { type: "Files" });
+          const aLink = document.createElement("a");
+          aLink.style.display = "none";
+          aLink.href = URL.createObjectURL(blob);
+          aLink.download = "结算订单列表.xls";
+          document.body.appendChild(aLink);
+          aLink.click();
+          document.body.removeChild(aLink);
+        }
+      });
+    });
+  };
+
   handleSearch = e => {
     const { dispatch, page, form } = this.props;
     e.preventDefault();
@@ -386,7 +436,7 @@ class Settlement extends PureComponent {
               <Button
                 icon="export"
                 type="primary"
-                onClick={() => this.handleExport}
+                onClick={this.handleExport}
               >
                 导出查询
               </Button>

@@ -3,6 +3,16 @@ import React from 'react';
 import nzh from 'nzh/cn';
 import { parse, stringify } from 'qs';
 
+export function uniqArr(array){
+  const temp = []; 
+  for(let i = 0; i < array.length; i+=1){
+      if(temp.indexOf(array[i]) === -1){
+          temp.push(array[i]);
+      }
+  }
+  return temp;
+}
+
 export function fixedZero(val) {
   return val * 1 < 10 ? `0${val}` : val;
 }

@@ -12,6 +12,7 @@ import {
   Table,
   Divider,
   Modal,
+  message,
   Popconfirm
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
@@ -287,7 +288,13 @@ class Role extends PureComponent {
       type: "role/addRole",
       payload: {
         ...fields,
-        role_type: "APPLICATION_USER_CUSTOM"
+        role_type: "APPLICATION_USER_CUSTOM",
+        onSuccess: ()=>{
+          message.success('添加成功')
+        },
+        onFailure: msg => {
+          message.error(msg || '添加失败')
+        }
       }
     });
     this.handleModalVisible();
@@ -306,7 +313,13 @@ class Role extends PureComponent {
         type: "role/saveRole",
         payload: {
           ...this.record,
-          extend: result.toString()
+          extend: result.toString(),
+          onSuccess: () => {
+            message.success('保存成功')
+          },
+          onFailure: msg => {
+            message.error(msg || '保存失败')
+          }
         }
       });}
     this.handlePermissionModalVisible();
@@ -323,7 +336,15 @@ class Role extends PureComponent {
       const {dispatch} = this.props
       dispatch({
         type: "role/deleteRole",
-        payload: record.id
+        payload: {
+          id: record.id,
+          onSuccess: () => {
+            message.success('删除成功')
+          },
+          onFailure: msg => {
+            message.error(msg || '删除失败')
+          }
+        }
       });
     }
   };

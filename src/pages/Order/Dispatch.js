@@ -221,8 +221,11 @@ class Dispatch extends PureComponent {
     },
     {
       title: "状态",
-      dataIndex: "overflow",
-      key: "overflow"
+      dataIndex: "auto_dispatch_time",
+      key: "auto_dispatch_time",
+      render: text=>{
+        return `已派单${text ? moment().subtract(text).valueOf()/1000/60 : 0}分钟`
+      }
     },
     {
       title: "下单时间",
@@ -327,7 +330,76 @@ class Dispatch extends PureComponent {
     });
   };
 
-  handleExport = () => {};
+  handleExport = e => {
+    const { dispatch, form } = this.props;
+    const { currentSelect } = this.state;
+    e.preventDefault();
+    form.validateFieldsAndScroll((err, values) => {
+      if (err) return;
+      this.searchKeys = { ...values };
+      Object.keys(this.searchKeys).forEach(key => {
+        if (!this.searchKeys[key]) {
+          delete this.searchKeys[key];
+        }
+      });
+      const {
+        time_range,
+        order_date,
+        price_range,
+        ...others
+      } = this.searchKeys;
+
+      this.searchKeys = { ...others, warning_status: currentSelect };
+
+      if (order_date) {
+        this.searchKeys = {
+          ...this.searchKeys,
+          create_start: order_date.startOf("day").valueOf(),
+          create_end: order_date.endOf("day").valueOf()
+        };
+      }
+      if (time_range) {
+        this.searchKeys = {
+          ...this.searchKeys,
+          execute_start: values.time_range[0].startOf("day").valueOf(),
+          execute_end: values.time_range[1].endOf("day").valueOf()
+        };
+      }
+
+      if (price_range && (price_range.min || price_range.min === 0)) {
+        this.searchKeys = {
+          ...this.searchKeys,
+          low_price: price_range.min
+        };
+      }
+      if (price_range && (price_range.max || price_range.max === 0)) {
+        this.searchKeys = {
+          ...this.searchKeys,
+          high_price: price_range.max
+        };
+      }
+      dispatch({
+        type: "order/exportWarning",
+        payload: {
+          ...this.searchKeys
+        },
+        callback: response => {
+          if (response.type.indexOf('application/json') !== -1) {
+            message.error(response.message || '导出失败')
+            return
+          }
+          const blob = new Blob([response], { type: "Files" });
+          const aLink = document.createElement("a");
+          aLink.style.display = "none";
+          aLink.href = URL.createObjectURL(blob);
+          aLink.download = "预警订单.xls";
+          document.body.appendChild(aLink);
+          aLink.click();
+          document.body.removeChild(aLink);
+        }
+      });
+    });
+  };
 
   handleSearch = e => {
     const { dispatch, page, form } = this.props;
@@ -634,11 +706,7 @@ class Dispatch extends PureComponent {
               <Button icon="reload" type="primary" onClick={this.handleRefresh}>
                 刷新
               </Button>
-              <Button
-                icon="export"
-                type="primary"
-                onClick={() => this.handleExport}
-              >
+              <Button icon="export" type="primary" onClick={this.handleExport}>
                 导出查询
               </Button>
             </div>

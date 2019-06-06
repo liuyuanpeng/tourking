@@ -347,8 +347,8 @@ export default class PriceStrategy extends PureComponent {
     },
     {
       title: "距离条件",
-      dataIndex: "driver_scope",
-      key: "driver_scope",
+      dataIndex: "distance_scope",
+      key: "distance_scope",
       render: text => (text && parseInt(text) > 0 ? `${text}公里内` : "无限制")
     },
     {

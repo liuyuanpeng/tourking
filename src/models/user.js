@@ -81,6 +81,11 @@ export default {
             }
           }
         }
+      } else if (response.code === 'TOKEN_SESSION_NOT_FOUND') {
+        // 令牌过期
+        yield put({
+          type: 'login/logout'
+        })
       }
     },
     *fetchUserList({ payload }, { call, put }) {

@@ -22,6 +22,7 @@ import moment from "moment";
 import NumberInput from "@/components/NumberInput";
 import ORDER_STATUS from "./orderStatus";
 import styles from "./index.less";
+import queryString from "querystring";
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -505,7 +506,48 @@ class Shuttle extends PureComponent {
     });
   };
 
-  handleExport = () => {};
+  handleExport = e => {
+    const { dispatch, form } = this.props;
+    e.preventDefault();
+    form.validateFieldsAndScroll((err, values) => {
+      if (err) return;
+      this.searchKeys = { ...values };
+      Object.keys(this.searchKeys).forEach(key => {
+        if (!this.searchKeys[key]) {
+          delete this.searchKeys[key];
+        }
+      });
+      if (this.searchKeys.time_range) {
+        delete this.searchKeys.time_range;
+        this.searchKeys = {
+          ...this.searchKeys,
+          start: values.time_range[0].startOf("day").valueOf(),
+          end: values.time_range[1].endOf("day").valueOf()
+        };
+      }
+      const fileName = "订单列表.xls";
+      dispatch({
+        type: "order/exportOrder",
+        payload: {
+          ...this.searchKeys
+        },
+        callback: response => {
+          if (response.type.indexOf("application/json") !== -1) {
+            message.error(response.message || "导出失败");
+            return;
+          }
+          const blob = new Blob([response], { type: "Files" });
+          const aLink = document.createElement("a");
+          aLink.style.display = "none";
+          aLink.href = URL.createObjectURL(blob);
+          aLink.download = fileName;
+          document.body.appendChild(aLink);
+          aLink.click();
+          document.body.removeChild(aLink);
+        }
+      });
+    });
+  };
 
   handleSearch = e => {
     const { dispatch, page, form } = this.props;
@@ -796,11 +838,7 @@ class Shuttle extends PureComponent {
               <Button icon="reload" type="primary" onClick={this.handleRefresh}>
                 刷新
               </Button>
-              <Button
-                icon="export"
-                type="primary"
-                onClick={() => this.handleExport}
-              >
+              <Button icon="export" type="primary" onClick={this.handleExport}>
                 导出查询
               </Button>
             </div>

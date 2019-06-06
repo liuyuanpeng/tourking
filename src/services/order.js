@@ -1,6 +1,27 @@
 import request from "@/utils/request";
 import queryString from "querystring";
 
+// 导出订单
+export async function exportOrder(params) {
+  return request(`/server/travel/order/export_order_page?${queryString.stringify(params)}`, {
+    responseType: 'blob'
+  });
+}
+
+// 导出结算
+export async function exportSettled(params) {
+  return request(`/server/travel/order/export_settled_page?${queryString.stringify(params)}`, {
+    responseType: 'blob'
+  });
+}
+
+// 导出结算
+export async function exportWarning(params) {
+  return request(`/server/travel/order/export_warning_page?${queryString.stringify(params)}`, {
+    responseType: 'blob'
+  });
+}
+
 // 编辑订单
 export async function updateOrder(params) {
   return request("/server/travel/order/update", {
