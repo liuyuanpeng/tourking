@@ -29,7 +29,7 @@ export default () => (
       fgColor="#000000"
       level="Q"
       style={{ width: 256 }}
-      value="http://47.105.216.34/download/tourking.apk"
+      value="http://www.kingtrip.vip/download/tourking.apk"
     />
   </div>
 );
