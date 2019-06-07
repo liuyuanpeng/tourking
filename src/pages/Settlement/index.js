@@ -404,12 +404,12 @@ class Settlement extends PureComponent {
             </FormItem>
           </Col>
           <Col>
-            <Button onClick={this.handleReset}>重置</Button>
-          </Col>
-          <Col>
             <Button type="primary" onClick={this.handleSearch}>
               查询
             </Button>
+          </Col>
+          <Col>
+            <Button onClick={this.handleReset}>重置</Button>
           </Col>
         </Row>
       </Form>

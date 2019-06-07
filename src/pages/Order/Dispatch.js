@@ -203,7 +203,7 @@ class Dispatch extends PureComponent {
     modalVisible: false,
     driverVisible: false,
     formValues: {},
-    currentSelect: "NORMAL"
+    currentSelect: ""
   };
 
   columns = [
@@ -224,7 +224,7 @@ class Dispatch extends PureComponent {
       dataIndex: "auto_dispatch_time",
       key: "auto_dispatch_time",
       render: text=>{
-        return `已派单${text ? moment().subtract(text).valueOf()/1000/60 : 0}分钟`
+        return `已派单${text ? (moment().subtract(text).valueOf()/1000/60).toFixed(1) : 0}分钟`
       }
     },
     {
@@ -467,9 +467,9 @@ class Dispatch extends PureComponent {
     const { dispatch, form } = this.props;
     form.resetFields();
     this.setState({
-      currentSelect: "NORMAL"
+      currentSelect: ""
     });
-    this.searchKeys = { warning_status: "NORMAL" };
+    this.searchKeys = { warning_status: "" };
     dispatch({
       type: "warning/fetchWarningPage",
       payload: {
@@ -624,12 +624,12 @@ class Dispatch extends PureComponent {
             </FormItem>
           </Col>
           <Col>
-            <Button onClick={this.handleReset}>重置</Button>
-          </Col>
-          <Col>
             <Button type="primary" onClick={this.handleSearch}>
               查询
             </Button>
+          </Col>
+          <Col>
+            <Button onClick={this.handleReset}>重置</Button>
           </Col>
         </Row>
       </Form>
@@ -669,9 +669,9 @@ class Dispatch extends PureComponent {
         <Badge showZero className={styles.tabLabel} count={warning_and_urgent}>
           <a
             onClick={() => {
-              this.onChangeSelect("NORMAL");
+              this.onChangeSelect();
             }}
-            style={{ color: currentSelect === "NORMAL" ? "blue" : "#1890FF" }}
+            style={{ color: currentSelect === "" ? "blue" : "#1890FF" }}
             href="javascript:;"
           >
             全部

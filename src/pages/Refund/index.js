@@ -14,7 +14,7 @@ import {
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { connect } from "dva";
-import moment from 'moment'
+import moment from "moment";
 import styles from "./index.less";
 import NumberInput from "@/components/NumberInput";
 
@@ -56,14 +56,20 @@ const RefundSetting = Form.create()(props => {
           })(<NumberInput />)}
         </FormItem>
         小时，手续费
-        <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
+        <FormItem
+          style={{
+            display: "inline-block",
+            verticalAlign: "unset",
+            width: "150px"
+          }}
+        >
           {form.getFieldDecorator("first_fund", {
             initialValue:
               formValues.first_fund === undefined ||
               formValues.first_fund === null
                 ? ""
                 : formValues.first_fund
-          })(<NumberInput />)}
+          })(<NumberInput addonAfter="%" />)}
         </FormItem>
       </Row>
       <Row>
@@ -74,14 +80,20 @@ const RefundSetting = Form.create()(props => {
           })(<NumberInput />)}
         </FormItem>
         小时，手续费
-        <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
+        <FormItem
+          style={{
+            display: "inline-block",
+            verticalAlign: "unset",
+            width: "150px"
+          }}
+        >
           {form.getFieldDecorator("second_fund", {
             initialValue:
               formValues.second_fund === undefined ||
               formValues.second_fund === null
                 ? ""
                 : formValues.second_fund
-          })(<NumberInput />)}
+          })(<NumberInput addonAfter="%" />)}
         </FormItem>
       </Row>
       <Row>
@@ -122,8 +134,7 @@ class Refund extends PureComponent {
       title: "退款状态",
       dataIndex: "has_refund",
       key: "has_refund",
-      render: text =>
-        text === true ? "已退款" : "待退款"
+      render: text => (text === true ? "已退款" : "待退款")
     },
     {
       title: "微信号",
@@ -154,7 +165,7 @@ class Refund extends PureComponent {
       title: "申请时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: text => text ? moment(text).format('YYYY-MM-DD hh:mm:ss') : ''
+      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm:ss") : "")
     },
     {
       title: "订单ID",

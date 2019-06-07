@@ -25,14 +25,24 @@ export default {
     },
 
     *saveStrategy({ payload }, { call, put }) {
-      const response = yield call(saveStrategy, payload.data);
+      const {data, onSuccess, onFailure} = payload
+      const {weight} = data
+      const weightFixed = parseInt(weight)
+      let params = {...data}
+      if (!Number.isNaN(weightFixed)) {
+        params = {
+          ...params,
+          weight: weightFixed
+        }
+      }
+      const response = yield call(saveStrategy, params);
       if (response.code === "SUCCESS") {
         yield put({
           type: "fetchStrategyList"
         });
-        payload.onSuccess && payload.onSuccess();
+        onSuccess && onSuccess();
       } else {
-        payload.onFailure && payload.onFailure(response.message);
+        onFailure && onFailure(response.message);
       }
     },
     *deleteStrategy({ payload }, { call, put }) {

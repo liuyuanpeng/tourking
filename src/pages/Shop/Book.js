@@ -232,12 +232,6 @@ const NewOrder = Form.create()(props => {
         <Col>
           <FormItem {...labelLayout} label="航班号">
             {form.getFieldDecorator("air_no", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入航班号"
-                }
-              ],
               initialValue: formValues.air_no || ""
             })(<Input />)}
           </FormItem>
@@ -275,12 +269,6 @@ const NewOrder = Form.create()(props => {
         <Col>
           <FormItem {...labelLayout} label="紧急联系人">
             {form.getFieldDecorator("contact", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入紧急联系人"
-                }
-              ],
               initialValue: formValues.contact || ""
             })(<Input />)}
           </FormItem>
@@ -289,10 +277,6 @@ const NewOrder = Form.create()(props => {
           <FormItem {...labelLayout} label="紧急联系人电话">
             {form.getFieldDecorator("contact_mobile", {
               rules: [
-                {
-                  required: true,
-                  message: "请输入紧急联系人电话"
-                },
                 {
                   len: 11,
                   message: "请输入正确的手机号码"
@@ -905,12 +889,12 @@ class Book extends PureComponent {
             </FormItem>
           </Col>
           <Col>
-            <Button onClick={this.handleReset}>重置</Button>
-          </Col>
-          <Col>
             <Button type="primary" onClick={this.handleSearch}>
               查询
             </Button>
+          </Col>
+          <Col>
+            <Button onClick={this.handleReset}>重置</Button>
           </Col>
         </Row>
       </Form>

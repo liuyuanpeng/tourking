@@ -60,6 +60,7 @@ class DriverInput extends Component {
         allowClear
         showSearch
         value={value}
+        placeholder="请输入司机电话或姓名搜索"
         notFoundContent={loading ? <Spin size="small" /> : null}
         filterOption={false}
         onSearch={this.fetchDrivers}
