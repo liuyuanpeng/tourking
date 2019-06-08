@@ -29,7 +29,7 @@ export default {
       }
     },
     *saveComments({ payload }, { call, put, select }) {
-      const id = yield select(state => state.id);
+      const id = yield select(state => state.comments.id);
       const response = yield call(
         saveComments,
         id
