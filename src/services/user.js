@@ -21,7 +21,13 @@ export async function queryUserList(params) {
   return request("/server/console/user/page", {
     method: "POST",
     data: {
-      ...params
+      ...params,
+      sort_data_list: [
+        {
+          direction: "DESC",
+          property: "createTime"
+        }
+      ]
     }
   });
 }
@@ -31,7 +37,13 @@ export async function searchUser(username) {
     method: "POST",
     data: {
       page: 0,
-      size: 10
+      size: 10,
+      sort_data_list: [
+        {
+          direction: "DESC",
+          property: "createTime"
+        }
+      ]
     }
   });
 }

@@ -534,7 +534,7 @@ class Shuttle extends PureComponent {
   };
 
   handleSearch = e => {
-    const { dispatch, page, form } = this.props;
+    const { dispatch, form } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
@@ -555,7 +555,7 @@ class Shuttle extends PureComponent {
       dispatch({
         type: "order/fetchOrderPage",
         payload: {
-          page,
+          page: 0,
           size: 10,
           ...this.searchKeys,
           onFailure: msg => {

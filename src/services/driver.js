@@ -25,7 +25,13 @@ export async function queryDriverEvaluatePage(params) {
       method: "POST",
       data: {
         page: params.page,
-        size: params.size
+        size: params.size,
+        sort_data_list: [
+          {
+            direction: "DESC",
+            property: "createTime"
+          }
+        ]
       }
     }
   );

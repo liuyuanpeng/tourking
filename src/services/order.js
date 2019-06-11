@@ -3,23 +3,32 @@ import queryString from "querystring";
 
 // 导出订单
 export async function exportOrder(params) {
-  return request(`/server/travel/order/export_order_page?${queryString.stringify(params)}`, {
-    responseType: 'blob'
-  });
+  return request(
+    `/server/travel/order/export_order_page?${queryString.stringify(params)}`,
+    {
+      responseType: "blob"
+    }
+  );
 }
 
 // 导出结算
 export async function exportSettled(params) {
-  return request(`/server/travel/order/export_settled_page?${queryString.stringify(params)}`, {
-    responseType: 'blob'
-  });
+  return request(
+    `/server/travel/order/export_settled_page?${queryString.stringify(params)}`,
+    {
+      responseType: "blob"
+    }
+  );
 }
 
 // 导出结算
 export async function exportWarning(params) {
-  return request(`/server/travel/order/export_warning_page?${queryString.stringify(params)}`, {
-    responseType: 'blob'
-  });
+  return request(
+    `/server/travel/order/export_warning_page?${queryString.stringify(params)}`,
+    {
+      responseType: "blob"
+    }
+  );
 }
 
 // 编辑订单
@@ -39,7 +48,16 @@ export async function queryOrderPage(params) {
     `/server/travel/order/order_page?${queryString.stringify(others)}`,
     {
       method: "POST",
-      data: { page, size }
+      data: {
+        page,
+        size,
+        sort_data_list: [
+          {
+            direction: "DESC",
+            property: "createTime"
+          }
+        ]
+      }
     }
   );
 }
@@ -118,7 +136,13 @@ export async function queryRefundPage(params) {
       method: "POST",
       data: {
         page,
-        size
+        size,
+        sort_data_list: [
+          {
+            direction: "DESC",
+            property: "createTime"
+          }
+        ]
       }
     }
   );
@@ -171,7 +195,13 @@ export async function querySettledPage(params) {
       method: "POST",
       data: {
         page,
-        size
+        size,
+        sort_data_list: [
+          {
+            direction: "DESC",
+            property: "createTime"
+          }
+        ]
       }
     }
   );

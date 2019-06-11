@@ -645,7 +645,7 @@ class Book extends PureComponent {
       dispatch({
         type: "order/fetchOrderPage",
         payload: {
-          page,
+          page: 0,
           size: 10,
           ...this.searchKeys,
           onFailure: msg => {
@@ -720,7 +720,7 @@ class Book extends PureComponent {
     };
     if (route && route.time && route.kilo) {
       params.priceParams = {
-        kilo: route.kilo,
+        kilo: route.kilo * 1000,
         time: route.time
       };
     }
@@ -973,11 +973,7 @@ class Book extends PureComponent {
               <Button icon="reload" type="primary" onClick={this.handleRefresh}>
                 刷新
               </Button>
-              <Button
-                icon="export"
-                type="primary"
-                onClick={this.handleExport}
-              >
+              <Button icon="export" type="primary" onClick={this.handleExport}>
                 导出查询
               </Button>
             </div>

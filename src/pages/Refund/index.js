@@ -158,8 +158,8 @@ class Refund extends PureComponent {
     },
     {
       title: "退款金额",
-      dataIndex: "price",
-      key: "refund_price"
+      dataIndex: "refund",
+      key: "refund"
     },
     {
       title: "申请时间",
@@ -218,7 +218,7 @@ class Refund extends PureComponent {
         page,
         size: 10,
         onSuccess: () => {
-          message.success("已成功放款");
+          message.success("已提交放款请求，稍后刷新列表查看结果");
         },
         onFailure: msg => {
           message.error(msg || "放款失败");
@@ -234,7 +234,7 @@ class Refund extends PureComponent {
   };
 
   handleSearch = e => {
-    const { dispatch, page, form } = this.props;
+    const { dispatch, form } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
@@ -250,7 +250,7 @@ class Refund extends PureComponent {
       dispatch({
         type: "order/fetchRefundPage",
         payload: {
-          page,
+          page: 0,
           size: 10,
           ...this.searchKeys,
           onFailure: msg => {

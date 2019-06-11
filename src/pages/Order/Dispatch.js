@@ -402,7 +402,7 @@ class Dispatch extends PureComponent {
   };
 
   handleSearch = e => {
-    const { dispatch, page, form } = this.props;
+    const { dispatch, form } = this.props;
     const { currentSelect } = this.state;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
@@ -452,7 +452,7 @@ class Dispatch extends PureComponent {
       dispatch({
         type: "warning/fetchWarningPage",
         payload: {
-          page,
+          page: 0,
           size: 10,
           ...this.searchKeys,
           onFailure: msg => {

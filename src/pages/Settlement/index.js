@@ -279,7 +279,7 @@ class Settlement extends PureComponent {
       dispatch({
         type: "order/fetchSettledPage",
         payload: {
-          page,
+          page: 0,
           size: 10,
           ...this.searchKeys,
           onFailure: msg => {
