@@ -303,6 +303,7 @@ export default {
       };
     },
     saveList(state, action) {
+      console.log(action.payload.data_list)
       return {
         ...state,
         list: action.payload.data_list,

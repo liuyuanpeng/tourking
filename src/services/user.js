@@ -18,7 +18,7 @@ export async function queryAuthority() {
 }
 
 export async function queryUserList(params) {
-  return request("/server/console/user/page", {
+  return request(`/server/rbac/user/role/user_page`, {
     method: "POST",
     data: {
       ...params,

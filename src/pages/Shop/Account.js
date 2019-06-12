@@ -48,6 +48,22 @@ const NewAccount = Form.create()(props => {
 
   const readonly = type === "readonly";
 
+  const checkPassword = (rule, value, callback) => {
+    if (!value && type === "edit") {
+      callback();
+      return;
+    }
+    if (value && value.length < 6) {
+      callback("请输入大于6个字符的密码");
+      return;
+    }
+    if (value && value.length > 20) {
+      callback("密码长度不能超过20个字符");
+      return;
+    }
+    callback();
+  };
+  
   return (
     <Modal
       destroyOnClose
@@ -71,16 +87,20 @@ const NewAccount = Form.create()(props => {
           })(<NumberInput style={{ width: "100%" }} />)
         )}
       </FormItem>
-      {type === "add" && (
+      {type !== "readonly" && (
         <FormItem {...labelLayout} label="登录密码">
           {form.getFieldDecorator("password", {
             initialValue: formValues.password || "",
             rules: [
-              { required: true, message: "请输入登录密码" },
-              { min: 6, message: "请输入大于6个字符的密码" },
-              { max: 20, message: "密码长度不能超过20个字符" }
+              { required: type === "add", message: "请输入登录密码" },
+              { validator: checkPassword }
             ]
-          })(<Input style={{ width: "100%" }} />)}
+          })(
+            <Input
+              placeholder={type === "add" ? "" : "不填写密码不会修改密码"}
+              style={{ width: "100%" }}
+            />
+          )}
         </FormItem>
       )}
       <FormItem {...labelLayout} label="员工姓名">

@@ -5,7 +5,7 @@ import { connect } from "dva";
 import { ContainerQuery } from "react-container-query";
 import classNames from "classnames";
 import Media from "react-media";
-import logo from "../assets/logo.svg";
+import logo from "../assets/logo.png";
 import Header from "./Header";
 import Context from "./MenuContext";
 import SiderMenu from "@/components/SiderMenu";

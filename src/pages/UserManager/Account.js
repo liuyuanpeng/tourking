@@ -53,6 +53,22 @@ const NewAccount = Form.create()(props => {
     wrapperCol: { span: 15 }
   };
 
+  const checkPassword = (rule, value, callback) => {
+    if (!value && type === "edit") {
+      callback();
+      return;
+    }
+    if (value && value.length < 6) {
+      callback("请输入大于6个字符的密码");
+      return;
+    }
+    if (value && value.length > 20) {
+      callback("密码长度不能超过20个字符");
+      return;
+    }
+    callback();
+  };
+
   const checkDriverEvaluate = (rule, value, callback) => {
     if (value < 1 || value > 10) {
       callback("请输入范围1~10的整数");
@@ -79,16 +95,20 @@ const NewAccount = Form.create()(props => {
           ]
         })(<NumberInput disabled={type !== "add"} style={{ width: "100%" }} />)}
       </FormItem>
-      {type === "add" && (
+      {type !== "readonly" && (
         <FormItem {...labelLayout} label="登录密码">
           {form.getFieldDecorator("password", {
             initialValue: formValues.password || "",
             rules: [
-              { required: true, message: "请输入登录密码" },
-              { min: 6, message: "请输入大于6个字符的密码" },
-              { max: 20, message: "密码长度不能超过20个字符" }
+              { required: type === "add", message: "请输入登录密码" },
+              { validator: checkPassword }
             ]
-          })(<Input style={{ width: "100%" }} />)}
+          })(
+            <Input
+              placeholder={type === "add" ? "" : "不填写密码不会修改密码"}
+              style={{ width: "100%" }}
+            />
+          )}
         </FormItem>
       )}
       <FormItem {...labelLayout} label="联系人">
@@ -384,14 +404,19 @@ class Account extends PureComponent {
   handleEdit = info => {
     const { dispatch, currentPage } = this.props;
     const { formValues } = this.state;
+    const { password, name } = info;
+    const data = {
+      ...formValues,
+      name,
+      user_id: formValues.id
+    };
+    if (password) {
+      data.password = password;
+    }
     dispatch({
       type: "user/updateUser",
       payload: {
-        data: {
-          ...formValues,
-          ...info,
-          user_id: formValues.id
-        },
+        data,
         page: currentPage,
         onSuccess: () => {
           message.success("操作成功");
@@ -450,6 +475,7 @@ class Account extends PureComponent {
   render() {
     const { loading, data, currentPage, totalPages } = this.props;
 
+    console.log("data:", data);
     const {
       modalVisible,
       roleOptions,
@@ -468,6 +494,7 @@ class Account extends PureComponent {
       handleEdit: this.handleEdit,
       formValues
     };
+    console.log("data:....", data);
     return (
       <PageHeaderWrap title="账户管理">
         <Card bordered={false}>
