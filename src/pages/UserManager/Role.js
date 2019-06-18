@@ -121,7 +121,7 @@ const PermissionSetting = Form.create()(props => {
       key: "order",
       children: [
         {
-          title: "接送机站",
+          title: "接送机/站",
           key: "shuttle"
         },
         {
@@ -246,7 +246,7 @@ class Role extends PureComponent {
       title: "添加时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: (text) => moment(text).format("YYYY-MM-DD hh:mm")
+      render: (text) => moment(text).format("YYYY-MM-DD HH:mm")
     },
     {
       title: "操作",

@@ -96,7 +96,7 @@ const NewDispatchStrategy = Form.create()(props => {
         )}
       </FormItem>
       <FormItem {...labelLayout} label="适用场景">
-        {<span>接送机</span>}
+        {<span>接送机/站</span>}
       </FormItem>
       <FormItem {...labelLayout} label="触发条件">
         {readonly ? (
@@ -326,7 +326,7 @@ export default class PriceStrategy extends PureComponent {
       title: "适用场景",
       dataIndex: "scene",
       key: "scene",
-      render: text => "用于接送机"
+      render: text => "用于接送机/站"
     },
     {
       title: "触发条件",

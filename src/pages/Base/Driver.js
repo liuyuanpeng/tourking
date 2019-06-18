@@ -226,13 +226,13 @@ export default class Driver extends PureComponent {
       title: "下单时间",
       dataIndex: "driver_evaluate.order_create_time",
       key: "driver_evaluate.order_create_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "上车时间",
       dataIndex: "driver_evaluate.order_excute_time",
       key: "driver_evaluate.order_excute_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     }
   ];
 

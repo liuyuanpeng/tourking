@@ -7,7 +7,7 @@ export default {
   "menu.shop.book": "预约订单",
   "menu.shop.account": "账户管理",
   "menu.order": "订单管理",
-  "menu.order.shuttle": "接送机站",
+  "menu.order.shuttle": "接送机/站",
   "menu.order.dispatch": "派单预警",
   "menu.usermanager": "用户管理",
   "menu.usermanager.role": "角色管理",

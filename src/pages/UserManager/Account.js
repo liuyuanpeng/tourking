@@ -223,13 +223,13 @@ class Account extends PureComponent {
       title: "添加时间",
       dataIndex: "user.create_time",
       key: "create_time",
-      render: text => moment(text).format("YYYY-MM-DD hh:mm")
+      render: text => moment(text).format("YYYY-MM-DD HH:mm")
     },
     {
       title: "最后登录",
       dataIndex: "token_session.update_time",
       key: "token_session.update_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "操作",

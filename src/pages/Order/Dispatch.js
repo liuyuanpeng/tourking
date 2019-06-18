@@ -55,14 +55,14 @@ const OrderDetail = Form.create()(props => {
         </Col>
         <Col>
           <FormItem {...labelLayout} label="类型">
-            <span>{formValues.scene === "JIEJI" ? "接机" : "送机"}</span>
+            <span>{formValues.scene === "JIEJI" ? "接机/站" : "送机/站"}</span>
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="下单时间">
             <span>
               {formValues.create_time
-                ? moment(formValues.create_time).format("YYYY-MM-DD hh:mm")
+                ? moment(formValues.create_time).format("YYYY-MM-DD HH:mm")
                 : ""}
             </span>
           </FormItem>
@@ -71,7 +71,7 @@ const OrderDetail = Form.create()(props => {
           <FormItem {...labelLayout} label="上车时间">
             <span>
               {formValues.start_time
-                ? moment(formValues.start_time).format("YYYY-MM-DD hh:mm")
+                ? moment(formValues.start_time).format("YYYY-MM-DD HH:mm")
                 : ""}
             </span>
           </FormItem>
@@ -126,7 +126,7 @@ const OrderDetail = Form.create()(props => {
           <FormItem {...labelLayout} label="结算时间">
             <span>
               {formValues.settled_time
-                ? formValues.settled_time.format("YYYY-MM-DD hh:mm")
+                ? formValues.settled_time.format("YYYY-MM-DD HH:mm")
                 : ""}
             </span>
           </FormItem>
@@ -211,13 +211,13 @@ class Dispatch extends PureComponent {
       title: "上车时间",
       dataIndex: "start_time",
       key: "start_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "类型",
       dataIndex: "scene",
       key: "scene",
-      render: text => (text === "JIEJI" ? "接机" : "送机")
+      render: text => (text === "JIEJI" ? "接机/站" : "送机/站")
     },
     {
       title: "状态",
@@ -231,7 +231,7 @@ class Dispatch extends PureComponent {
       title: "下单时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "上车地点",

@@ -138,7 +138,7 @@ class Address extends PureComponent {
       title: "添加时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: text => moment(text).format("YYYY-MM-DD hh:mm")
+      render: text => moment(text).format("YYYY-MM-DD HH:mm")
     },
     {
       title: "操作",

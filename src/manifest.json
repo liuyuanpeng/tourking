@@ -1,6 +1,6 @@
 {
-  "name": "旅王驾到管理后台",
-  "short_name": "旅王驾到管理后台",
+  "name": "旅王出行管理后台",
+  "short_name": "旅王出行管理后台",
   "display": "standalone",
   "start_url": "./?utm_source=homescreen",
   "theme_color": "#002140",

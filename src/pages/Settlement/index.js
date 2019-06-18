@@ -57,7 +57,7 @@ class Settlement extends PureComponent {
       title: "结算时间",
       dataIndex: "settled_time",
       key: "settled_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "乘客姓名",
@@ -68,7 +68,7 @@ class Settlement extends PureComponent {
       title: "类型",
       dataIndex: "scene",
       key: "scene",
-      render: text => (text === "JIEJI" ? "接机" : "送机")
+      render: text => (text === "JIEJI" ? "接机/站" : "送机/站")
     },
     {
       title: "上车地点",
@@ -84,7 +84,7 @@ class Settlement extends PureComponent {
       title: "上车时间",
       dataIndex: "start_time",
       key: "start_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "航班号/班次",
@@ -105,7 +105,7 @@ class Settlement extends PureComponent {
       title: "下单时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "订单ID",

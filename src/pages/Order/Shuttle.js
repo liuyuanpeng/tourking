@@ -118,15 +118,15 @@ const NewOrder = Form.create()(props => {
         <Col>
           <FormItem {...labelLayout} label="类型">
             {readonly ? (
-              <span>{formValues.scene === "JIEJI" ? "接机" : "送机"}</span>
+              <span>{formValues.scene === "JIEJI" ? "接机/站" : "送机/站"}</span>
             ) : (
               form.getFieldDecorator("scene", {
                 rules: [{ required: true, message: "请选择订单类型" }],
                 initialValue: formValues.scene || ""
               })(
                 <Select style={{ width: "100%" }}>
-                  <Option value="JIEJI">接机</Option>
-                  <Option value="SONGJI">送机</Option>
+                  <Option value="JIEJI">接机/站</Option>
+                  <Option value="SONGJI">送机/站</Option>
                 </Select>
               )
             )}
@@ -166,7 +166,7 @@ const NewOrder = Form.create()(props => {
                 : null
             })(
               <DatePicker
-                format="YYYY-MM-DD hh:mm"
+                format="YYYY-MM-DD HH:mm"
                 showTime={{ format: "HH:mm" }}
                 placeholder="上车时间"
                 style={{ width: "100%" }}
@@ -333,7 +333,7 @@ class Shuttle extends PureComponent {
       title: "类型",
       dataIndex: "scene",
       key: "scene",
-      render: text => (text === "JIEJI" ? "接机" : "送机")
+      render: text => (text === "JIEJI" ? "接机/站" : "送机/站")
     },
     {
       title: "乘车人姓名",
@@ -354,7 +354,7 @@ class Shuttle extends PureComponent {
       title: "上车时间",
       dataIndex: "start_time",
       key: "start_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "航班号/班次",
@@ -381,7 +381,7 @@ class Shuttle extends PureComponent {
       title: "下单时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "订单ID",
@@ -776,8 +776,8 @@ class Shuttle extends PureComponent {
             <FormItem label="订单类型">
               {getFieldDecorator("scene")(
                 <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
-                  <Option key="JIEJI">接机</Option>
-                  <Option key="SONGJI">送机</Option>
+                  <Option key="JIEJI">接机/站</Option>
+                  <Option key="SONGJI">送机/站</Option>
                 </Select>
               )}
             </FormItem>
@@ -816,7 +816,7 @@ class Shuttle extends PureComponent {
     };
 
     return (
-      <PageHeaderWrap title="接送机站管理">
+      <PageHeaderWrap title="接送机/站管理">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
