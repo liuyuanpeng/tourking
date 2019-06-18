@@ -41,6 +41,7 @@ const RefundSetting = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title="退款设置"
       visible={modalVisible}
       onOk={okHandle}

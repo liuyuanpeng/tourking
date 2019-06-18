@@ -41,6 +41,7 @@ const NewRole = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title="新增角色"
       visible={modalVisible}
       onOk={okHandle}
@@ -191,6 +192,7 @@ const PermissionSetting = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title="权限设置"
       visible={modalVisible}
       onOk={okHandle}

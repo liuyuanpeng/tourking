@@ -127,6 +127,7 @@ const CommentSetting = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title={"评价项设置"}
       visible={modalVisible}
       onOk={okHandle}

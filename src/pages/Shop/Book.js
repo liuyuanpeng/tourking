@@ -111,6 +111,7 @@ const NewOrder = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title={type === "edit" ? "编辑" : "详情"}
       visible={modalVisible}
       onOk={okHandle}
@@ -122,7 +123,9 @@ const NewOrder = Form.create()(props => {
         <Col>
           <FormItem {...labelLayout} label="类型">
             {readonly ? (
-              <span>{formValues.scene === "JIEJI" ? "接机/站" : "送机/站"}</span>
+              <span>
+                {formValues.scene === "JIEJI" ? "接机/站" : "送机/站"}
+              </span>
             ) : (
               form.getFieldDecorator("scene", {
                 rules: [{ required: true, message: "请选择订单类型" }],
@@ -139,7 +142,12 @@ const NewOrder = Form.create()(props => {
         <Col>
           <FormItem {...labelLayout} label="车型">
             {readonly ? (
-              <span>{formValues.car_config_id || ""}</span>
+              <span>
+                {formValues.car_config_id
+                  ? carTypes.find(item => item.id === formValues.car_config_id)
+                      .name
+                  : ""}
+              </span>
             ) : (
               form.getFieldDecorator("car_config_id", {
                 rules: [{ required: true, message: "请选择车型" }],
@@ -158,139 +166,179 @@ const NewOrder = Form.create()(props => {
         </Col>
         <Col>
           <FormItem {...labelLayout} label="上车时间">
-            {form.getFieldDecorator("start_time", {
-              rules: [
-                {
-                  required: true,
-                  message: "请选择上车时间"
-                }
-              ],
-              initialValue: formValues.start_time
-                ? moment(formValues.start_time)
-                : null
-            })(
-              <DatePicker
-                format="YYYY-MM-DD HH:mm"
-                showTime={{ format: "HH:mm" }}
-                placeholder="上车时间"
-                style={{ width: "100%" }}
-                getPopupContainer={trigger => trigger.parentNode}
-              />
+            {readonly ? (
+              <span>
+                {formValues.start_time
+                  ? moment(formValues.start_time).format("YYYY-MM-DD HH:mm")
+                  : ""}
+              </span>
+            ) : (
+              form.getFieldDecorator("start_time", {
+                rules: [
+                  {
+                    required: true,
+                    message: "请选择上车时间"
+                  }
+                ],
+                initialValue: formValues.start_time
+                  ? moment(formValues.start_time)
+                  : null
+              })(
+                <DatePicker
+                  format="YYYY-MM-DD HH:mm"
+                  showTime={{ format: "HH:mm" }}
+                  placeholder="上车时间"
+                  style={{ width: "100%" }}
+                  getPopupContainer={trigger => trigger.parentNode}
+                />
+              )
             )}
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="上车地点">
-            {form.getFieldDecorator("start_location", {
-              rules: [
-                {
-                  required: true,
-                  message: "请选择上车地点"
-                }
-              ],
-              initialValue:
-                type === "edit"
-                  ? {
-                      address: formValues.start_place,
-                      location: {
-                        longitude: formValues.start_longitude,
-                        latitude: formValues.start_latitude
+            {readonly ? (
+              <span>{formValues.start_place || ""}</span>
+            ) : (
+              form.getFieldDecorator("start_location", {
+                rules: [
+                  {
+                    required: true,
+                    message: "请选择上车地点"
+                  }
+                ],
+                initialValue:
+                  type === "edit"
+                    ? {
+                        address: formValues.start_place,
+                        location: {
+                          longitude: formValues.start_longitude,
+                          latitude: formValues.start_latitude
+                        }
                       }
-                    }
-                  : undefined
-            })(
-              <LocationInput
-                destination={destination}
-                onChange={originChange}
-              />
+                    : undefined
+              })(
+                <LocationInput
+                  destination={destination}
+                  onChange={originChange}
+                />
+              )
             )}
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="目的地">
-            {form.getFieldDecorator("end_location", {
-              rules: [
-                {
-                  required: true,
-                  message: "请选择目的地"
-                }
-              ],
-              initialValue:
-                type === "edit"
-                  ? {
-                      address: formValues.target_place,
-                      location: {
-                        longitude: formValues.target_longitude,
-                        latitude: formValues.target_latitude
+            {readonly ? (
+              <span>{formValues.target_place || ""}</span>
+            ) : (
+              form.getFieldDecorator("end_location", {
+                rules: [
+                  {
+                    required: true,
+                    message: "请选择目的地"
+                  }
+                ],
+                initialValue:
+                  type === "edit"
+                    ? {
+                        address: formValues.target_place,
+                        location: {
+                          longitude: formValues.target_longitude,
+                          latitude: formValues.target_latitude
+                        }
                       }
-                    }
-                  : undefined
-            })(<LocationInput origin={origin} onChange={destinationChange} />)}
+                    : undefined
+              })(<LocationInput origin={origin} onChange={destinationChange} />)
+            )}
           </FormItem>
         </Col>
 
         <Col>
           <FormItem {...labelLayout} label="航班号">
-            {form.getFieldDecorator("air_no", {
-              initialValue: formValues.air_no || ""
-            })(<Input />)}
+            {readonly ? (
+              <span>{formValues.air_no || ""}</span>
+            ) : (
+              form.getFieldDecorator("air_no", {
+                initialValue: formValues.air_no || ""
+              })(<Input />)
+            )}
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="乘客姓名">
-            {form.getFieldDecorator("username", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入乘客姓名"
-                }
-              ],
-              initialValue: formValues.username || ""
-            })(<Input />)}
+            {readonly ? (
+              <span>{formValues.username || ""}</span>
+            ) : (
+              form.getFieldDecorator("username", {
+                rules: [
+                  {
+                    required: true,
+                    message: "请输入乘客姓名"
+                  }
+                ],
+                initialValue: formValues.username || ""
+              })(<Input />)
+            )}
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="联系电话">
-            {form.getFieldDecorator("mobile", {
-              rules: [
-                {
-                  required: true,
-                  message: "请输入联系电话"
-                },
-                {
-                  len: 11,
-                  message: "请输入正确的手机号码"
-                }
-              ],
-              initialValue: formValues.mobile || ""
-            })(<NumberInput numberType="positive integer" />)}
+            {readonly ? (
+              <span>{formValues.mobile || ""}</span>
+            ) : (
+              form.getFieldDecorator("mobile", {
+                rules: [
+                  {
+                    required: true,
+                    message: "请输入联系电话"
+                  },
+                  {
+                    len: 11,
+                    message: "请输入正确的手机号码"
+                  }
+                ],
+                initialValue: formValues.mobile || ""
+              })(<NumberInput numberType="positive integer" />)
+            )}
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="紧急联系人">
-            {form.getFieldDecorator("contact", {
-              initialValue: formValues.contact || ""
-            })(<Input />)}
+            {readonly ? (
+              <span>{formValues.contact || ""}</span>
+            ) : (
+              form.getFieldDecorator("contact", {
+                initialValue: formValues.contact || ""
+              })(<Input />)
+            )}
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="紧急联系人电话">
-            {form.getFieldDecorator("contact_mobile", {
-              rules: [
-                {
-                  len: 11,
-                  message: "请输入正确的手机号码"
-                }
-              ],
-              initialValue: formValues.contact_mobile || ""
-            })(<NumberInput numberType="positive integer" />)}
+            {readonly ? (
+              <span>{formValues.contact_mobile}</span>
+            ) : (
+              form.getFieldDecorator("contact_mobile", {
+                rules: [
+                  {
+                    len: 11,
+                    message: "请输入正确的手机号码"
+                  }
+                ],
+                initialValue: formValues.contact_mobile || ""
+              })(<NumberInput numberType="positive integer" />)
+            )}
           </FormItem>
         </Col>
         <Col>
           <FormItem {...labelLayout} label="用户备注">
-            {form.getFieldDecorator("remark", {
-              initialValue: formValues.remark || ""
-            })(<Input />)}
+            {readonly ? (
+              <span>{formValues.remark}</span>
+            ) : (
+              form.getFieldDecorator("remark", {
+                initialValue: formValues.remark || ""
+              })(<Input />)
+            )}
           </FormItem>
         </Col>
       </Row>

@@ -79,6 +79,7 @@ const NewAccount = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title={type === "add" ? "新增账号" : "编辑账号"}
       visible={modalVisible}
       onOk={okHandle}

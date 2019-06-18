@@ -63,6 +63,7 @@ const NewCar = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title={type === "add" ? "新增" : type === "readonly" ? "详情" : "编辑"}
       visible={modalVisible}
       onOk={okHandle}

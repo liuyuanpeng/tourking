@@ -40,6 +40,7 @@ const OrderDetail = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title="订单详情"
       visible={modalVisible}
       onCancel={() => {
@@ -161,6 +162,7 @@ const DriverDispatch = Form.create()(props => {
   return (
     <Modal
       destroyOnClose
+      width={window.MODAL_WIDTH}
       title="选择司机"
       visible={modalVisible}
       onOk={okHandle}
