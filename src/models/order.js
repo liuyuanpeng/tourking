@@ -266,6 +266,48 @@ export default {
         payload.onFailure && payload.onFailure(response.message);
       }
     },
+    *getPrice({ payload }, { call }) {
+      const {
+        onSuccess,
+        onFailure,
+        scene,
+        car_config_id,
+        kilo,
+        time
+      } = payload;
+      const consume = yield call(queryConsumeList, { scene });
+      if (
+        consume.code !== "SUCCESS" ||
+        !consume.data ||
+        !consume.data[0] ||
+        !consume.data[0].car_levels ||
+        !consume.data[0].car_levels.length
+      ) {
+        onFailure && onFailure("获取车型分级失败!");
+        return;
+      }
+
+      const carLevel = consume.data[0].car_levels.find(
+        item => item.config_id === car_config_id
+      );
+      if (!carLevel) {
+        onFailure && onFailure("没有对应的车型分级!");
+        return;
+      }
+      const { price_strategy_id } = carLevel;
+
+      const priceRes = yield call(getPrice, {
+        kilo,
+        time,
+        price_strategy_id
+      });
+
+      if (priceRes.code !== "SUCCESS") {
+        onFailure && onFailure(priceRes.msg || "获取价格失败");
+        return;
+      }
+      onSuccess && onSuccess(priceRes.data);
+    },
     *updateOrder({ payload }, { call, put }) {
       const {
         searchParams,
