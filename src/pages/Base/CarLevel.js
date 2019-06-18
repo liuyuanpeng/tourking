@@ -24,7 +24,7 @@ import { connect } from "dva";
 import styles from "./index.less";
 import moment from "moment";
 import CarStrategySelection from "./CarStrategySelection";
-import {uniqArr} from "@/utils/utils"
+import { uniqArr } from "@/utils/utils";
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -49,9 +49,13 @@ const NewLevel = Form.create()(props => {
     if (type === "readonly") return handleModalVisible();
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      form.resetFields();
       const { car_levels } = fieldsValue;
-      const car_type_ids = car_levels.map(item => item.config_id);
-      const car_type_ids_fixed = uniqArr(car_type_ids);
+      const car_type_ids = car_levels
+        .map(item => item.config_id)
+        .filter(item => item);
+      const car_type_ids_fixed = uniqArr(car_type_ids).filter(item => item);
+
       if (car_type_ids_fixed.length !== car_type_ids.length) {
         message.error("不允许对同一个类型的车型使用两种价格策略");
         return;
@@ -170,6 +174,7 @@ const NewLevel = Form.create()(props => {
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => {
+        form.resetFields();
         handleModalVisible();
       }}
     >
@@ -420,6 +425,12 @@ export default class CarManager extends PureComponent {
     });
   };
 
+  onAdd = e => {
+    e.preventDefault();
+    id = 0;
+    this.handleModalVisible(true);
+  };
+
   onReadOnly = record => {
     this.setState({
       formValues: { ...record },
@@ -462,11 +473,7 @@ export default class CarManager extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>
               <div className={styles.tableListOperator}>
-                <Button
-                  icon="plus"
-                  type="primary"
-                  onClick={() => this.handleModalVisible(true)}
-                >
+                <Button icon="plus" type="primary" onClick={this.onAdd}>
                   新增车型分级
                 </Button>
               </div>

@@ -23,6 +23,7 @@ import NumberInput from "@/components/NumberInput";
 import ORDER_STATUS from "./orderStatus";
 import styles from "./index.less";
 import queryString from "querystring";
+import ShopInput from "../Settlement/shopInput";
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -455,6 +456,16 @@ class Shuttle extends PureComponent {
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
+      title: "价格",
+      dataIndex: "price",
+      key: "price"
+    },
+    {
+      title: "取消订单手续费",
+      dataIndex: "refund_fee",
+      key: "refund_fee"
+    },
+    {
       title: "订单ID",
       dataIndex: "id",
       key: "id"
@@ -537,12 +548,10 @@ class Shuttle extends PureComponent {
   handleCancel = record => {
     const { dispatch, page } = this.props;
     dispatch({
-      type: "shuttle/cancelOrder",
+      type: "order/cancelOrder",
       payload: {
-        data: record.id,
-        params: {
-          ...this.searchKeys
-        },
+        id: record.id,
+        ...this.searchKeys,
         page,
         size: 10,
         onSuccess: () => {
@@ -879,6 +888,11 @@ class Shuttle extends PureComponent {
                   <Option key="SONGJI">送机/站</Option>
                 </Select>
               )}
+            </FormItem>
+          </Col>
+          <Col span={8}>
+            <FormItem label="商家来源">
+              {getFieldDecorator("shop_id")(<ShopInput allowClear />)}
             </FormItem>
           </Col>
           <Col>

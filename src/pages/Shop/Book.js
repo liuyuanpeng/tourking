@@ -376,7 +376,8 @@ const NewOrder = Form.create()(props => {
   total: order.total,
   carTypes: car_type.list,
   shop_id: user.shopId,
-  shop_name: user.shopName
+  shop_name: user.shopName,
+  config: order.config
 }))
 @Form.create()
 class Book extends PureComponent {
@@ -476,10 +477,14 @@ class Book extends PureComponent {
               编辑
             </a>
           )}
-          {record.order_status === "ACCEPTED" && <Divider type="vertical" />}
-          {record.order_status === "ACCEPTED" && (
+          {(record.order_status === "WAIT_ACCEPT" ||
+            record.order_status === "AUTO" ||
+            record.order_status === "ACCEPTED") && <Divider type="vertical" />}
+          {(record.order_status === "WAIT_ACCEPT" ||
+            record.order_status === "AUTO" ||
+            record.order_status === "ACCEPTED") && (
             <Popconfirm
-              title="确定取消该订单吗?"
+              title={this.getCancelInfo(record)}
               onConfirm={() => {
                 this.handleCancel(record);
               }}
@@ -516,6 +521,9 @@ class Book extends PureComponent {
   componentDidMount() {
     const { dispatch, shop_id } = this.props;
     this.searchKeys = { shop_id };
+    dispatch({
+      type: "order/fetchRefundConfig"
+    });
     dispatch({
       type: "car_type/fetchCarTypes",
       payload: {
@@ -557,6 +565,31 @@ class Book extends PureComponent {
     }
   }
 
+  getCancelInfo = record => {
+    const { config } = this.props;
+    const {
+      before_first_time,
+      first_fund,
+      before_second_time,
+      second_fund
+    } = config;
+    const delta = record.start_time - moment().valueOf();
+    let fundFee1 = 0;
+    let fundFee2 = 0;
+    if (delta < before_first_time * 60 * 60 * 1000) {
+      fundFee1 = (record.price * first_fund) / 100;
+    }
+
+    if (delta < before_second_time * 60 * 60 * 1000) {
+      fundFee2 = (record.price * second_fund) / 100;
+    }
+    const fundFee = Math.max(fundFee1, fundFee2);
+    if (fundFee) {
+      return `取消该订单将产生${fundFee.toFixed(2)}退款,确认取消吗?`;
+    }
+    return "确定取消该订单吗?";
+  };
+
   onReadonly = record => {
     this.setState({
       formValues: { ...record },
@@ -585,12 +618,10 @@ class Book extends PureComponent {
   handleCancel = record => {
     const { dispatch, page } = this.props;
     dispatch({
-      type: "shuttle/cancelOrder",
+      type: "order/cancelOrder",
       payload: {
-        data: record.id,
-        params: {
-          ...this.searchKeys
-        },
+        id: record.id,
+        ...this.searchKeys,
         page,
         size: 10,
         onSuccess: () => {
