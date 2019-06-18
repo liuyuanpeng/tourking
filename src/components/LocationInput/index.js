@@ -245,7 +245,7 @@ export default class LocationInput extends Component {
         <Modal
           width={window.innerWidth}
           destroyOnClose
-          centered
+          style={{top:'0px'}}
           title="地址定位"
           visible={modalVisible}
           onOk={() => {
