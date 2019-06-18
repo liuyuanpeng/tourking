@@ -90,7 +90,9 @@ const NewOrder = Form.create()(props => {
     updateFormValue({
       start_longitude: value.location.longitude,
       start_latitude: value.location.latitude,
-      start_place: value.address
+      start_place: value.address,
+      time: value.time || 0,
+      kilo: value.distance ? value.distance / 1000 : 0
     });
     updateRoute(value);
   };
@@ -99,9 +101,23 @@ const NewOrder = Form.create()(props => {
     updateFormValue({
       target_longitude: value.location.longitude,
       target_latitude: value.location.latitude,
-      target_place: value.address
+      target_place: value.address,
+      time: value.time || 0,
+      kilo: value.distance ? value.distance / 1000 : 0
     });
     updateRoute(value);
+  };
+
+  const changeCarConfigId = value => {
+    updateFormValue({
+      car_config_id: value
+    });
+  };
+
+  const changeScene = value => {
+    updateFormValue({
+      scene: value
+    });
   };
 
   return (
@@ -127,7 +143,7 @@ const NewOrder = Form.create()(props => {
                 rules: [{ required: true, message: "请选择订单类型" }],
                 initialValue: formValues.scene || ""
               })(
-                <Select style={{ width: "100%" }}>
+                <Select style={{ width: "100%" }} onChange={changeScene}>
                   <Option value="JIEJI">接机/站</Option>
                   <Option value="SONGJI">送机/站</Option>
                 </Select>
@@ -149,7 +165,7 @@ const NewOrder = Form.create()(props => {
                 rules: [{ required: true, message: "请选择车型" }],
                 initialValue: formValues.car_config_id || ""
               })(
-                <Select style={{ width: "100%" }}>
+                <Select style={{ width: "100%" }} onChange={changeCarConfigId}>
                   {carTypes.map(item => (
                     <Option key={item.id} value={item.id}>
                       {item.name}
@@ -247,7 +263,13 @@ const NewOrder = Form.create()(props => {
             )}
           </FormItem>
         </Col>
-
+        {formValues.price && (
+          <Col>
+            <FormItem {...labelLayout} label="价格">
+              <span>{formValues.price || ""}</span>
+            </FormItem>
+          </Col>
+        )}
         <Col>
           <FormItem {...labelLayout} label="航班号">
             {readonly ? (
@@ -748,12 +770,40 @@ class Shuttle extends PureComponent {
 
   updateFormValue = params => {
     const { formValues } = this.state;
+    const newFormValues = {
+      ...formValues,
+      ...params
+    };
     this.setState({
       formValues: {
-        ...formValues,
-        ...params
+        ...newFormValues
       }
     });
+
+    const { dispatch } = this.props;
+    const { scene, car_config_id, kilo, time } = newFormValues;
+    if (scene && car_config_id && kilo && time) {
+      dispatch({
+        type: "order/getPrice",
+        payload: {
+          scene,
+          car_config_id,
+          kilo,
+          time,
+          onFailure: msg => {
+            message.error(msg || "获取价格失败!");
+          },
+          onSuccess: price => {
+            this.setState({
+              formValues: {
+                ...newFormValues,
+                price
+              }
+            });
+          }
+        }
+      });
+    }
   };
 
   renderForm() {

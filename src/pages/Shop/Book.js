@@ -269,11 +269,13 @@ const NewOrder = Form.create()(props => {
             )}
           </FormItem>
         </Col>
-        <Col>
-          {formValues.price && <FormItem {...labelLayout} label="价格">
-            <span>{formValues.price || ''}</span>
-          </FormItem>}
-        </Col>
+        {formValues.price && (
+          <Col>
+            <FormItem {...labelLayout} label="价格">
+              <span>{formValues.price || ""}</span>
+            </FormItem>
+          </Col>
+        )}
         <Col>
           <FormItem {...labelLayout} label="航班号">
             {readonly ? (
@@ -908,7 +910,6 @@ class Book extends PureComponent {
   };
 
   updateFormValue = params => {
-    console.log('updateFormValues...')
     const { formValues } = this.state;
     const newFormValues = {
       ...formValues,
