@@ -85,7 +85,7 @@ const NewOrder = Form.create()(props => {
       form.setFieldsValue({
         route: {
           time: value.time || 0,
-          kilo: value.distance ? value.distance / 1000 : 0
+          kilo: value.distance || 0
         }
       });
     }
@@ -97,7 +97,7 @@ const NewOrder = Form.create()(props => {
       start_latitude: value.location.latitude,
       start_place: value.address,
       time: value.time || 0,
-      kilo: value.distance ? value.distance / 1000 : 0
+      kilo: value.distance || 0
     });
     updateRoute(value);
   };
@@ -108,7 +108,7 @@ const NewOrder = Form.create()(props => {
       target_latitude: value.location.latitude,
       target_place: value.address,
       time: value.time || 0,
-      kilo: value.distance ? value.distance / 1000 : 0
+      kilo: value.distance || 0
     });
     updateRoute(value);
   };
@@ -446,6 +446,11 @@ class Book extends PureComponent {
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
+      title: "手续费",
+      dataIndex: "refund_fee",
+      key: "refund_fee"
+    },
+    {
       title: "订单ID",
       dataIndex: "id",
       key: "id"
@@ -618,7 +623,7 @@ class Book extends PureComponent {
   handleCancel = record => {
     const { dispatch, page } = this.props;
     dispatch({
-      type: "order/cancelOrder",
+      type: "order/cancelOrderShop",
       payload: {
         id: record.id,
         ...this.searchKeys,
@@ -823,7 +828,7 @@ class Book extends PureComponent {
     };
     if (route && route.time && route.kilo) {
       params.priceParams = {
-        kilo: route.kilo * 1000,
+        kilo: route.kilo,
         time: route.time
       };
     }

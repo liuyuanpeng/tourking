@@ -93,7 +93,7 @@ const NewOrder = Form.create()(props => {
       start_latitude: value.location.latitude,
       start_place: value.address,
       time: value.time || 0,
-      kilo: value.distance ? value.distance / 1000 : 0
+      kilo: value.distance || 0
     });
     updateRoute(value);
   };
@@ -104,7 +104,7 @@ const NewOrder = Form.create()(props => {
       target_latitude: value.location.latitude,
       target_place: value.address,
       time: value.time || 0,
-      kilo: value.distance ? value.distance / 1000 : 0
+      kilo: value.distance || 0
     });
     updateRoute(value);
   };
@@ -461,7 +461,7 @@ class Shuttle extends PureComponent {
       key: "price"
     },
     {
-      title: "取消订单手续费",
+      title: "手续费",
       dataIndex: "refund_fee",
       key: "refund_fee"
     },
@@ -474,7 +474,7 @@ class Shuttle extends PureComponent {
       title: "操作",
       fixed: "right",
       key: "aciton",
-      width: 150,
+      width: 120,
       render: (text, record) => (
         <span>
           <a href="javascript:;" onClick={() => this.onReadonly(record)}>
@@ -488,7 +488,7 @@ class Shuttle extends PureComponent {
               编辑
             </a>
           )}
-          {record.order_status === "ACCEPTED" && <Divider type="vertical" />}
+          {/* {record.order_status === "ACCEPTED" && <Divider type="vertical" />}
           {record.order_status === "ACCEPTED" && (
             <Popconfirm
               title="确定取消该订单吗?"
@@ -500,7 +500,7 @@ class Shuttle extends PureComponent {
             >
               <a href="javascript:;">取消</a>
             </Popconfirm>
-          )}
+          )} */}
         </span>
       )
     }

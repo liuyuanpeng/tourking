@@ -1,6 +1,7 @@
 import {
   queryOrderPage,
   cancelOrder,
+  cancelOrderShop,
   batchSettled,
   createOrder,
   settled,
@@ -146,6 +147,21 @@ export default {
     *cancelOrder({ payload }, { call, put }) {
       const { id, onSuccess, onFailure, ...others } = payload;
       const response = yield call(cancelOrder, id);
+      if (response.code === "SUCCESS") {
+        yield put({
+          type: "fetchOrderPage",
+          payload: {
+            ...others
+          }
+        });
+        payload.onSuccess && payload.onSuccess();
+      } else {
+        payload.onFailure && payload.onFailure(response.message);
+      }
+    },
+    *cancelOrderShop({ payload }, { call, put }) {
+      const { id, onSuccess, onFailure, ...others } = payload;
+      const response = yield call(cancelOrderShop, id);
       if (response.code === "SUCCESS") {
         yield put({
           type: "fetchOrderPage",

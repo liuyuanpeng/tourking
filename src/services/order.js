@@ -68,6 +68,13 @@ export async function cancelOrder(id) {
   });
 }
 
+// 商家取消订单
+export async function cancelOrderShop(id) {
+  return request(`/server/travel/order/shop_cancel?order_id=${id}`, {
+    method: "POST"
+  });
+}
+
 // 创建订单
 export async function createOrder(params) {
   return request("/server/travel/order/create", {
@@ -182,7 +189,7 @@ export async function settled(id) {
 export async function batchSettled(order_ids) {
   return request("/server/travel/order/batch_settled", {
     method: "POST",
-    data: { order_ids }
+    data: { order_ids: [order_ids] }
   });
 }
 
