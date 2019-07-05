@@ -16,7 +16,7 @@ import { formatMessage } from "umi-plugin-react/locale";
 import { connect } from "dva";
 import moment from "moment";
 import ShopInput from "./shopInput";
-import styles from "./index.less";
+import styles from "../index.less";
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -68,7 +68,12 @@ class Settlement extends PureComponent {
       title: "类型",
       dataIndex: "scene",
       key: "scene",
-      render: text => (text === "JIEJI" ? "接机/站" : "送机/站")
+      render: text =>
+        text === "JIEJI"
+          ? "接机/站"
+          : text === "SONGJI"
+          ? "送机/站"
+          : "预约用车"
     },
     {
       title: "上车地点",
@@ -232,9 +237,9 @@ class Settlement extends PureComponent {
           ...this.searchKeys
         },
         callback: response => {
-          if (response.type.indexOf('application/json') !== -1) {
-            message.error(response.message || '导出失败')
-            return
+          if (response.type.indexOf("application/json") !== -1) {
+            message.error(response.message || "导出失败");
+            return;
           }
           const blob = new Blob([response], { type: "Files" });
           const aLink = document.createElement("a");
@@ -433,11 +438,7 @@ class Settlement extends PureComponent {
               <Button icon="reload" type="primary" onClick={this.handleRefresh}>
                 刷新
               </Button>
-              <Button
-                icon="export"
-                type="primary"
-                onClick={this.handleExport}
-              >
+              <Button icon="export" type="primary" onClick={this.handleExport}>
                 导出查询
               </Button>
             </div>

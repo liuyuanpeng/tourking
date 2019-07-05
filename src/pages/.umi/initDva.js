@@ -14,6 +14,7 @@ app.use(createLoading());
   app.use(plugin);
 });
 
+app.model({ namespace: 'address', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/address.js').default) });
 app.model({ namespace: 'car_type', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/car_type.js').default) });
 app.model({ namespace: 'car', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/car.js').default) });
 app.model({ namespace: 'driver', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/driver.js').default) });

@@ -228,7 +228,6 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
@@ -245,7 +244,6 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
@@ -262,7 +260,6 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
@@ -279,7 +276,6 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
@@ -296,7 +292,6 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
@@ -313,7 +308,6 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
@@ -330,7 +324,6 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Base__models__address.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/address.js').then(m => { return { namespace: 'address',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})

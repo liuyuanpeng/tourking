@@ -19,7 +19,7 @@ import {
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
-import styles from "./index.less";
+import styles from "../index.less";
 import moment from "moment";
 import DriverInput from "./DriverInput";
 
@@ -220,7 +220,7 @@ export default class CarManager extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a
             href="javascript:;"
             onClick={() => {

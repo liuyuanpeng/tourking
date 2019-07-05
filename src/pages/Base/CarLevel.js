@@ -21,7 +21,7 @@ import {
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
-import styles from "./index.less";
+import styles from "../index.less";
 import moment from "moment";
 import CarStrategySelection from "./CarStrategySelection";
 import { uniqArr } from "@/utils/utils";
@@ -182,7 +182,11 @@ const NewLevel = Form.create()(props => {
         <FormItem {...labelLayout} label="用车场景">
           {readonly ? (
             <span>
-              {formValues.consume.scene === "JIEJI" ? "接机" : "送机"}
+              {formValues.consume.scene === "JIEJI"
+                ? "接机/站"
+                : formValues.consume.scene === "JIEJI"
+                ? "送机/站"
+                : "预约用车"}
             </span>
           ) : (
             form.getFieldDecorator("scene", {
@@ -190,27 +194,9 @@ const NewLevel = Form.create()(props => {
               rules: [{ required: true, message: "请输入用车场景" }]
             })(
               <Select style={{ width: "100%" }}>
-                <Option key="JIEJI">接机</Option>
-                <Option key="SONGJI">送机</Option>
-              </Select>
-            )
-          )}
-        </FormItem>
-        <FormItem {...labelLayout} label="用车类型">
-          {readonly ? (
-            <span>
-              {formValues.consume.common_scene === "NOW"
-                ? "立即用车"
-                : "预约用车"}
-            </span>
-          ) : (
-            form.getFieldDecorator("common_scene", {
-              initialValue: formValues.consume.common_scene || "",
-              rules: [{ required: true, message: "请输入用车类型" }]
-            })(
-              <Select style={{ width: "100%" }}>
-                <Option key="NOW">立即用车</Option>
-                <Option key="ORDER">预约用车</Option>
+                <Option key="JIEJI">接机/站</Option>
+                <Option key="SONGJI">送机/站</Option>
+                <Option key="ORDER_SCENE">预约用车</Option>
               </Select>
             )
           )}
@@ -303,20 +289,17 @@ export default class CarManager extends PureComponent {
   handleAdd = fields => {
     const { dispatch, data } = this.props;
     const result = data.find(
-      item =>
-        item &&
-        item.consume.scene === fields.scene &&
-        item.consume.common_scene === fields.common_scene
+      item => item && item.consume.scene === fields.scene
     );
     if (result && result.length) {
       message.error("该用车类型已有车型分级");
       return;
     }
-    const { car_levels, scene, common_scene, description } = fields;
+    const { car_levels, scene, description } = fields;
     const params = {
       car_levels,
       consume: {
-        common_scene,
+        common_scene: "ORDER",
         description,
         scene
       }
@@ -341,13 +324,12 @@ export default class CarManager extends PureComponent {
       title: "用车场景",
       dataIndex: "consume.scene",
       key: "consume.scene",
-      render: text => (text === "JIEJI" ? "接机" : "送机")
-    },
-    {
-      title: "用车类型",
-      dataIndex: "consume.common_scene",
-      key: "consume.common_scene",
-      render: text => (text === "NOW" ? "立即用车" : "预约用车")
+      render: text =>
+        text === "JIEJI"
+          ? "接机/站"
+          : text === "SONGJI"
+          ? "送机/站"
+          : "预约用车"
     },
     {
       title: "备注",
@@ -358,7 +340,7 @@ export default class CarManager extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a
             href="javascript:;"
             onClick={() => {

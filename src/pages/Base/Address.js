@@ -19,7 +19,7 @@ import {
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
-import styles from "./index.less";
+import styles from "../index.less";
 import moment from "moment";
 import LocationInput from "@/components/LocationInput";
 
@@ -145,7 +145,7 @@ class Address extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a
             href="javascript:;"
             onClick={() => {

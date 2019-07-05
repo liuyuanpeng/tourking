@@ -23,7 +23,7 @@ import {
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
-import styles from "./index.less";
+import styles from "../index.less";
 import moment from "moment";
 import DriverInput from "./DriverInput";
 

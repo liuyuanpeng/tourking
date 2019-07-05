@@ -17,7 +17,7 @@ import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
 import moment from "moment";
-import styles from "./index.less";
+import styles from "../index.less";
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -114,7 +114,10 @@ const NewAccount = Form.create()(props => {
       )}
       <FormItem {...labelLayout} label="联系人">
         {form.getFieldDecorator("name", {
-          initialValue: formValues.name || ""
+          initialValue: formValues.name || "",
+          rules: [
+            {required: true, message: '请输入联系人'}
+          ]
         })(<Input style={{ width: "100%" }} />)}
       </FormItem>
       {type === "add" && (
@@ -236,7 +239,7 @@ class Account extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a
             href="javascript:;"
             onClick={() => {

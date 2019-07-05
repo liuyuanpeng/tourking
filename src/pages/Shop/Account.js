@@ -14,7 +14,7 @@ import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
 import moment from "moment";
-import styles from "./index.less";
+import styles from "../index.less";
 
 const FormItem = Form.Item;
 const { confirm } = Modal;
@@ -158,7 +158,7 @@ class Account extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a
             href="javascript:;"
             onClick={() => {

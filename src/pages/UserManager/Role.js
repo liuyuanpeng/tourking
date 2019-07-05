@@ -17,7 +17,7 @@ import {
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { connect } from "dva";
-import styles from "./index.less";
+import styles from "../index.less";
 
 const { TextArea } = Input;
 const FormItem = Form.Item;
@@ -255,7 +255,7 @@ class Role extends PureComponent {
       key: "action",
       render: (text, record) =>
         record.is_init ? null : (
-          <span>
+          <span className={styles.actionColumn}>
             <a
               href="javascript:;"
               onClick={() => this.onPermissionClick(record)}

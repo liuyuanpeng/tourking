@@ -10,7 +10,6 @@ import {
   Form,
   Row,
   Col,
-  Popconfirm,
   message,
   Divider
 } from "antd";
@@ -21,14 +20,13 @@ import LocationInput from "@/components/LocationInput";
 import moment from "moment";
 import NumberInput from "@/components/NumberInput";
 import ORDER_STATUS from "./orderStatus";
-import styles from "./index.less";
-import queryString from "querystring";
+import styles from "../index.less";
 import ShopInput from "../Settlement/shopInput";
+import OrderHistory from "@/components/OrderHistory";
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-const confirm = Modal.confirm;
 
 const NewOrder = Form.create()(props => {
   const {
@@ -121,6 +119,12 @@ const NewOrder = Form.create()(props => {
     });
   };
 
+  const changeStartTime = value => {
+    updateFormValue({
+      start_time: value ? value.valueOf() : ''
+    })
+  }
+
   return (
     <Modal
       destroyOnClose
@@ -137,7 +141,11 @@ const NewOrder = Form.create()(props => {
           <FormItem {...labelLayout} label="类型">
             {readonly ? (
               <span>
-                {formValues.scene === "JIEJI" ? "接机/站" : "送机/站"}
+                {formValues.scene === "JIEJI"
+                  ? "接机/站"
+                  : formValues.scene === "SONGJI"
+                  ? "送机/站"
+                  : "预约用车"}
               </span>
             ) : (
               form.getFieldDecorator("scene", {
@@ -147,6 +155,7 @@ const NewOrder = Form.create()(props => {
                 <Select style={{ width: "100%" }} onChange={changeScene}>
                   <Option value="JIEJI">接机/站</Option>
                   <Option value="SONGJI">送机/站</Option>
+                  <Option value="ORDER_SCENE">预约用车</Option>
                 </Select>
               )
             )}
@@ -198,6 +207,7 @@ const NewOrder = Form.create()(props => {
                   : null
               })(
                 <DatePicker
+                  onChange={changeStartTime}
                   format="YYYY-MM-DD HH:mm"
                   showTime={{ format: "HH:mm" }}
                   placeholder="上车时间"
@@ -366,10 +376,12 @@ const NewOrder = Form.create()(props => {
 
 @connect(({ order, car_type, loading }) => ({
   loading: loading.effects["order/fetchOrderPage"],
+  historyLoading: loading.effects["order/fetchOrderHistory"],
   data: order.list,
   page: order.page,
   total: order.total,
-  carTypes: car_type.list
+  carTypes: car_type.list,
+  orderHistory: order.history
 }))
 @Form.create()
 class Shuttle extends PureComponent {
@@ -377,6 +389,7 @@ class Shuttle extends PureComponent {
 
   state = {
     modalVisible: false,
+    historyVisible: false,
     formValues: {},
     timeType: undefined,
     type: "readonly"
@@ -405,7 +418,12 @@ class Shuttle extends PureComponent {
       title: "类型",
       dataIndex: "scene",
       key: "scene",
-      render: text => (text === "JIEJI" ? "接机/站" : "送机/站")
+      render: text =>
+        text === "JIEJI"
+          ? "接机/站"
+          : text === "SONGJI"
+          ? "送机/站"
+          : "预约用车"
     },
     {
       title: "乘车人姓名",
@@ -456,6 +474,16 @@ class Shuttle extends PureComponent {
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
+      title: "司机电话",
+      dataIndex: "driver_mobile",
+      key: "driver_mobile"
+    },
+    {
+      title: "车牌号",
+      dataIndex: "driver_car_no",
+      key: "driver_car_no"
+    },
+    {
       title: "价格",
       dataIndex: "price",
       key: "price"
@@ -474,11 +502,15 @@ class Shuttle extends PureComponent {
       title: "操作",
       fixed: "right",
       key: "aciton",
-      width: 120,
+      width: 150,
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a href="javascript:;" onClick={() => this.onReadonly(record)}>
             查看
+          </a>
+          <Divider type="vertical" />
+          <a href="javascript:;" onClick={() => this.showHistory(record)}>
+            历史
           </a>
           {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
             <Divider type="vertical" />
@@ -488,19 +520,6 @@ class Shuttle extends PureComponent {
               编辑
             </a>
           )}
-          {/* {record.order_status === "ACCEPTED" && <Divider type="vertical" />}
-          {record.order_status === "ACCEPTED" && (
-            <Popconfirm
-              title="确定取消该订单吗?"
-              onConfirm={() => {
-                this.handleCancel(record);
-              }}
-              okText="是"
-              cancelText="否"
-            >
-              <a href="javascript:;">取消</a>
-            </Popconfirm>
-          )} */}
         </span>
       )
     }
@@ -567,6 +586,12 @@ class Shuttle extends PureComponent {
   handleModalVisible = flag => {
     this.setState({
       modalVisible: !!flag
+    });
+  };
+
+  handleHistoryVisible = flag => {
+    this.setState({
+      historyVisible: !!flag
     });
   };
 
@@ -790,7 +815,7 @@ class Shuttle extends PureComponent {
     });
 
     const { dispatch } = this.props;
-    const { scene, car_config_id, kilo, time } = newFormValues;
+    const { scene, car_config_id, kilo, time, start_time } = newFormValues;
     if (scene && car_config_id && kilo && time) {
       dispatch({
         type: "order/getPrice",
@@ -799,6 +824,7 @@ class Shuttle extends PureComponent {
           car_config_id,
           kilo,
           time,
+          start_time,
           onFailure: msg => {
             message.error(msg || "获取价格失败!");
           },
@@ -813,6 +839,27 @@ class Shuttle extends PureComponent {
         }
       });
     }
+  };
+
+  showHistory = record => {
+    const {dispatch} = this.props;
+    const {id} = record;
+    dispatch({
+      type: 'order/fetchOrderHistory',
+      payload: {
+        orderId: id,
+        onSuccess: data => {
+          if (!data || data.length <= 0) {
+            message.info('暂无该订单的历史记录!');
+          } else {
+            this.handleHistoryVisible(true);
+          }
+        },
+        onFailure: msg => {
+          message.error(msg || '获取订单历史失败!')
+        }
+      }
+    })
   };
 
   renderForm() {
@@ -886,6 +933,7 @@ class Shuttle extends PureComponent {
                 <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
+                  <Option key="ORDER_SCENE">预约用车</Option>
                 </Select>
               )}
             </FormItem>
@@ -916,8 +964,13 @@ class Shuttle extends PureComponent {
   }
 
   render() {
-    const { loading, data, page, total, carTypes } = this.props;
-    const { modalVisible, formValues, type } = this.state;
+    const { loading, historyLoading, data, page, total, carTypes, orderHistory } = this.props;
+    const {
+      modalVisible,
+      formValues,
+      type,
+      historyVisible
+    } = this.state;
 
     const parentMethods = {
       type,
@@ -926,6 +979,12 @@ class Shuttle extends PureComponent {
       handleModalVisible: this.handleModalVisible,
       handleEdit: this.handleEdit,
       updateFormValue: this.updateFormValue
+    };
+
+    const historyMethod = {
+      data: orderHistory,
+      modalVisible: historyVisible,
+      handleModalVisible: this.handleHistoryVisible
     };
 
     return (
@@ -944,7 +1003,7 @@ class Shuttle extends PureComponent {
             <div className={styles.tableWrapper}>
               <Table
                 rowKey={record => record.id}
-                loading={loading}
+                loading={loading || historyLoading}
                 pagination={{
                   pageSize: 10,
                   current: page + 1,
@@ -961,6 +1020,7 @@ class Shuttle extends PureComponent {
           </div>
         </Card>
         <NewOrder {...parentMethods} modalVisible={modalVisible} />
+        <OrderHistory {...historyMethod} />
       </PageHeaderWrap>
     );
   }

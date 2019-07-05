@@ -21,8 +21,8 @@ import LocationInput from "@/components/LocationInput";
 import moment from "moment";
 import NumberInput from "@/components/NumberInput";
 import ORDER_STATUS from "../Order/orderStatus";
-import styles from "./index.less";
-import { updateOrder } from "@/services/order";
+import styles from "../index.less";
+import OrderHistory from "@/components/OrderHistory";
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -125,6 +125,12 @@ const NewOrder = Form.create()(props => {
     });
   };
 
+  const changeStartTime = value => {
+    updateFormValue({
+      start_time: value ? value.valueOf() : ''
+    })
+  }
+
   return (
     <Modal
       destroyOnClose
@@ -141,7 +147,11 @@ const NewOrder = Form.create()(props => {
           <FormItem {...labelLayout} label="类型">
             {readonly ? (
               <span>
-                {formValues.scene === "JIEJI" ? "接机/站" : "送机/站"}
+                {formValues.scene === "JIEJI"
+                  ? "接机/站"
+                  : formValues.scene === "SONGJI"
+                  ? "送机/站"
+                  : "预约用车"}
               </span>
             ) : (
               form.getFieldDecorator("scene", {
@@ -151,6 +161,7 @@ const NewOrder = Form.create()(props => {
                 <Select style={{ width: "100%" }} onChange={changeScene}>
                   <Option value="JIEJI">接机/站</Option>
                   <Option value="SONGJI">送机/站</Option>
+                  <Option value="ORDER_SCENE">预约用车</Option>
                 </Select>
               )
             )}
@@ -202,6 +213,7 @@ const NewOrder = Form.create()(props => {
                   : null
               })(
                 <DatePicker
+                  onChange={changeStartTime}
                   format="YYYY-MM-DD HH:mm"
                   showTime={{ format: "HH:mm" }}
                   placeholder="上车时间"
@@ -377,7 +389,9 @@ const NewOrder = Form.create()(props => {
   carTypes: car_type.list,
   shop_id: user.shopId,
   shop_name: user.shopName,
-  config: order.config
+  config: order.config,
+  historyLoading: loading.effects["order/fetchOrderHistory"],
+  orderHistory: order.history
 }))
 @Form.create()
 class Book extends PureComponent {
@@ -385,6 +399,7 @@ class Book extends PureComponent {
 
   state = {
     modalVisible: false,
+    historyVisible: false,
     formValues: {},
     timeType: undefined,
     type: "add",
@@ -401,7 +416,12 @@ class Book extends PureComponent {
       title: "类型",
       dataIndex: "scene",
       key: "scene",
-      render: text => (text === "JIEJI" ? "接机/站" : "送机/站")
+      render: text =>
+        text === "JIEJI"
+          ? "接机/站"
+          : text === "SONGJI"
+          ? "送机/站"
+          : "预约用车"
     },
     {
       title: "上车地点",
@@ -446,6 +466,16 @@ class Book extends PureComponent {
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
+      title: "司机电话",
+      dataIndex: "driver_mobile",
+      key: "driver_mobile"
+    },
+    {
+      title: "车牌号",
+      dataIndex: "driver_car_no",
+      key: "driver_car_no"
+    },
+    {
       title: "手续费",
       dataIndex: "refund_fee",
       key: "refund_fee"
@@ -468,11 +498,15 @@ class Book extends PureComponent {
       title: "操作",
       fixed: "right",
       key: "aciton",
-      width: 150,
+      width: 200,
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a href="javascript:;" onClick={() => this.onReadonly(record)}>
             查看
+          </a>
+          <Divider type="vertical" />
+          <a href="javascript:;" onClick={() => this.showHistory(record)}>
+            历史
           </a>
           {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
             <Divider type="vertical" />
@@ -603,6 +637,27 @@ class Book extends PureComponent {
     });
   };
 
+  showHistory = record => {
+    const {dispatch} = this.props;
+    const {id} = record;
+    dispatch({
+      type: 'order/fetchOrderHistory',
+      payload: {
+        orderId: id,
+        onSuccess: data => {
+          if (!data || data.length <= 0) {
+            message.info('暂无该订单的历史记录!');
+          } else {
+            this.handleHistoryVisible(true);
+          }
+        },
+        onFailure: msg => {
+          message.error(msg || '获取订单历史失败!')
+        }
+      }
+    })
+  };
+
   onEdit = record => {
     this.setState({
       formValues: { ...record },
@@ -685,6 +740,12 @@ class Book extends PureComponent {
   handleModalVisible = flag => {
     this.setState({
       modalVisible: !!flag
+    });
+  };
+
+  handleHistoryVisible = flag => {
+    this.setState({
+      historyVisible: !!flag
     });
   };
 
@@ -957,7 +1018,7 @@ class Book extends PureComponent {
       }
     });
     const { dispatch } = this.props;
-    const { scene, car_config_id, kilo, time } = newFormValues;
+    const { scene, car_config_id, kilo, time, start_time } = newFormValues;
     if (scene && car_config_id && kilo && time) {
       dispatch({
         type: "order/getPrice",
@@ -966,6 +1027,7 @@ class Book extends PureComponent {
           car_config_id,
           kilo,
           time,
+          start_time,
           onFailure: msg => {
             message.error(msg || "获取价格失败!");
           },
@@ -1053,6 +1115,7 @@ class Book extends PureComponent {
                 <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
+                  <Option key="ORDER_SCENE">预约用车</Option>
                 </Select>
               )}
             </FormItem>
@@ -1078,8 +1141,8 @@ class Book extends PureComponent {
   }
 
   render() {
-    const { loading, data, page, total, carTypes } = this.props;
-    const { modalVisible, formValues, type, selectedRowKeys } = this.state;
+    const { loading, data, page, total, carTypes, orderHistory, historyLoading } = this.props;
+    const { modalVisible, historyVisible, formValues, type, selectedRowKeys } = this.state;
 
     const parentMethods = {
       type,
@@ -1089,6 +1152,12 @@ class Book extends PureComponent {
       handleEdit: this.handleEdit,
       updateFormValue: this.updateFormValue,
       handleAddOrder: this.handleAddOrder
+    };
+
+    const historyMethod = {
+      data: orderHistory,
+      modalVisible: historyVisible,
+      handleModalVisible: this.handleHistoryVisible
     };
 
     return (
@@ -1116,7 +1185,7 @@ class Book extends PureComponent {
               <Table
                 rowKey={record => record.id}
                 rowSelection={this.rowSelection}
-                loading={loading}
+                loading={loading || historyLoading}
                 pagination={{
                   pageSize: 10,
                   current: page + 1,
@@ -1133,6 +1202,7 @@ class Book extends PureComponent {
           </div>
         </Card>
         <NewOrder {...parentMethods} modalVisible={modalVisible} />
+        <OrderHistory {...historyMethod} />
       </PageHeaderWrap>
     );
   }

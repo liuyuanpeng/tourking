@@ -15,7 +15,7 @@ import {
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { connect } from "dva";
 import moment from "moment";
-import styles from "./index.less";
+import styles from "../index.less";
 import NumberInput from "@/components/NumberInput";
 
 const FormItem = Form.Item;

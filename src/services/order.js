@@ -1,6 +1,11 @@
 import request from "@/utils/request";
 import queryString from "querystring";
 
+// 订单历史
+export async function queryOrderHistory(params) {
+  return request(`/server/travel/order/get_history?${queryString.stringify(params)}`);
+}
+
 // 导出订单
 export async function exportOrder(params) {
   return request(

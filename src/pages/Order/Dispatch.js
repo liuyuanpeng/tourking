@@ -20,7 +20,7 @@ import moment from "moment";
 import RangeInput from "./rangeInput";
 import ORDER_STATUS from "./orderStatus";
 import DriverInput from "../Base/DriverInput";
-import styles from "./index.less";
+import styles from "../index.less";
 
 const FormItem = Form.Item;
 const { RangePicker } = DatePicker;
@@ -56,7 +56,13 @@ const OrderDetail = Form.create()(props => {
         </Col>
         <Col>
           <FormItem {...labelLayout} label="类型">
-            <span>{formValues.scene === "JIEJI" ? "接机/站" : "送机/站"}</span>
+            <span>
+              {formValues.scene === "JIEJI"
+                ? "接机/站"
+                : formValues.scene === "SONGJI"
+                ? "送机/站"
+                : "预约用车"}
+            </span>
           </FormItem>
         </Col>
         <Col>
@@ -219,14 +225,29 @@ class Dispatch extends PureComponent {
       title: "类型",
       dataIndex: "scene",
       key: "scene",
-      render: text => (text === "JIEJI" ? "接机/站" : "送机/站")
+      render: text =>
+        text === "JIEJI"
+          ? "接机/站"
+          : text === "SONGJI"
+          ? "送机/站"
+          : "预约用车"
     },
     {
       title: "状态",
       dataIndex: "auto_dispatch_time",
       key: "auto_dispatch_time",
-      render: text=>{
-        return `已派单${text ? (moment().subtract(text).valueOf()/1000/60).toFixed(1) : 0}分钟`
+      render: text => {
+        return `已派单${
+          text
+            ? (
+                moment()
+                  .subtract(text)
+                  .valueOf() /
+                1000 /
+                60
+              ).toFixed(1)
+            : 0
+        }分钟`;
       }
     },
     {
@@ -276,7 +297,7 @@ class Dispatch extends PureComponent {
       key: "aciton",
       width: 150,
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a href="javascript:;" onClick={() => this.onReadonly(record)}>
             查看
           </a>
@@ -386,9 +407,9 @@ class Dispatch extends PureComponent {
           ...this.searchKeys
         },
         callback: response => {
-          if (response.type.indexOf('application/json') !== -1) {
-            message.error(response.message || '导出失败')
-            return
+          if (response.type.indexOf("application/json") !== -1) {
+            message.error(response.message || "导出失败");
+            return;
           }
           const blob = new Blob([response], { type: "Files" });
           const aLink = document.createElement("a");

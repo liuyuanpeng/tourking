@@ -14,13 +14,16 @@ import {
   Divider,
   Modal,
   Popconfirm,
-  message
+  message,
+  Icon,
+  List
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
-import styles from "./index.less";
+import styles from "../index.less";
 import moment from "moment";
+import DistanceAndPriceInput from "./DistanceAndPriceInput";
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -30,30 +33,37 @@ const STRATEGY_PLANS = [
   {
     name: "方案1",
     plan_type: "ONE",
-    plan_description: "总费用=公里数×里程费"
+    plan_description: "总费用=(公里数×里程费)*(1+夜间服务费)"
   },
   {
     name: "方案2",
     plan_type: "TWO",
-    plan_description: "总费用=基础费+公里数×里程费"
+    plan_description: "总费用=(基础费+公里数×里程费)*(1+夜间服务费)"
   },
   {
     name: "方案3",
     plan_type: "THREE",
-    plan_description: "总费用=基础费+时长(四舍五入)×时长费"
+    plan_description: "总费用=(基础费+时长(四舍五入)×时长费)*(1+夜间服务费)"
   },
   {
     name: "方案4",
     plan_type: "FOUR",
-    plan_description: "总费用=基础费+(公里数-起步公里数)×里程费"
+    plan_description: "总费用=(基础费+(公里数-起步公里数)×里程费)*(1+夜间服务费)"
   },
   {
     name: "方案5",
     plan_type: "FIVE",
     plan_description:
-      "总费用=基础费+公里数×里程费+时长×时长费+(公里数-远途界限)×远途费"
+      "总费用=(基础费+公里数×里程费+时长×时长费+(公里数-远途界限)×远途费)*(1+夜间服务费)"
+  },
+  {
+    name: "方案6",
+    plan_type: "SIX",
+    plan_description: "总费用=(价格区间收费 + 超出公里数×里程费)*(1+夜间服务费)"
   }
 ];
+
+let id = 0;
 
 const NewStrategy = Form.create()(props => {
   const {
@@ -72,6 +82,25 @@ const NewStrategy = Form.create()(props => {
     item => item.plan_type === currentPlan
   );
 
+  const remove = k => {
+    const keys = form.getFieldValue("keys");
+    if (keys.length === 1) {
+      return;
+    }
+
+    // can use data-binding to set
+    form.setFieldsValue({
+      keys: keys.filter(key => key !== k)
+    });
+  };
+
+  const add = () => {
+    const keys = form.getFieldValue("keys");
+    const nextKeys = keys.concat(id++);
+    form.setFieldsValue({
+      keys: nextKeys
+    });
+  };
   const okHandle = () => {
     if (type === "readonly") handleModalVisible();
     form.validateFields((err, fieldsValue) => {
@@ -86,11 +115,75 @@ const NewStrategy = Form.create()(props => {
   };
 
   const labelLayout = {
-    labelCol: { span: 6 },
-    wrapperCol: { span: 15 }
+    labelCol: {
+      xs: { span: 24 },
+      sm: { span: 4 }
+    },
+    wrapperCol: {
+      xs: { span: 24 },
+      sm: { span: 20 }
+    }
+  };
+  const formItemLayout = {};
+
+  const formItemLayoutWithOutLabel = {
+    wrapperCol: {
+      xs: { span: 24, offset: 0 },
+      sm: { span: 20, offset: 4 }
+    }
   };
 
   const readonly = type === "readonly";
+
+  let keyValues = [];
+  let distanceArr = [];
+  let distanceObj = {};
+  if (formValues.distance) {
+    try {
+      distanceObj = JSON.parse(formValues.distance);
+      Object.keys(distanceObj).forEach((item, index) => {
+        distanceArr.push({ distance: item, price: distanceObj[item] });
+      });
+    } catch (error) {
+      console.log("parse error: ", error);
+    }
+  }
+  if (type === "edit" ) {
+    Object.keys(distanceObj).forEach((item, index) => {
+      keyValues.push(index);
+    });
+    id = Object.keys(distanceObj).length;
+  }
+  form.getFieldDecorator("keys", { initialValue: keyValues });
+  const keys = form.getFieldValue("keys");
+
+  const formItems = keys.map((k, index) => (
+    <Form.Item
+      {...(index === 0 ? labelLayout : formItemLayoutWithOutLabel)}
+      label={index === 0 ? "分段收费" : ""}
+      required={false}
+      key={k}
+    >
+      {form.getFieldDecorator(`distance[${k}]`, {
+        initialValue: type === 'edit' ? distanceArr[k] : {},
+        rules: [
+          {
+            required: true,
+            message: "请输入完整数据或者删除此项"
+          }
+        ]
+      })(<DistanceAndPriceInput />)}
+      {keys.length > 1 ? (
+        <a
+          href="javascript:void();"
+          style={{ verticalAlign: "top", marginLeft: "10px" }}
+          onClick={() => remove(k)}
+        >
+          删除
+        </a>
+      ) : null}
+    </Form.Item>
+  ));
 
   return (
     <Modal
@@ -147,7 +240,30 @@ const NewStrategy = Form.create()(props => {
           {formValues.plan_description || SELECT_PLAN.plan_description}
         </span>
       </FormItem>
-      {currentPlan !== "ONE" && (
+      {currentPlan === "SIX" && readonly ? (
+        <FormItem {...labelLayout} label="分段收费">
+          <List
+            bordered
+            itemLayout="horizontal"
+            dataSource={formValues.distance ? distanceArr : []}
+            renderItem={(item, index) => (
+              <List.Item key={index}>
+                {`${item.distance}公里: ${item.price}元`}
+              </List.Item>
+            )}
+          />
+        </FormItem>
+      ) : (
+        formItems
+      )}
+      {currentPlan === "SIX" && !readonly && (
+        <Form.Item {...formItemLayoutWithOutLabel}>
+          <Button type="dashed" onClick={add} style={{ width: "60%" }}>
+            <Icon type="plus" /> 新增分段里程
+          </Button>
+        </Form.Item>
+      )}
+      {currentPlan !== "ONE" && currentPlan !== "SIX" && (
         <FormItem {...labelLayout} label="基础费">
           {readonly ? (
             <span>{formValues.base_price}</span>
@@ -219,6 +335,21 @@ const NewStrategy = Form.create()(props => {
           )}
         </FormItem>
       )}
+      <FormItem {...labelLayout} label="夜间服务费">
+        {readonly ? (
+          <span>{formValues.night_percent}</span>
+        ) : (
+          form.getFieldDecorator("night_percent", {
+            initialValue: formValues.night_percent || "",
+            rules: [{ required: true, message: "请输入夜间服务费(22:00~7:00)" }]
+          })(
+            <NumberInput
+              style={{ width: "100px", textAlign: "right" }}
+              addonAfter="%"
+            />
+          )
+        )}
+      </FormItem>
     </Modal>
   );
 });
@@ -265,6 +396,16 @@ export default class PriceStrategy extends PureComponent {
 
   handleAdd = fields => {
     const { dispatch } = this.props;
+    let distance = {};
+    fields.distance && fields.distance.forEach((item) => {
+      distance[item.distance] = item.price;
+    })
+    delete fields.keys;
+    if (Object.keys(distance).length) {
+      fields.distance = JSON.stringify(distance);
+    } else if (fields.distance){
+      delete fields.distance;
+    }
     dispatch({
       type: "price/savePriceStrategy",
       payload: {
@@ -311,7 +452,7 @@ export default class PriceStrategy extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) => (
-        <span>
+        <span className={styles.actionColumn}>
           <a
             href="javascript:;"
             onClick={() => {
@@ -348,6 +489,16 @@ export default class PriceStrategy extends PureComponent {
   handleEdit = info => {
     const { dispatch } = this.props;
     const { formValues } = this.state;
+    let distance = {};
+    info.distance && info.distance.forEach((item) => {
+      distance[item.distance] = item.price;
+    })
+    delete info.keys;
+    if (Object.keys(distance).length) {
+      info.distance = JSON.stringify(distance);
+    } else if (info.distance){
+      delete info.distance;
+    }
     dispatch({
       type: "price/savePriceStrategy",
       payload: {
@@ -374,7 +525,8 @@ export default class PriceStrategy extends PureComponent {
     this.setState({
       formValues: { ...record },
       modalVisible: true,
-      type: "edit"
+      type: "edit",
+      currentPlan: record.plan_type
     });
   };
 
@@ -382,7 +534,8 @@ export default class PriceStrategy extends PureComponent {
     this.setState({
       formValues: { ...record },
       modalVisible: true,
-      type: "readonly"
+      type: "readonly",
+      currentPlan: record.plan_type
     });
   };
 

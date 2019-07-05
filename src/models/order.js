@@ -1,5 +1,6 @@
 import {
   queryOrderPage,
+  queryOrderHistory,
   cancelOrder,
   cancelOrderShop,
   batchSettled,
@@ -30,10 +31,24 @@ export default {
     list: [],
     page: 0,
     total: 0,
-    config: {}
+    config: {},
+    history: []
   },
 
   effects: {
+    *fetchOrderHistory({ payload }, { call, put }) {
+      const { orderId, onSuccess, onFailure } = payload;
+      const response = yield call(queryOrderHistory, { order_id: orderId });
+      if (response.code === "SUCCESS") {
+        yield put({
+          type: "saveHistory",
+          payload: response.data
+        });
+        onSuccess && onSuccess(response.data);
+      } else {
+        onFailure && onFailure(response.message);
+      }
+    },
     *fetchRefundPage({ payload }, { call, put }) {
       const response = yield call(queryRefundPage, payload);
       if (response.code === "SUCCESS") {
@@ -210,6 +225,7 @@ export default {
 
         const priceRes = yield call(getPrice, {
           ...priceParams,
+          start_time: others.start_time,
           price_strategy_id
         });
 
@@ -289,7 +305,8 @@ export default {
         scene,
         car_config_id,
         kilo,
-        time
+        time,
+        start_time
       } = payload;
       const consume = yield call(queryConsumeList, { scene });
       if (
@@ -312,11 +329,16 @@ export default {
       }
       const { price_strategy_id } = carLevel;
 
-      const priceRes = yield call(getPrice, {
+      const getPriceParam = {
         kilo,
         time,
         price_strategy_id
-      });
+      };
+      if (start_time) {
+        getPriceParam.start_time = start_time;
+      }
+
+      const priceRes = yield call(getPrice, getPriceParam);
 
       if (priceRes.code !== "SUCCESS") {
         onFailure && onFailure(priceRes.msg || "获取价格失败");
@@ -359,6 +381,7 @@ export default {
 
         const priceRes = yield call(getPrice, {
           ...priceParams,
+          start_time: others.start_time,
           price_strategy_id
         });
 
@@ -402,6 +425,12 @@ export default {
         config: {
           ...action.payload
         }
+      };
+    },
+    saveHistory(state, action) {
+      return {
+        ...state,
+        history: action.payload.concat()
       };
     }
   }
