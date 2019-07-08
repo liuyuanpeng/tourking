@@ -1,4 +1,5 @@
 import request from "@/utils/request";
+import md5 from "md5";
 
 export async function queryShopUserList(shop_id) {
   return request(`/server/console/user/shop_user_list?shop_id=${shop_id}`, {
@@ -53,10 +54,12 @@ export async function checkUser(params) {
 }
 
 export async function createUser(params) {
+  const { password, ...others } = params;
   return request("/server/console/user/create", {
     method: "POST",
     data: {
-      ...params
+      ...others,
+      password: md5(password)
     }
   });
 }
@@ -71,11 +74,14 @@ export async function addUser(params) {
 }
 
 export async function updateUser(params) {
+  const {password, ...others} = params
+  const data = {...others}
+  if (password) {
+    data.password = md5(password)
+  }
   return request("/server/console/user/update", {
     method: "POST",
-    data: {
-      ...params
-    }
+    data
   });
 }
 

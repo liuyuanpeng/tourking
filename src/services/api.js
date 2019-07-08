@@ -1,5 +1,6 @@
 import { stringify } from "qs";
 import request from "@/utils/request";
+import md5 from 'md5'
 
 export async function queryProjectNotice() {
   return request("/api/project/notice");
@@ -104,9 +105,14 @@ export async function updateFakeList(params) {
 }
 
 export async function accountLogin(params) {
+  const {password, ...others} = params
+  const pwd = md5(password)
   return request("/server/user/login", {
     method: "POST",
-    data: params
+    data: {
+      password: pwd,
+      ...others
+    }
   });
 }
 

@@ -229,7 +229,6 @@ models: () => [
   app: window.g_app,
 models: () => [
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
-  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__PriceStrategy" */'../Base/PriceStrategy'),
@@ -245,7 +244,6 @@ models: () => [
   app: window.g_app,
 models: () => [
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
-  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__CarType" */'../Base/CarType'),
@@ -261,7 +259,6 @@ models: () => [
   app: window.g_app,
 models: () => [
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
-  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__CarLevel" */'../Base/CarLevel'),
@@ -277,7 +274,6 @@ models: () => [
   app: window.g_app,
 models: () => [
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
-  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__CarManager" */'../Base/CarManager'),
@@ -293,7 +289,6 @@ models: () => [
   app: window.g_app,
 models: () => [
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
-  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__DispatchStrategy" */'../Base/DispatchStrategy'),
@@ -309,7 +304,6 @@ models: () => [
   app: window.g_app,
 models: () => [
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
-  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__Address" */'../Base/Address'),
@@ -325,7 +319,6 @@ models: () => [
   app: window.g_app,
 models: () => [
   import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
-  import(/* webpackChunkName: 'p__Base__models__consume.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/consume.js').then(m => { return { namespace: 'consume',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__Driver" */'../Base/Driver'),

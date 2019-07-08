@@ -32,6 +32,7 @@ const NewOrder = Form.create()(props => {
   const {
     handleAddOrder,
     carTypes,
+    consumeList,
     type,
     handleEdit,
     modalVisible,
@@ -115,8 +116,12 @@ const NewOrder = Form.create()(props => {
 
   const changeScene = value => {
     updateFormValue({
-      scene: value
+      scene: value,
+      car_config_id: undefined
     });
+    form.setFieldsValue({
+      car_config_id: undefined
+    })
   };
 
   const changeCarConfigId = value => {
@@ -129,6 +134,14 @@ const NewOrder = Form.create()(props => {
     updateFormValue({
       start_time: value ? value.valueOf() : ''
     })
+  }
+
+  let consumeArr = []
+  if (formValues.scene) {
+    const consume = consumeList.find(item=>item.consume.scene === formValues.scene);
+    if (consume) {
+      consumeArr = consume.car_levels ? consume.car_levels : []
+    }
   }
 
   return (
@@ -182,9 +195,9 @@ const NewOrder = Form.create()(props => {
                 initialValue: formValues.car_config_id || ""
               })(
                 <Select style={{ width: "100%" }} onChange={changeCarConfigId}>
-                  {carTypes.map(item => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
+                  {consumeArr.map(item => (
+                    <Option key={item.config_id} value={item.config_id}>
+                      {item.config_name}
                     </Option>
                   ))}
                 </Select>
@@ -381,7 +394,7 @@ const NewOrder = Form.create()(props => {
   );
 });
 
-@connect(({ order, user, car_type, loading }) => ({
+@connect(({ consume, order, user, car_type, loading }) => ({
   loading: loading.effects["order/fetchOrderPage"],
   data: order.list,
   page: order.page,
@@ -391,7 +404,8 @@ const NewOrder = Form.create()(props => {
   shop_name: user.shopName,
   config: order.config,
   historyLoading: loading.effects["order/fetchOrderHistory"],
-  orderHistory: order.history
+  orderHistory: order.history,
+  consumeList: consume.list
 }))
 @Form.create()
 class Book extends PureComponent {
@@ -562,6 +576,14 @@ class Book extends PureComponent {
     this.searchKeys = { shop_id };
     dispatch({
       type: "order/fetchRefundConfig"
+    });
+    dispatch({
+      type: "consume/fetchConsumeList",
+      payload: {
+        onFailure: msg => {
+          message.error(msg || "获取车型分级列表失败");
+        }
+      }
     });
     dispatch({
       type: "car_type/fetchCarTypes",
@@ -1014,7 +1036,8 @@ class Book extends PureComponent {
     };
     this.setState({
       formValues: {
-        ...newFormValues
+        ...newFormValues,
+        price: undefined
       }
     });
     const { dispatch } = this.props;
@@ -1141,12 +1164,13 @@ class Book extends PureComponent {
   }
 
   render() {
-    const { loading, data, page, total, carTypes, orderHistory, historyLoading } = this.props;
+    const { loading, data, page, total, carTypes, orderHistory, historyLoading, consumeList } = this.props;
     const { modalVisible, historyVisible, formValues, type, selectedRowKeys } = this.state;
 
     const parentMethods = {
       type,
       carTypes,
+      consumeList,
       formValues,
       handleModalVisible: this.handleModalVisible,
       handleEdit: this.handleEdit,

@@ -31,6 +31,7 @@ const { RangePicker } = DatePicker;
 const NewOrder = Form.create()(props => {
   const {
     carTypes,
+    consumeList,
     type,
     handleEdit,
     modalVisible,
@@ -115,14 +116,26 @@ const NewOrder = Form.create()(props => {
 
   const changeScene = value => {
     updateFormValue({
-      scene: value
+      scene: value,
+      car_config_id: undefined
     });
+    form.setFieldsValue({
+      car_config_id: undefined
+    })
   };
 
   const changeStartTime = value => {
     updateFormValue({
       start_time: value ? value.valueOf() : ''
     })
+  }
+
+  let consumeArr = []
+  if (formValues.scene) {
+    const consume = consumeList.find(item=>item.consume.scene === formValues.scene);
+    if (consume) {
+      consumeArr = consume.car_levels ? consume.car_levels : []
+    }
   }
 
   return (
@@ -176,9 +189,9 @@ const NewOrder = Form.create()(props => {
                 initialValue: formValues.car_config_id || ""
               })(
                 <Select style={{ width: "100%" }} onChange={changeCarConfigId}>
-                  {carTypes.map(item => (
-                    <Option key={item.id} value={item.id}>
-                      {item.name}
+                  {consumeArr.map(item => (
+                    <Option key={item.config_id} value={item.config_id}>
+                      {item.config_name}
                     </Option>
                   ))}
                 </Select>
@@ -374,14 +387,15 @@ const NewOrder = Form.create()(props => {
   );
 });
 
-@connect(({ order, car_type, loading }) => ({
+@connect(({ consume, order, car_type, loading }) => ({
   loading: loading.effects["order/fetchOrderPage"],
   historyLoading: loading.effects["order/fetchOrderHistory"],
   data: order.list,
   page: order.page,
   total: order.total,
   carTypes: car_type.list,
-  orderHistory: order.history
+  orderHistory: order.history,
+  consumeList: consume.list
 }))
 @Form.create()
 class Shuttle extends PureComponent {
@@ -533,6 +547,15 @@ class Shuttle extends PureComponent {
       payload: {
         onFailure: msg => {
           message.error(msg || "获取车辆分类列表失败");
+        }
+      }
+    });
+
+    dispatch({
+      type: "consume/fetchConsumeList",
+      payload: {
+        onFailure: msg => {
+          message.error(msg || "获取车型分级列表失败");
         }
       }
     });
@@ -810,7 +833,8 @@ class Shuttle extends PureComponent {
     };
     this.setState({
       formValues: {
-        ...newFormValues
+        ...newFormValues,
+        price: undefined
       }
     });
 
@@ -964,7 +988,7 @@ class Shuttle extends PureComponent {
   }
 
   render() {
-    const { loading, historyLoading, data, page, total, carTypes, orderHistory } = this.props;
+    const { loading, historyLoading, data, page, total, carTypes, orderHistory, consumeList } = this.props;
     const {
       modalVisible,
       formValues,
@@ -975,6 +999,7 @@ class Shuttle extends PureComponent {
     const parentMethods = {
       type,
       carTypes,
+      consumeList,
       formValues,
       handleModalVisible: this.handleModalVisible,
       handleEdit: this.handleEdit,

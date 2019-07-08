@@ -17,6 +17,7 @@ app.use(createLoading());
 app.model({ namespace: 'address', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/address.js').default) });
 app.model({ namespace: 'car_type', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/car_type.js').default) });
 app.model({ namespace: 'car', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/car.js').default) });
+app.model({ namespace: 'consume', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/consume.js').default) });
 app.model({ namespace: 'driver', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/driver.js').default) });
 app.model({ namespace: 'employee', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/employee.js').default) });
 app.model({ namespace: 'global', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/global.js').default) });
