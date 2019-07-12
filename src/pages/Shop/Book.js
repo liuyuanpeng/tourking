@@ -261,6 +261,7 @@ const NewOrder = Form.create()(props => {
                     : undefined
               })(
                 <LocationInput
+                  isShop
                   destination={destination}
                   onChange={originChange}
                 />
@@ -290,7 +291,7 @@ const NewOrder = Form.create()(props => {
                         }
                       }
                     : undefined
-              })(<LocationInput origin={origin} onChange={destinationChange} />)
+              })(<LocationInput isShop origin={origin} onChange={destinationChange} />)
             )}
           </FormItem>
         </Col>
@@ -1220,7 +1221,7 @@ class Book extends PureComponent {
                 }}
                 dataSource={data}
                 columns={this.columns}
-                scroll={{ x: 2080 }}
+                scroll={{ x: 3000 }}
               />
             </div>
           </div>

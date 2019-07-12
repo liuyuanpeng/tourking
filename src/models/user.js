@@ -90,6 +90,7 @@ export default {
     },
     *fetchUserList({ payload }, { call, put }) {
       const response = yield call(queryUserList, {
+        role: payload.role,
         page: payload.page,
         size: payload.size
       });
@@ -105,11 +106,12 @@ export default {
       }
     },
     *searchUser({ payload }, { call, put }) {
-      const response = yield call(searchUser, payload);
+      const response = yield call(searchUser, payload.keyword);
       if (response.code === "SUCCESS") {
         yield put({
           type: "saveList",
           payload: {
+            filter: payload.role,
             ...response.data,
             page: 0,
             size: 10
@@ -303,13 +305,27 @@ export default {
       };
     },
     saveList(state, action) {
-      console.log(action.payload.data_list)
+      const {filter, ...others} = action.payload;
+      const result = others;
+      if (filter) {
+        result.data_list = result.data_list.filter(item=>{
+          if (item.roles) {
+            for (let i=0; i < item.roles.length; i += 1) {
+              if (item.roles[i].id === filter) {
+                return true;
+              }
+              return false;
+            }
+          }
+          return false;
+        })
+      }
       return {
         ...state,
-        list: action.payload.data_list,
-        page: action.payload.page || 0,
-        size: action.payload.size || 10,
-        total: action.payload.total_pages || 1
+        list: result.data_list,
+        page: result.page || 0,
+        size: result.size || 10,
+        total: result.total_pages || 1
       };
     },
     saveShopInfo(state, action) {

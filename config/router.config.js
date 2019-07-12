@@ -37,7 +37,7 @@ export default [
         path: "/shop",
         name: "shop",
         icon: "shop",
-        authority: ["book", "shopaccount"],
+        authority: ["book", "shopaccount", "shopaddress"],
         routes: [
           {
             path: "/shop/book",
@@ -50,6 +50,12 @@ export default [
             name: "account",
             authority: "shopaccount",
             component: "./Shop/Account"
+          },
+          {
+            path: "/shop/shopaddress",
+            name: "shopaddress",
+            authority: "shopaddress",
+            component: "./Shop/ShopAddress"
           }
         ]
       },

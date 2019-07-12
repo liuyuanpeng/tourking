@@ -74,7 +74,7 @@ const NewCarType = Form.create()(props => {
         ) : (
           form.getFieldDecorator("name", {
             initialValue: formValues.name || "",
-            rules: [{ required: true, message: "请输入车类分类名称" }]
+            rules: [{ required: true, message: "请输入车辆分类名称" }]
           })(<Input style={{ width: "100%" }} />)
         )}
       </FormItem>

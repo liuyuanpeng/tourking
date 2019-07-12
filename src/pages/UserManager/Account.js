@@ -112,7 +112,7 @@ const NewAccount = Form.create()(props => {
           )}
         </FormItem>
       )}
-      <FormItem {...labelLayout} label="联系人">
+      <FormItem {...labelLayout} label={selectRole.role_type === 'PLATFORM_USER_INIT' ? '商家名称' : '联系人'}>
         {form.getFieldDecorator("name", {
           initialValue: formValues.name || "",
           rules: [
@@ -141,18 +141,6 @@ const NewAccount = Form.create()(props => {
           )}
         </FormItem>
       )}
-      {selectRole.role_type === "PLATFORM_USER_INIT" && (
-        <FormItem {...labelLayout} label="商家名称">
-          {form.getFieldDecorator("shop_name", {
-            rules: [
-              {
-                required: true,
-                message: "请输入商家名称"
-              }
-            ]
-          })(<Input style={{ width: "100%" }} />)}
-        </FormItem>
-      )}
       {selectRole.role_type === "APPLICATION_USER_CUSTOM" &&
         selectRole.is_init && (
           <FormItem {...labelLayout} label="司机评分">
@@ -174,12 +162,13 @@ const NewAccount = Form.create()(props => {
   );
 });
 
-@connect(({ user, loading }) => ({
+@connect(({ user, loading, role }) => ({
   loading: loading.effects["user/fetchUserList"],
   searchLoading: loading.effects["user/searchUser"],
   data: user.list,
   totalPages: user.total,
-  currentPage: user.page
+  currentPage: user.page,
+  roleList: role.roles
 }))
 @Form.create()
 class Account extends PureComponent {
@@ -217,11 +206,6 @@ class Account extends PureComponent {
         }
         return roles.toString();
       }
-    },
-    {
-      title: "商家名称",
-      dataIndex: "user.shop_name",
-      key: "shop_name"
     },
     {
       title: "添加时间",
@@ -311,11 +295,15 @@ class Account extends PureComponent {
         values.username
           ? dispatch({
               type: "user/searchUser",
-              payload: values.username
+              payload: {
+                keyword: values.username,
+                role: values.role_id
+              }
             })
           : dispatch({
               type: "user/fetchUserList",
               payload: {
+                role: values.role_id,
                 page: 0,
                 size: 10,
                 onFailure: msg => {
@@ -337,10 +325,15 @@ class Account extends PureComponent {
 
   handleAdd = fields => {
     const { dispatch } = this.props;
+    const {selectRole} = this.state;
+    const data = {...fields};
+    if (selectRole.role_type === 'PLATFORM_USER_INIT') {
+      data.shop_name = fields.name;
+    }
     dispatch({
       type: "user/tryCreateUser",
       payload: {
-        data: fields,
+        data,
         onSuccess: () => {
           message.success("新增成功!");
         },
@@ -383,8 +376,10 @@ class Account extends PureComponent {
 
   renderForm = () => {
     const {
+      roleList,
       form: { getFieldDecorator }
     } = this.props;
+
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
@@ -392,6 +387,21 @@ class Account extends PureComponent {
             <FormItem label="精确查找">
               {getFieldDecorator("username")(
                 <Input placeholder="用户名/手机号" />
+              )}
+            </FormItem>
+          </Col>
+          <Col span={9}>
+            <FormItem label="角色">
+              {getFieldDecorator("role_id")(
+                <Select
+                allowClear
+                >
+                  {
+                    roleList && roleList.map((item, index)=>(
+                      <Option key={index} value={item.id}>{item.name}</Option>
+                    ))
+                  }
+                </Select>
               )}
             </FormItem>
           </Col>
@@ -478,8 +488,6 @@ class Account extends PureComponent {
 
   render() {
     const { loading, data, currentPage, totalPages } = this.props;
-
-    console.log("data:", data);
     const {
       modalVisible,
       roleOptions,
@@ -498,7 +506,6 @@ class Account extends PureComponent {
       handleEdit: this.handleEdit,
       formValues
     };
-    console.log("data:....", data);
     return (
       <PageHeaderWrap title="账户管理">
         <Card bordered={false}>

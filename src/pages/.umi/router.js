@@ -97,7 +97,8 @@ models: () => [
         "icon": "shop",
         "authority": [
           "book",
-          "shopaccount"
+          "shopaccount",
+          "shopaddress"
         ],
         "routes": [
           {
@@ -105,7 +106,10 @@ models: () => [
             "name": "book",
             "authority": "book",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Shop__Book" */'../Shop/Book'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -116,8 +120,25 @@ models: () => [
             "name": "account",
             "authority": "shopaccount",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__Shop__Account" */'../Shop/Account'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/shop/shopaddress",
+            "name": "shopaddress",
+            "authority": "shopaddress",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Shop__ShopAddress" */'../Shop/ShopAddress'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true

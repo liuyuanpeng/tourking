@@ -114,6 +114,10 @@ const PermissionSetting = Form.create()(props => {
         {
           title: "账户管理",
           key: "shopaccount"
+        },
+        {
+          title: "常用地址",
+          key: "shopaddress"
         }
       ]
     },

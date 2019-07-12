@@ -1,5 +1,6 @@
 import request from "@/utils/request";
 import md5 from "md5";
+import queryString from 'querystring'
 
 export async function queryShopUserList(shop_id) {
   return request(`/server/console/user/shop_user_list?shop_id=${shop_id}`, {
@@ -19,10 +20,15 @@ export async function queryAuthority() {
 }
 
 export async function queryUserList(params) {
-  return request(`/server/rbac/user/role/user_page`, {
+  const {role, ...others} = params;
+  const query = {};
+  if (role) {
+    query.role_ids = [role]
+  }
+  return request(`/server/rbac/user/role/user_page?${queryString.stringify(query)}`, {
     method: "POST",
     data: {
-      ...params,
+      ...others,
       sort_data_list: [
         {
           direction: "DESC",

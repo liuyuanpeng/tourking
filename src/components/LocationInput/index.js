@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import { Input, Icon, Modal, Select, message, Col, Row } from "antd";
+import { Input, Icon, Modal, Select, message, Col, Row, Button } from "antd";
 import { Map, Marker } from "react-amap";
 import { connect } from "dva";
 
 const { Search } = Input;
 const InputGroup = Input.Group;
-const {Option} = Select;
+const { Option } = Select;
 
 // 定义地图中心点(厦门火车站)
 const CENTER = {
@@ -25,10 +25,11 @@ const LOCATION_ICON = () => (
   </svg>
 );
 
-@connect(({ address }) => ({
-  addresses: address.list
+@connect(({ address, shopAddress, user }) => ({
+  addresses: address.list,
+  shopAddress: shopAddress.list,
+  shopId: user.shopId
 }))
-
 export default class LocationInput extends Component {
   static getDerivedStateFromProps(nextProps) {
     if ("value" in nextProps) {
@@ -60,6 +61,19 @@ export default class LocationInput extends Component {
           this.autoComplete = new window.AMap.Autocomplete({
             city: "010",
             input: "search-input"
+          });
+
+          window.AMap.event.addListener(this.autoComplete, "select", data => {
+            const lct = {
+              longitude: data.poi.location.lng,
+              latitude: data.poi.location.lat
+            };
+            this.setState({
+              mapAddress: data.poi.district + data.poi.address + data.poi.name,
+              mapPosition: lct,
+              markPosition: lct,
+              keywords: data.poi.name
+            });
           });
 
           this.driving = new window.AMap.Driving({
@@ -105,18 +119,30 @@ export default class LocationInput extends Component {
     };
   }
 
-  componentDidMount () {
-    const {dispatch} = this.props;
-    dispatch({
-      type: "address/fetchAddressPage",
-      payload: {
-        page: 0,
-        size: 50,
-        onFailure: msg => {
-          message.error(msg || "获取常用地址列表失败");
+  componentDidMount() {
+    const { dispatch, isShop, shopId } = this.props;
+    if (isShop) {
+      dispatch({
+        type: "shopAddress/fetchShopAddressList",
+        payload: {
+          shopId,
+          onFailure: msg => {
+            message.error(msg || "获取常用地址列表失败");
+          }
         }
-      }
-    });
+      });
+    } else {
+      dispatch({
+        type: "address/fetchAddressPage",
+        payload: {
+          page: 0,
+          size: 50,
+          onFailure: msg => {
+            message.error(msg || "获取常用地址列表失败");
+          }
+        }
+      });
+    }
   }
 
   triggerChange = value => {
@@ -242,23 +268,59 @@ export default class LocationInput extends Component {
   };
 
   onAddressChange = addressId => {
+    const { addresses, shopAddress, isShop } = this.props;
+    const resultAddress = isShop ? shopAddress : addresses;
+    const address = resultAddress.find(item => item.id === addressId);
+    address &&
+      this.setState({
+        tmpAddress: address.id,
+        mapPosition: {
+          longitude: isShop
+            ? address.address.location.longitude
+            : address.longitude,
+          latitude: isShop
+            ? address.address.location.latitude
+            : address.latitude
+        },
+        markPosition: {
+          longitude: isShop
+            ? address.address.location.longitude
+            : address.longitude,
+          latitude: isShop
+            ? address.address.location.latitude
+            : address.latitude
+        },
+        mapAddress: isShop ? address.address.address : address.name
+      });
+  };
 
-    const {addresses} = this.props;
-    const address = addresses.find(item=>item.id === addressId)
-    address && this.setState({
-      tmpAddress: address.id,
-      mapPosition: {
-        longitude: address.longitude,
-        latitude: address.latitude
-      },
-      markPosition: {
-        longitude: address.longitude,
-        latitude: address.latitude
-      },
-      mapAddress: address.name
-    });
-  }
-
+  onChangeAddress = (value, target) => {
+    const { addresses, shopAddress, isShop } = this.props;
+    const resultAddress = isShop ? shopAddress : addresses;
+    const address = resultAddress[target.key];
+    address &&
+      this.setState({
+        tmpAddress: address.id,
+        mapPosition: {
+          longitude: isShop
+            ? address.address.location.longitude
+            : address.longitude,
+          latitude: isShop
+            ? address.address.location.latitude
+            : address.latitude
+        },
+        markPosition: {
+          longitude: isShop
+            ? address.address.location.longitude
+            : address.longitude,
+          latitude: isShop
+            ? address.address.location.latitude
+            : address.latitude
+        },
+        mapAddress: isShop ? address.address.address : address.name,
+        address: isShop ? address.address.address : address.name
+      });
+  };
   render() {
     const {
       modalVisible,
@@ -270,27 +332,58 @@ export default class LocationInput extends Component {
       tmpAddress
     } = this.state;
 
-    const {addresses} = this.props;
+    const { addresses, shopAddress, isShop } = this.props;
+
+    const resultAddress = isShop ? shopAddress : addresses;
 
     return (
       <div>
-        <Input
-          readOnly
-          value={address}
-          addonAfter={
-            <Icon
-              component={LOCATION_ICON}
+        {isShop ? (
+          <InputGroup compact>
+            <Select
+              // readOnly
+              showArrow={false}
+              value={address}
+              onChange={this.onChangeAddress}
+              style={{ width: "calc(100% - 30px)" }}
+            >
+              {resultAddress.map((item, index) => (
+                <Option key={index} value={item.name}>
+                  {item.name}
+                </Option>
+              ))}
+            </Select>
+            <Button 
+              type="circle"
+              style={{width: "30px"}}
               onClick={() => {
                 this.handleModalVisible(true);
-              }}
-            />
-          }
-        />
+              }}>         
+              <Icon
+              component={LOCATION_ICON}
+            /></Button>
+
+          </InputGroup>
+        ) : (
+          <Input
+            readOnly
+            value={address}
+            addonAfter={
+              <Icon
+                component={LOCATION_ICON}
+                onClick={() => {
+                  this.handleModalVisible(true);
+                }}
+              />
+            }
+          />
+        )}
         <Modal
           width={window.innerWidth}
           destroyOnClose
           style={{ top: "0px" }}
           title="地址定位"
+          footer={null}
           visible={modalVisible}
           onOk={() => {
             this.okHandle();
@@ -299,33 +392,42 @@ export default class LocationInput extends Component {
             this.handleModalVisible();
           }}
         >
-          <InputGroup compact>
-            <Row style={{width: '100%'}}>
-              <Col span={19}>
-            <Search
-              id="search-input"
-              enterButton
-              value={keywords}
-              onChange={this.onKeywordChange}
-              onSearch={this.handleSearch}
-            />
-              </Col>
-              <Col span={5}>
-            <Select value={tmpAddress} style={{ width: "100%" }} placeholder="常用地址" onChange={this.onAddressChange}>
-              {addresses && addresses.map(item => (
-                <Option key={item.id} value={item.id}>{item.name}</Option>
-              ))}
-            </Select>
-              </Col>
-            </Row>
-            
-          </InputGroup>
+          <Row style={{ width: "100%" }} type="flex" justify="space-between">
+            <Col span={15}>
+              <Input
+                id="search-input"
+                placeholder="请输入搜索位置"
+                value={keywords}
+                onChange={this.onKeywordChange}
+              />
+            </Col>
+            <Col span={5}>
+              <Select
+                value={tmpAddress}
+                style={{ width: "100%" }}
+                placeholder="常用地址"
+                onChange={this.onAddressChange}
+              >
+                {resultAddress &&
+                  resultAddress.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+              </Select>
+            </Col>
+            <Col span={3}>
+              <Button onClick={this.okHandle} type="primary">
+                确定
+              </Button>
+            </Col>
+          </Row>
 
           <span>{`当前位置: ${mapAddress}`}</span>
           <div
             style={{
               width: `${window.innerWidth - 50}px`,
-              height: `${window.innerHeight - 220}px`
+              height: `${window.innerHeight - 160}px`
             }}
           >
             <Map

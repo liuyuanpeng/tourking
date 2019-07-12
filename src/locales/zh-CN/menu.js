@@ -6,6 +6,7 @@ export default {
   "menu.shop": "合作商家",
   "menu.shop.book": "预约订单",
   "menu.shop.account": "账户管理",
+  "menu.shop.shopaddress": "常用地址",
   "menu.order": "订单管理",
   "menu.order.shuttle": "接送机/站",
   "menu.order.dispatch": "派单预警",
