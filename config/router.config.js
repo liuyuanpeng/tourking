@@ -84,7 +84,7 @@ export default [
       {
         path: "/usermanager",
         name: "usermanager",
-        authority: ["role", "account"],
+        authority: ["role", "account", "shopmanager"],
         icon: "user",
         routes: [
           {
@@ -98,6 +98,12 @@ export default [
             name: "account",
             authority: "account",
             component: "./UserManager/Account"
+          },
+          {
+            path: "/usermanager/shopmanager",
+            name: "shopmanager",
+            authority: "shopmanager",
+            component: "./UserManager/ShopManager"
           }
         ]
       },

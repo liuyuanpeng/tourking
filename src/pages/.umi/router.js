@@ -197,7 +197,8 @@ models: () => [
         "name": "usermanager",
         "authority": [
           "role",
-          "account"
+          "account",
+          "shopmanager"
         ],
         "icon": "user",
         "routes": [
@@ -206,7 +207,10 @@ models: () => [
             "name": "role",
             "authority": "role",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__UserManager__models__weixin.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/weixin.js').then(m => { return { namespace: 'weixin',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__UserManager__Role" */'../UserManager/Role'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
@@ -217,8 +221,25 @@ models: () => [
             "name": "account",
             "authority": "account",
             "component": _dvaDynamic({
-  
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__UserManager__models__weixin.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/weixin.js').then(m => { return { namespace: 'weixin',...m.default}})
+],
   component: () => import(/* webpackChunkName: "p__UserManager__Account" */'../UserManager/Account'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/usermanager/shopmanager",
+            "name": "shopmanager",
+            "authority": "shopmanager",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__UserManager__models__weixin.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/weixin.js').then(m => { return { namespace: 'weixin',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__UserManager__ShopManager" */'../UserManager/ShopManager'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true

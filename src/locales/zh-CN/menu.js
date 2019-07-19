@@ -13,6 +13,7 @@ export default {
   "menu.usermanager": "用户管理",
   "menu.usermanager.role": "角色管理",
   "menu.usermanager.account": "账户管理",
+  "menu.usermanager.shopmanager": "商家管理",
   "menu.base": "基础配置",
   "menu.base.pricestrategy": "价格策略",
   "menu.base.cartype": "车辆分类",
