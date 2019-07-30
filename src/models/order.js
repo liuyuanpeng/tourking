@@ -150,6 +150,14 @@ export default {
         payload.onFailure && payload.onFailure(response.message);
       }
     },
+    *fetchNewOrder({ payload }, { call }) {
+      const response = yield call(queryOrderPage, { page: 0, size: 1 });
+      if (response.code === "SUCCESS") {
+        payload.onSuccess && payload.onSuccess(response.data.data_list);
+      } else {
+        payload.onFailure && payload.onFailure(response.message);
+      }
+    },
     *exportOrder({ payload, callback }, { call }) {
       callback(yield call(exportOrder, payload));
     },

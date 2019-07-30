@@ -49,67 +49,75 @@ const RefundSetting = Form.create()(props => {
         handleModalVisible();
       }}
     >
-      <Row>
-        用车前
-        <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
-          {form.getFieldDecorator("before_first_time", {
-            initialValue: formValues.before_first_time || ""
-          })(<NumberInput />)}
-        </FormItem>
-        小时，手续费
-        <FormItem
-          style={{
-            display: "inline-block",
-            verticalAlign: "unset",
-            width: "150px"
-          }}
-        >
-          {form.getFieldDecorator("first_fund", {
-            initialValue:
-              formValues.first_fund === undefined ||
-              formValues.first_fund === null
-                ? ""
-                : formValues.first_fund
-          })(<NumberInput addonAfter="%" />)}
-        </FormItem>
-      </Row>
-      <Row>
-        用车前
-        <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
-          {form.getFieldDecorator("before_second_time", {
-            initialValue: formValues.before_second_time || ""
-          })(<NumberInput />)}
-        </FormItem>
-        小时，手续费
-        <FormItem
-          style={{
-            display: "inline-block",
-            verticalAlign: "unset",
-            width: "150px"
-          }}
-        >
-          {form.getFieldDecorator("second_fund", {
-            initialValue:
-              formValues.second_fund === undefined ||
-              formValues.second_fund === null
-                ? ""
-                : formValues.second_fund
-          })(<NumberInput addonAfter="%" />)}
-        </FormItem>
-      </Row>
-      <Row>
-        超过
-        <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
-          {form.getFieldDecorator("limit_fund", {
-            initialValue:
-              formValues.limit_fund === undefined ||
-              formValues.limit_fund === null
-                ? ""
-                : formValues.limit_fund
-          })(<NumberInput />)}
-        </FormItem>
-        元，需人工审核
-      </Row>
+      <Form>
+        <Row>
+          用车前
+          <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
+            {form.getFieldDecorator("before_first_time", {
+              initialValue: formValues.before_first_time || ""
+            })(<NumberInput />)}
+          </FormItem>
+          小时，手续费
+          <FormItem
+            style={{
+              display: "inline-block",
+              verticalAlign: "unset",
+              width: "150px"
+            }}
+          >
+            {form.getFieldDecorator("first_fund", {
+              initialValue:
+                formValues.first_fund === undefined ||
+                formValues.first_fund === null
+                  ? ""
+                  : formValues.first_fund
+            })(<NumberInput addonAfter="%" />)}
+          </FormItem>
+        </Row>
+        <Row>
+          用车前
+          <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
+            {form.getFieldDecorator("before_second_time", {
+              initialValue: formValues.before_second_time || ""
+            })(<NumberInput />)}
+          </FormItem>
+          小时，手续费
+          <FormItem
+            style={{
+              display: "inline-block",
+              verticalAlign: "unset",
+              width: "150px"
+            }}
+          >
+            {form.getFieldDecorator("second_fund", {
+              initialValue:
+                formValues.second_fund === undefined ||
+                formValues.second_fund === null
+                  ? ""
+                  : formValues.second_fund
+            })(<NumberInput addonAfter="%" />)}
+          </FormItem>
+        </Row>
+        <Row>
+          超过
+          <FormItem style={{ display: "inline-block", top: "-15px" }}>
+            {form.getFieldDecorator("limit_fund", {
+              rules: [
+                {
+                  required: true,
+                  message: "请输入金额限制(如:99999)"
+                }
+              ],
+              initialValue:
+                formValues.limit_fund === undefined ||
+                formValues.limit_fund === null
+                  ? ""
+                  : formValues.limit_fund
+            })(<NumberInput />)}
+          </FormItem>
+          元，需人工审核
+        </Row>
+      </Form>
     </Modal>
   );
 });

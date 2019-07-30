@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout } from "antd";
+import { Layout, notification, Icon, Modal } from "antd";
 import DocumentTitle from "react-document-title";
 import { connect } from "dva";
 import { ContainerQuery } from "react-container-query";
@@ -11,6 +11,21 @@ import Context from "./MenuContext";
 import SiderMenu from "@/components/SiderMenu";
 import getPageTitle from "@/utils/getPageTitle";
 import styles from "./BasicLayout.less";
+
+const { confirm } = Modal;
+
+const newOrderAudio = document.createElement("audio");
+newOrderAudio.src = "http://www.kingtrip.vip/sound/new_order.mp3";
+const newDispatchAudio = document.createElement("audio");
+newDispatchAudio.src = "http://www.kingtrip.vip/sound/new_dispatch.mp3";
+
+function tryPlay() {
+  newOrderAudio.muted = true;
+  newDispatchAudio.muted = true;
+  newOrderAudio.play();
+  newDispatchAudio.play();
+  document.onclick = null;
+}
 
 // lazy load SettingDrawer
 const SettingDrawer = React.lazy(() => import("@/components/SettingDrawer"));
@@ -50,7 +65,60 @@ class BasicLayout extends React.Component {
     } = this.props;
     // 全局属性获取
     dispatch({
-      type: "user/fetchUser"
+      type: "user/fetchUser",
+      payload: {
+        isAdmin: () => {
+          document.onclick = tryPlay;
+          setInterval(() => {
+            // 检测新订单
+            dispatch({
+              type: "order/fetchNewOrder",
+              payload: {
+                onSuccess: data => {
+                  if (data && data.length) {
+                    const newestOrder = data[0];
+                    const latestOrder = localStorage.getItem("LATEST_ORDER");
+                    if (latestOrder) {
+                      if (newestOrder.create_time > parseInt(latestOrder, 10)) {
+                        notification.open({
+                          message: "有新订单",
+                          description: "请在订单管理页面中刷新查看",
+                          icon: <Icon type="smile" style={{ color: "#108ee9" }} />
+                        });
+                        newOrderAudio.muted = false
+                        newOrderAudio.play();
+                      }
+                    }
+                    localStorage.setItem("LATEST_ORDER", newestOrder.create_time);
+                  }
+                }
+              }
+            });
+
+            // 检测预警订单
+            dispatch({
+              type: "warning/fetchNewWarning",
+              payload: {
+                onSuccess: count => {
+                  if (count) {
+                    const latestCount = localStorage.getItem("WARNING_COUNT");
+                    if (!latestCount || count > latestCount) {
+                      notification.open({
+                        message: "有预警订单",
+                        description: "请在派单预警管理页面中刷新查看",
+                        icon: <Icon type="smile" style={{ color: "#108ee9" }} />
+                      });
+                      newDispatchAudio.muted = false
+                      newDispatchAudio.play();
+                    }
+                    localStorage.setItem("WARNING_COUNT", count);
+                  }
+                }
+              }
+            });
+          }, 5000);
+        }
+      }
     });
     dispatch({
       type: "role/getRoles",

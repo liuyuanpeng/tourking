@@ -24,6 +24,15 @@ export default {
         payload.onFailure && payload.onFailure(response.message);
       }
     },
+    *fetchNewWarning({ payload }, { call, put }) {
+      const response = yield call(queryWarningPage, {page: 0, size: 1});
+      if (response.code === "SUCCESS") {
+        const {urgent, warning} = response.data
+        payload.onSuccess && payload.onSuccess(urgent + warning);
+      } else {
+        payload.onFailure && payload.onFailure(response.message);
+      }
+    },
     *dispatchDriver({ payload }, { call, put }) {
       const { onSuccess, onFailure, data, params } = payload;
       const response = yield call(dispatchDriver, data);

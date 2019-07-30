@@ -12,7 +12,8 @@ import {
   Col,
   Popconfirm,
   message,
-  Divider
+  Divider,
+  Tooltip
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { formatMessage } from "umi-plugin-react/locale";
@@ -441,7 +442,20 @@ class Book extends PureComponent {
     {
       title: "上车地点",
       dataIndex: "start_place",
-      key: "start_place"
+      key: "start_place",
+      render: text => (
+        <Tooltip title={text}>
+          <div
+            style={{
+              width: "200px",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      )
     },
     {
       title: "上车时间",
@@ -452,7 +466,20 @@ class Book extends PureComponent {
     {
       title: "目的地",
       dataIndex: "target_place",
-      key: "target_place"
+      key: "target_place",
+      render: text => (
+        <Tooltip title={text}>
+          <div
+            style={{
+              width: "200px",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      )
     },
     {
       title: "航班号/班次",
@@ -1221,7 +1248,7 @@ class Book extends PureComponent {
                 }}
                 dataSource={data}
                 columns={this.columns}
-                scroll={{ x: 3000 }}
+                scroll={{ x: 2600 }}
               />
             </div>
           </div>

@@ -1,10 +1,8 @@
 import React, { Component } from "react";
-import { Input, Icon, Modal, Select, message, Col, Row, Button } from "antd";
+import { Input, Icon, Modal, Select, message, Col, Row, Button, Tooltip } from "antd";
 import { Map, Marker } from "react-amap";
 import { connect } from "dva";
 
-const { Search } = Input;
-const InputGroup = Input.Group;
 const { Option } = Select;
 
 // 定义地图中心点(厦门火车站)
@@ -26,8 +24,8 @@ const LOCATION_ICON = () => (
 );
 
 @connect(({ address, shopAddress, user }) => ({
-  addresses: address.list,
-  shopAddress: shopAddress.list,
+  addresses: address ? address.list : [],
+  shopAddress: shopAddress ? shopAddress.list : [],
   shopId: user.shopId
 }))
 export default class LocationInput extends Component {
@@ -294,33 +292,6 @@ export default class LocationInput extends Component {
       });
   };
 
-  onChangeAddress = (value, target) => {
-    const { addresses, shopAddress, isShop } = this.props;
-    const resultAddress = isShop ? shopAddress : addresses;
-    const address = resultAddress[target.key];
-    address &&
-      this.setState({
-        tmpAddress: address.id,
-        mapPosition: {
-          longitude: isShop
-            ? address.address.location.longitude
-            : address.longitude,
-          latitude: isShop
-            ? address.address.location.latitude
-            : address.latitude
-        },
-        markPosition: {
-          longitude: isShop
-            ? address.address.location.longitude
-            : address.longitude,
-          latitude: isShop
-            ? address.address.location.latitude
-            : address.latitude
-        },
-        mapAddress: isShop ? address.address.address : address.name,
-        address: isShop ? address.address.address : address.name
-      });
-  };
   render() {
     const {
       modalVisible,
@@ -338,34 +309,7 @@ export default class LocationInput extends Component {
 
     return (
       <div>
-        {isShop ? (
-          <InputGroup compact>
-            <Select
-              // readOnly
-              showArrow={false}
-              value={address}
-              onChange={this.onChangeAddress}
-              style={{ width: "calc(100% - 30px)" }}
-            >
-              {resultAddress.map((item, index) => (
-                <Option key={index} value={item.name}>
-                  {item.name}
-                </Option>
-              ))}
-            </Select>
-            <Button 
-              type="circle"
-              style={{width: "30px"}}
-              onClick={() => {
-                this.handleModalVisible(true);
-              }}>         
-              <Icon
-              component={LOCATION_ICON}
-            /></Button>
-
-          </InputGroup>
-        ) : (
-          <Input
+        <Input
             readOnly
             value={address}
             addonAfter={
@@ -377,7 +321,6 @@ export default class LocationInput extends Component {
               />
             }
           />
-        )}
         <Modal
           width={window.innerWidth}
           destroyOnClose
@@ -411,7 +354,7 @@ export default class LocationInput extends Component {
                 {resultAddress &&
                   resultAddress.map(item => (
                     <Option key={item.id} value={item.id}>
-                      {item.name}
+                      <Tooltip title={item.name}>{item.name}</Tooltip>
                     </Option>
                   ))}
               </Select>

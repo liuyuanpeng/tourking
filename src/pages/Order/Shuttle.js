@@ -11,7 +11,8 @@ import {
   Row,
   Col,
   message,
-  Divider
+  Divider,
+  Tooltip
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { formatMessage } from "umi-plugin-react/locale";
@@ -121,20 +122,22 @@ const NewOrder = Form.create()(props => {
     });
     form.setFieldsValue({
       car_config_id: undefined
-    })
+    });
   };
 
   const changeStartTime = value => {
     updateFormValue({
-      start_time: value ? value.valueOf() : ''
-    })
-  }
+      start_time: value ? value.valueOf() : ""
+    });
+  };
 
-  let consumeArr = []
+  let consumeArr = [];
   if (formValues.scene) {
-    const consume = consumeList.find(item=>item.consume.scene === formValues.scene);
+    const consume = consumeList.find(
+      item => item.consume.scene === formValues.scene
+    );
     if (consume) {
-      consumeArr = consume.car_levels ? consume.car_levels : []
+      consumeArr = consume.car_levels ? consume.car_levels : [];
     }
   }
 
@@ -415,9 +418,7 @@ class Shuttle extends PureComponent {
       dataIndex: "source",
       key: "source",
       textWrap: "word-break",
-      render: (text, record) => {
-        return record.mobile;
-      }
+      render: (text, record) => (record.shop_name || record.mobile)
     },
     {
       title: "订单状态",
@@ -468,12 +469,38 @@ class Shuttle extends PureComponent {
     {
       title: "上车地点",
       dataIndex: "start_place",
-      key: "start_place"
+      key: "start_place",
+      render: text => (
+        <Tooltip title={text}>
+          <div
+            style={{
+              width: "200px",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      )
     },
     {
       title: "目的地",
       dataIndex: "target_place",
-      key: "target_place"
+      key: "target_place",
+      render: text => (
+        <Tooltip title={text}>
+          <div
+            style={{
+              width: "200px",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      )
     },
     {
       title: "备注",
@@ -506,6 +533,15 @@ class Shuttle extends PureComponent {
       title: "手续费",
       dataIndex: "refund_fee",
       key: "refund_fee"
+    },
+    ,
+    {
+      title: "实收金额",
+      dataIndex: "final_price",
+      key: "final_price",
+      render: (text, record) => {
+        return record.refund_fee ? record.refund_fee : record.price;
+      }
     },
     {
       title: "订单ID",
@@ -866,24 +902,24 @@ class Shuttle extends PureComponent {
   };
 
   showHistory = record => {
-    const {dispatch} = this.props;
-    const {id} = record;
+    const { dispatch } = this.props;
+    const { id } = record;
     dispatch({
-      type: 'order/fetchOrderHistory',
+      type: "order/fetchOrderHistory",
       payload: {
         orderId: id,
         onSuccess: data => {
           if (!data || data.length <= 0) {
-            message.info('暂无该订单的历史记录!');
+            message.info("暂无该订单的历史记录!");
           } else {
             this.handleHistoryVisible(true);
           }
         },
         onFailure: msg => {
-          message.error(msg || '获取订单历史失败!')
+          message.error(msg || "获取订单历史失败!");
         }
       }
-    })
+    });
   };
 
   renderForm() {
@@ -988,13 +1024,17 @@ class Shuttle extends PureComponent {
   }
 
   render() {
-    const { loading, historyLoading, data, page, total, carTypes, orderHistory, consumeList } = this.props;
     const {
-      modalVisible,
-      formValues,
-      type,
-      historyVisible
-    } = this.state;
+      loading,
+      historyLoading,
+      data,
+      page,
+      total,
+      carTypes,
+      orderHistory,
+      consumeList
+    } = this.props;
+    const { modalVisible, formValues, type, historyVisible } = this.state;
 
     const parentMethods = {
       type,

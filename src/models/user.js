@@ -48,7 +48,7 @@ export default {
         payload.onFailure && payload.onFailure(response.message);
       }
     },
-    *fetchUser(_, { call, put }) {
+    *fetchUser({payload}, { call, put }) {
       const response = yield call(queryUser);
       if (response.code === "SUCCESS") {
         yield put({
@@ -62,6 +62,11 @@ export default {
         const shopRole = response.data.roles.find(
           item => item.role_type === "PLATFORM_USER_INIT"
         );
+
+        const adminRole = response.data.roles.find(item => item.role_type === 'PLATFORM_ADMIN_INIT')
+        if (adminRole) {
+          payload.isAdmin && payload.isAdmin();
+        }
         if (shopRole) {
           // 商家
           const shopRes = yield call(queryShopList, response.data.user.id);
@@ -102,7 +107,7 @@ export default {
           }
         });
       } else {
-        payload.onFailure(response.message);
+        payload.onFailure && payload.onFailure(response.message);
       }
     },
     *searchUser({ payload }, { call, put }) {

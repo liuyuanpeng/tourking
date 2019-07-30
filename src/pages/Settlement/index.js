@@ -9,7 +9,8 @@ import {
   Form,
   Row,
   Col,
-  message
+  message,
+  Tooltip
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { formatMessage } from "umi-plugin-react/locale";
@@ -78,12 +79,38 @@ class Settlement extends PureComponent {
     {
       title: "上车地点",
       dataIndex: "start_place",
-      key: "start_place"
+      key: "start_place",
+      render: text => (
+        <Tooltip title={text}>
+          <div
+            style={{
+              width: "200px",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      )
     },
     {
       title: "目的地",
       dataIndex: "target_place",
-      key: "target_place"
+      key: "target_place",
+      render: text => (
+        <Tooltip title={text}>
+          <div
+            style={{
+              width: "200px",
+              overflow: "hidden",
+              textOverflow: "ellipsis"
+            }}
+          >
+            {text}
+          </div>
+        </Tooltip>
+      )
     },
     {
       title: "上车时间",
