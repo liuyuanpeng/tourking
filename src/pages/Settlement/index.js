@@ -50,6 +50,11 @@ class Settlement extends PureComponent {
       key: "shop_name"
     },
     {
+      title: "扫码商家",
+      dataIndex: "source_shop_name",
+      key: "source_shop_name"
+    },
+    {
       title: "费用",
       dataIndex: "price",
       key: "price"
@@ -390,6 +395,11 @@ class Settlement extends PureComponent {
           <Col span={8}>
             <FormItem label="商家来源">
               {getFieldDecorator("shop_id")(<ShopInput allowClear />)}
+            </FormItem>
+          </Col>
+          <Col span={8}>
+            <FormItem label="扫码商家">
+              {getFieldDecorator("source_shop_id")(<ShopInput allowClear />)}
             </FormItem>
           </Col>
           <Col span={8}>

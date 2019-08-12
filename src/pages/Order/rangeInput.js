@@ -4,11 +4,11 @@ import { Input, InputNumber } from "antd";
 const InputGroup = Input.Group;
 
 export default class RangeInput extends Component {
-  static getDerivedStateFromProps(nextProps) {
+  static getDerivedStateFromProps(nextProps, state) {
     // Should be a controlled component.
-    if ("value" in nextProps) {
+    if (nextProps.value !== state.value) {
       return {
-        ...(nextProps.value || {})
+        value: nextProps.value
       };
     }
     return null;

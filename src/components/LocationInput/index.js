@@ -29,10 +29,10 @@ const LOCATION_ICON = () => (
   shopId: user.shopId
 }))
 export default class LocationInput extends Component {
-  static getDerivedStateFromProps(nextProps) {
-    if ("value" in nextProps) {
+  static getDerivedStateFromProps(nextProps, state) {
+    if (nextProps.value !== state.value) {
       return {
-        ...(nextProps.value || {})
+        value: nextProps.value
       };
     }
     return null;

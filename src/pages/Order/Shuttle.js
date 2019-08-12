@@ -421,6 +421,11 @@ class Shuttle extends PureComponent {
       render: (text, record) => (record.shop_name || record.mobile)
     },
     {
+      title: "扫码商家",
+      dataIndex: "source_shop_name",
+      key: "source_shop_name"
+    },
+    {
       title: "订单状态",
       dataIndex: "order_status",
       key: "order_status",
@@ -1001,6 +1006,11 @@ class Shuttle extends PureComponent {
           <Col span={8}>
             <FormItem label="商家来源">
               {getFieldDecorator("shop_id")(<ShopInput allowClear />)}
+            </FormItem>
+          </Col>
+          <Col span={8}>
+            <FormItem label="扫码商家">
+              {getFieldDecorator("source_shop_id")(<ShopInput allowClear />)}
             </FormItem>
           </Col>
           <Col>

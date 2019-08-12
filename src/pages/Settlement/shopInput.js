@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Select, Spin } from "antd";
+import { Select, Spin, Tooltip } from "antd";
 import debounce from "lodash/debounce";
 import { connect } from "dva";
 
@@ -10,10 +10,10 @@ const { Option } = Select;
   data: shop.search
 }))
 class ShopInput extends Component {
-  static getDerivedStateFromProps(nextProps) {
-    if ("value" in nextProps) {
+  static getDerivedStateFromProps(nextProps, state) {
+    if (nextProps.value !== state.value) {
       return {
-        ...(nextProps.value || {})
+        value: nextProps.value
       };
     }
     return null;
@@ -67,7 +67,9 @@ class ShopInput extends Component {
         style={{ width: "100%" }}
       >
         {sourceData.map(d => (
-          <Option key={d.id}>{`${d.name}`}</Option>
+          <Option key={d.id}>
+            <Tooltip title={`${d.name}`}>{`${d.name}`}</Tooltip>
+          </Option>
         ))}
       </Select>
     );

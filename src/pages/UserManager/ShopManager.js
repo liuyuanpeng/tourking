@@ -596,7 +596,7 @@ class ShopManager extends PureComponent {
           onOk={() => this.handleQRCodeVisible()}
           onCancel={() => this.handleQRCodeVisible()}
           footer={[
-            <Button key="onSave" onClick={this.handleCancel}>
+            <Button key="onSave" onClick={this.saveQRCode}>
               保存二维码
             </Button>,
             <Button

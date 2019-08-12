@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Select, Spin } from "antd";
+import { Select, Spin, Tooltip } from "antd";
 import debounce from "lodash/debounce";
 import { connect } from "dva";
 
@@ -10,10 +10,10 @@ const { Option } = Select;
   data: driver.search
 }))
 class DriverInput extends Component {
-  static getDerivedStateFromProps(nextProps) {
-    if ("value" in nextProps) {
+  static getDerivedStateFromProps(nextProps, state) {
+    if (nextProps.value !== state.value) {
       return {
-        ...(nextProps.value || {})
+        value: nextProps.value
       };
     }
     return null;
@@ -68,7 +68,11 @@ class DriverInput extends Component {
         style={{ width: "100%" }}
       >
         {sourceData.map(d => (
-          <Option key={d.id}>{`${d.name}(${d.mobile})`}</Option>
+          <Option key={d.id}>
+            <Tooltip title={`${d.name}(${d.mobile})`}>
+              {`${d.name}(${d.mobile})`}
+            </Tooltip>
+          </Option>
         ))}
       </Select>
     );

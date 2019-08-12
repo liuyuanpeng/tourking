@@ -15,6 +15,7 @@ export default {
   "menu.usermanager.account": "账户管理",
   "menu.usermanager.shopmanager": "商家管理",
   "menu.base": "基础配置",
+  "menu.base.charted": "包车管理",
   "menu.base.pricestrategy": "价格策略",
   "menu.base.cartype": "车辆分类",
   "menu.base.carlevel": "车型分级",

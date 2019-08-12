@@ -234,7 +234,7 @@ class Role extends PureComponent {
 
   static defaultProps = {
     role: {}
-  }
+  };
 
   state = {
     permissionModalVisible: false,
@@ -256,13 +256,13 @@ class Role extends PureComponent {
       title: "添加时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: (text) => moment(text).format("YYYY-MM-DD HH:mm")
+      render: text => moment(text).format("YYYY-MM-DD HH:mm")
     },
     {
       title: "操作",
       key: "action",
       render: (text, record) =>
-        false ? null : (
+        record.is_init ? null : (
           <span className={styles.actionColumn}>
             <a
               href="javascript:;"
@@ -293,17 +293,17 @@ class Role extends PureComponent {
   };
 
   handleAdd = fields => {
-    const {dispatch} = this.props
+    const { dispatch } = this.props;
     dispatch({
       type: "role/addRole",
       payload: {
         ...fields,
         role_type: "APPLICATION_USER_CUSTOM",
-        onSuccess: ()=>{
-          message.success('添加成功')
+        onSuccess: () => {
+          message.success("添加成功");
         },
         onFailure: msg => {
-          message.error(msg || '添加失败')
+          message.error(msg || "添加失败");
         }
       }
     });
@@ -317,21 +317,22 @@ class Role extends PureComponent {
   };
 
   handlePermissionSetting = result => {
-    if (result){
-      const {dispatch} = this.props
+    if (result) {
+      const { dispatch } = this.props;
       dispatch({
         type: "role/saveRole",
         payload: {
           ...this.record,
           extend: result.toString(),
           onSuccess: () => {
-            message.success('保存成功')
+            message.success("保存成功");
           },
           onFailure: msg => {
-            message.error(msg || '保存失败')
+            message.error(msg || "保存失败");
           }
         }
-      });}
+      });
+    }
     this.handlePermissionModalVisible();
   };
 
@@ -342,17 +343,17 @@ class Role extends PureComponent {
   };
 
   confirmDelete = record => {
-    if (record && record.role_type === "APPLICATION_USER_CUSTOM"){
-      const {dispatch} = this.props
+    if (record && record.role_type === "APPLICATION_USER_CUSTOM") {
+      const { dispatch } = this.props;
       dispatch({
         type: "role/deleteRole",
         payload: {
           id: record.id,
           onSuccess: () => {
-            message.success('删除成功')
+            message.success("删除成功");
           },
           onFailure: msg => {
-            message.error(msg || '删除失败')
+            message.error(msg || "删除失败");
           }
         }
       });
