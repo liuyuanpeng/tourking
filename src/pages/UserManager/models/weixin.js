@@ -1,4 +1,4 @@
-import { queryWeixinAccessToken, queryQRCode } from "@/services/weixin";
+import queryQRCode from "@/services/weixin";
 import { queryShopList } from "@/services/shop";
 
 export default {
@@ -26,20 +26,14 @@ export default {
       }
       const shopId = shopRes.data[0].id;
       payload.onLoad && payload.onLoad("正在获取商家二维码...");
-      const response = yield call(queryWeixinAccessToken);
-      if (response.errcode) {
-        payload.onFailure && payload.onFailure(response.errmsg);
-        return;
-      }
       const res = yield call(queryQRCode, {
-        shopId,
-        access_token: response.access_token
+        shopId
       });
-      if (res.errcode) {
+      if (res.type.indexOf("application/json") !== -1) {
         payload.onFailure && payload.onFailure(res.errmsg);
         return;
       }
-
+      
       payload.onSuccess && payload.onSuccess(res);
       yield put({
         type: "save",

@@ -80,12 +80,7 @@ export default {
       target: 'https://apis.kingtrip.vip/v5/',
       changeOrigin: true,
       pathRewrite: { '^/server': '' },
-    },
-    '/weixin/': {
-      target: 'https://api.weixin.qq.com/',
-      changeOrigin: true,
-      pathRewrite: { '^/weixin': '' },
-    },
+    }
   },
   ignoreMomentLocale: true,
   lessLoaderOptions: {

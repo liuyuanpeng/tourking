@@ -81,7 +81,10 @@ export default {
       localStorage.removeItem("authority");
       localStorage.removeItem("shop-name");
       localStorage.removeItem("shop-id");
-      localStorage.removeItem("shop-role");
+      if (window.GLOBAL_INTERVAL) {
+        clearInterval(window.GLOBAL_INTERVAL);
+        window.GLOBAL_INTERVAL = null;
+      }
       // redirect
       if (window.location.pathname !== "/user/login") {
         yield put(

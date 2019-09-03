@@ -63,19 +63,18 @@ export default {
           item => item.role_type === "PLATFORM_USER_INIT"
         );
 
+        const employeeRole = response.data.roles.find(item => item.role_type === 'APPLICATION_ADMIN_INIT')
+
         const adminRole = response.data.roles.find(item => item.role_type === 'PLATFORM_ADMIN_INIT')
         if (adminRole) {
           payload.isAdmin && payload.isAdmin();
         }
-        if (shopRole) {
+        if (shopRole || employeeRole) {
           // 商家
           const shopRes = yield call(queryShopList, response.data.user.id);
           if (shopRes.code === "SUCCESS") {
             if (shopRes.data && shopRes.data.length) {
               const shopInfo = shopRes.data[0];
-              localStorage.setItem("shop-name", shopInfo.name);
-              localStorage.setItem("shop-id", shopInfo.id);
-              localStorage.setItem("shop-role", shopRole.id);
               yield put({
                 type: "saveShopInfo",
                 payload: {
@@ -334,6 +333,8 @@ export default {
       };
     },
     saveShopInfo(state, action) {
+      localStorage.setItem("shop-name", action.payload.shopName);
+      localStorage.setItem("shop-id", action.payload.shopId);
       return {
         ...state,
         shopName: action.payload.shopName,

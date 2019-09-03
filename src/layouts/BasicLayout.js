@@ -70,7 +70,7 @@ class BasicLayout extends React.Component {
         isAdmin: () => {
           document.onclick = tryPlay;
           localStorage.setItem("WARNING_COUNT", 0);
-          setInterval(() => {
+          window.GLOBAL_INTERVAL = setInterval(() => {
             // 检测新订单
             dispatch({
               type: "order/fetchNewOrder",
