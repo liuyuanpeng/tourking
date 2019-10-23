@@ -1,4 +1,9 @@
 export default [
+      {
+        path: "404",
+        name: '404 page',
+        component: "404"
+      },
   // user
   {
     path: "/user",
@@ -59,18 +64,23 @@ export default [
           }
         ]
       },
-      // shop
+      // order
       {
         path: "/order",
         name: "order",
         icon: "bars",
-        authority: ["shuttle", "dispatch"],
+        authority: ["shuttle", "dispatch", "chartered"],
         routes: [
           {
             path: "/order/shuttle",
             name: "shuttle",
             authority: "shuttle",
             component: "./Order/Shuttle"
+          },{
+            path: "/order/chartered",
+            name: "chartered",
+            authority: "chartered",
+            component: "./Order/Chartered"
           },
           {
             path: "/order/dispatch",
@@ -112,6 +122,8 @@ export default [
         path: "/base",
         name: "base",
         authority: [
+          "coversmanager",
+          "charteredmanager",
           "pricestrategy",
           "cartype",
           "carlevel",
@@ -122,6 +134,24 @@ export default [
         ],
         icon: "setting",
         routes: [
+          {
+            path: "/base/coversmanager",
+            name: "coversmanager",
+            authority: "coversmanager",
+            component: "./Base/CoversManager"
+          },
+          {
+            path: "/base/charteredmanager",
+            name: "charteredmanager",
+            authority: "charteredmanager",
+            component: "./Base/CharteredManager"
+          },
+          {
+            path: "/base/stepform",
+            name: "stepform",
+            component: "./Base/StepForm",
+            hideInMenu: true
+          },
           {
             path: "/base/pricestrategy",
             name: "pricestrategy",

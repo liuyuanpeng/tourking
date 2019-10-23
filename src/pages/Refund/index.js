@@ -42,7 +42,108 @@ const RefundSetting = Form.create()(props => {
     <Modal
       destroyOnClose
       width={window.MODAL_WIDTH}
-      title="退款设置"
+      title="预约用车退款设置"
+      visible={modalVisible}
+      onOk={okHandle}
+      onCancel={() => {
+        handleModalVisible();
+      }}
+    >
+      <Form>
+        <Row>
+          用车前
+          <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
+            {form.getFieldDecorator("before_first_time", {
+              initialValue: formValues.before_first_time || ""
+            })(<NumberInput />)}
+          </FormItem>
+          小时，手续费
+          <FormItem
+            style={{
+              display: "inline-block",
+              verticalAlign: "unset",
+              width: "150px"
+            }}
+          >
+            {form.getFieldDecorator("first_fund", {
+              initialValue:
+                formValues.first_fund === undefined ||
+                formValues.first_fund === null
+                  ? ""
+                  : formValues.first_fund
+            })(<NumberInput addonAfter="%" />)}
+          </FormItem>
+        </Row>
+        <Row>
+          用车前
+          <FormItem style={{ display: "inline-block", verticalAlign: "unset" }}>
+            {form.getFieldDecorator("before_second_time", {
+              initialValue: formValues.before_second_time || ""
+            })(<NumberInput />)}
+          </FormItem>
+          小时，手续费
+          <FormItem
+            style={{
+              display: "inline-block",
+              verticalAlign: "unset",
+              width: "150px"
+            }}
+          >
+            {form.getFieldDecorator("second_fund", {
+              initialValue:
+                formValues.second_fund === undefined ||
+                formValues.second_fund === null
+                  ? ""
+                  : formValues.second_fund
+            })(<NumberInput addonAfter="%" />)}
+          </FormItem>
+        </Row>
+        <Row>
+          超过
+          <FormItem style={{ display: "inline-block", top: "-15px" }}>
+            {form.getFieldDecorator("limit_fund", {
+              rules: [
+                {
+                  required: true,
+                  message: "请输入金额限制(如:99999)"
+                }
+              ],
+              initialValue:
+                formValues.limit_fund === undefined ||
+                formValues.limit_fund === null
+                  ? ""
+                  : formValues.limit_fund
+            })(<NumberInput />)}
+          </FormItem>
+          元，需人工审核
+        </Row>
+      </Form>
+    </Modal>
+  );
+});
+
+const CharteredRefundSetting = Form.create()(props => {
+  const {
+    modalVisible,
+    form,
+    handleModalVisible,
+    formValues,
+    handleConfig
+  } = props;
+
+  const okHandle = () => {
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      form.resetFields();
+      handleConfig(fieldsValue);
+    });
+  };
+
+  return (
+    <Modal
+      destroyOnClose
+      width={window.MODAL_WIDTH}
+      title="包车退款设置"
       visible={modalVisible}
       onOk={okHandle}
       onCancel={() => {
@@ -127,7 +228,8 @@ const RefundSetting = Form.create()(props => {
   data: order.list,
   page: order.page,
   total: order.total,
-  config: order.config
+  config: order.config,
+  charteredConfig: order.charteredConfig
 }))
 @Form.create()
 class Refund extends PureComponent {
@@ -135,7 +237,9 @@ class Refund extends PureComponent {
 
   state = {
     modalVisible: false,
-    formValues: {}
+    formValues: {},
+    modalCharteredVisible: false,
+    formCharteredValues: {}
   };
 
   columns = [
@@ -174,7 +278,7 @@ class Refund extends PureComponent {
       title: "申请时间",
       dataIndex: "create_time",
       key: "create_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD hh:mm:ss") : "")
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm:ss") : "")
     },
     {
       title: "订单ID",
@@ -204,6 +308,9 @@ class Refund extends PureComponent {
     this.searchKeys = {};
     dispatch({
       type: "order/fetchRefundConfig"
+    });
+    dispatch({
+      type: "order/fetchRefundCharteredConfig"
     });
     dispatch({
       type: "order/fetchRefundPage",
@@ -239,6 +346,12 @@ class Refund extends PureComponent {
   handleModalVisible = flag => {
     this.setState({
       modalVisible: !!flag
+    });
+  };
+
+  handleCharteredModalVisible = flag => {
+    this.setState({
+      modalCharteredVisible: !!flag
     });
   };
 
@@ -288,6 +401,24 @@ class Refund extends PureComponent {
     this.handleModalVisible();
   };
 
+  handleCharteredConfig = values => {
+    const { dispatch, charteredConfig } = this.props;
+    dispatch({
+      type: "order/saveRefundCharteredConfig",
+      payload: {
+        ...charteredConfig,
+        ...values,
+        onSuccess: () => {
+          message.success("设置成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "设置失败");
+        }
+      }
+    });
+    this.handleCharteredModalVisible();
+  };
+
   handlePageChange = (page, size) => {
     const { dispatch } = this.props;
     dispatch({
@@ -311,6 +442,17 @@ class Refund extends PureComponent {
         ...config
       },
       modalVisible: true
+    });
+  };
+
+  onCharteredConfig = e => {
+    const { charteredConfig } = this.props;
+    e.preventDefault();
+    this.setState({
+      formCharteredValues: {
+        ...charteredConfig
+      },
+      modalCharteredVisible: true
     });
   };
 
@@ -351,7 +493,7 @@ class Refund extends PureComponent {
 
   render() {
     const { loading, data, page, total } = this.props;
-    const { modalVisible, formValues } = this.state;
+    const { modalVisible, formValues, modalCharteredVisible, formCharteredValues } = this.state;
 
     const parentMethods = {
       formValues,
@@ -359,6 +501,11 @@ class Refund extends PureComponent {
       handleConfig: this.handleConfig
     };
 
+    const parentCharteredMethods = {
+      formValues: formCharteredValues,
+      handleModalVisible: this.handleCharteredModalVisible,
+      handleConfig: this.handleCharteredConfig
+    }
     return (
       <PageHeaderWrap title="退款管理">
         <Card bordered={false}>
@@ -366,7 +513,10 @@ class Refund extends PureComponent {
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
               <Button icon="setting" type="primary" onClick={this.onConfig}>
-                退款设置
+                预约用车退款设置
+              </Button>
+              <Button icon="setting" type="primary" onClick={this.onCharteredConfig}>
+                包车退款设置
               </Button>
             </div>
             <div className={styles.tableWrapper}>
@@ -389,6 +539,7 @@ class Refund extends PureComponent {
           </div>
         </Card>
         <RefundSetting {...parentMethods} modalVisible={modalVisible} />
+        <CharteredRefundSetting {...parentCharteredMethods} modalVisible={modalCharteredVisible} />
       </PageHeaderWrap>
     );
   }

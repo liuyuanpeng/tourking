@@ -1,92 +1,187 @@
-import React, { Fragment } from 'react';
-import { connect } from 'dva';
-import { Form, Input, Button, Select, Divider } from 'antd';
-import router from 'umi/router';
-import styles from './style.less';
+import React, { Fragment } from "react";
+import { connect } from "dva";
+import { Form, Input, Button, Select, DatePicker } from "antd";
+import ImageInput from "@/components/ImageInput";
+import NumberInput from "@/components/NumberInput";
+import moment from "moment";
+import styles from "./style.less";
 
 const { Option } = Select;
 
+const { RangePicker } = DatePicker;
+
+const { TextArea } = Input;
+
 const formItemLayout = {
   labelCol: {
-    span: 5,
+    span: 5
   },
   wrapperCol: {
-    span: 19,
-  },
+    span: 19
+  }
 };
-
-@connect(({ form }) => ({
-  data: form.step,
+const dateFormat = "YYYY-MM-DD";
+@connect(({ formStepForm }) => ({
+  data: formStepForm.step,
+  mode: formStepForm.mode
 }))
 @Form.create()
 class Step1 extends React.PureComponent {
   render() {
-    const { form, dispatch, data } = this.props;
+    const { form, dispatch, data, mode } = this.props;
     const { getFieldDecorator, validateFields } = form;
+    const readonly = mode === "readonly";
     const onValidateForm = () => {
+      if (readonly) {
+        dispatch({
+          type: "formStepForm/saveCurrentStep",
+          payload: "travel_route"
+        });
+        return;
+      }
       validateFields((err, values) => {
         if (!err) {
+          const { timeRange, ...others } = values;
           dispatch({
-            type: 'form/saveStepFormData',
-            payload: values,
+            type: "formStepForm/saveStepFormData",
+            payload: {
+              ...others,
+              start_time: timeRange[0] ? moment(timeRange[0])
+                .startOf("day")
+                .valueOf() : undefined,
+              end_time: timeRange[1] ? moment(timeRange[1])
+                .endOf("day")
+                .valueOf(): undefined,
+              weight: others.weight ? parseInt(others.weight, 10): 0
+            }
           });
-          router.push('/form/step-form/confirm');
+          dispatch({
+            type: "formStepForm/saveCurrentStep",
+            payload: "travel_route"
+          });
         }
       });
     };
     return (
       <Fragment>
-        <Form layout="horizontal" className={styles.stepForm} hideRequiredMark>
-          <Form.Item {...formItemLayout} label="付款账户">
-            {getFieldDecorator('payAccount', {
-              initialValue: data.payAccount,
-              rules: [{ required: true, message: '请选择付款账户' }],
-            })(
-              <Select placeholder="test@example.com">
-                <Option value="ant-design@alipay.com">ant-design@alipay.com</Option>
-              </Select>
+        <Form layout="horizontal" className={styles.stepForm}>
+          <Form.Item {...formItemLayout} label="包车类型">
+            {readonly ? (
+              <span>
+                {data.scene === "DAY_PRIVATE" ? "按天包车" : "线路包车"}
+              </span>
+            ) : (
+              getFieldDecorator("scene", {
+                initialValue: data.scene || "",
+                rules: [{ required: true, message: "请选择包车类型" }]
+              })(
+                <Select placeholder="请选择包车类型">
+                  <Option value="DAY_PRIVATE">按天包车</Option>
+                  <Option value="ROAD_PRIVATE">线路包车</Option>
+                </Select>
+              )
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="收款账户">
-            <Input.Group compact>
-              <Select defaultValue="alipay" style={{ width: 100 }}>
-                <Option value="alipay">支付宝</Option>
-                <Option value="bank">银行账户</Option>
-              </Select>
-              {getFieldDecorator('receiverAccount', {
-                initialValue: data.receiverAccount,
+          <Form.Item {...formItemLayout} label="线路名称">
+            {readonly ? (
+              <span>{data.name}</span>
+            ) : (
+              getFieldDecorator("name", {
+                initialValue: data.name || "",
+                rules: [{ required: true, message: "请输入线路名称" }]
+              })(<Input placeholder="请输入线路名称" />)
+            )}
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="线路标签">
+            {readonly ? (
+              <span>{data.tag}</span>
+            ) : (
+              getFieldDecorator("tag", {
+                initialValue: data.tag || ""
+              })(<Input placeholder={`多个标签用","隔开`} />)
+            )}
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="开放时间段">
+            {readonly ? (
+              <span>
+                {`${moment(data.start_time).format(dateFormat)}~
+              ${moment(data.end_time).format(dateFormat)}}`}
+              </span>
+            ) : (
+              getFieldDecorator("timeRange", {
+                rules: [{required: true, message: "请选择开放时间段"}],
+                initialValue:
+                  data.start_time && data.end_time
+                    ? [moment(data.start_time), moment(data.end_time)]
+                    : ""
+              })(<RangePicker format={dateFormat} />)
+            )}
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="预约时间">
+            {readonly ? (
+              <span>{data.show_days}天内</span>
+            ) : (
+              getFieldDecorator("show_days", {
+                initialValue: data.show_days || "",
+                rules:[
+                  {required: true, message: '请输入预约时间'}
+                ]
+              })(
+                <NumberInput
+                  numberType="integer"
+                  addonAfter="天内"
+                  style={{ textAlight: "right" }}
+                />
+              )
+            )}
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="权重">
+            {readonly ? (
+              <span>{data.weight}</span>
+            ) : (
+              getFieldDecorator("weight", {
+                initialValue: data.weight || "",
                 rules: [
-                  { required: true, message: '请输入收款人账户' },
-                  { type: 'email', message: '账户名应为邮箱格式' },
-                ],
-              })(<Input style={{ width: 'calc(100% - 100px)' }} placeholder="test@example.com" />)}
-            </Input.Group>
+                  {required: true, message: '请输入权重'}
+                ]
+              })(<NumberInput numberType="integer" />)
+            )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="收款人姓名">
-            {getFieldDecorator('receiverName', {
-              initialValue: data.receiverName,
-              rules: [{ required: true, message: '请输入收款人姓名' }],
-            })(<Input placeholder="请输入收款人姓名" />)}
+          <Form.Item {...formItemLayout} label="推荐理由">
+            {readonly ? (
+              <span>{data.reason}</span>
+            ) : (
+              getFieldDecorator("reason", {
+                initialValue: data.reason || ""
+              })(<TextArea />)
+            )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="转账金额">
-            {getFieldDecorator('amount', {
-              initialValue: data.amount,
-              rules: [
-                { required: true, message: '请输入转账金额' },
-                {
-                  pattern: /^(\d+)((?:\.\d+)?)$/,
-                  message: '请输入合法金额数字',
-                },
-              ],
-            })(<Input prefix="￥" placeholder="请输入金额" />)}
+          <Form.Item {...formItemLayout} label="线路图片">
+            {getFieldDecorator("images", {
+              initialValue: data.images || ''
+            })(<ImageInput readonly={readonly} />)}
+          </Form.Item>
+          <Form.Item {...formItemLayout} label="价格">
+            {readonly ? (
+              <span>{data.price}</span>
+            ) : (
+              getFieldDecorator("price", {
+                initialValue: data.price || "",
+                rules:[
+                  {required: true, message: '请输入价格'}
+                ]
+              })(
+                <NumberInput addonAfter="元" style={{ textAlight: "right" }} />
+              )
+            )}
           </Form.Item>
           <Form.Item
             wrapperCol={{
               xs: { span: 24, offset: 0 },
               sm: {
                 span: formItemLayout.wrapperCol.span,
-                offset: formItemLayout.labelCol.span,
-              },
+                offset: formItemLayout.labelCol.span
+              }
             }}
             label=""
           >
@@ -95,18 +190,6 @@ class Step1 extends React.PureComponent {
             </Button>
           </Form.Item>
         </Form>
-        <Divider style={{ margin: '40px 0 24px' }} />
-        <div className={styles.desc}>
-          <h3>说明</h3>
-          <h4>转账到支付宝账户</h4>
-          <p>
-            如果需要，这里可以放一些关于产品的常见问题说明。如果需要，这里可以放一些关于产品的常见问题说明。如果需要，这里可以放一些关于产品的常见问题说明。
-          </p>
-          <h4>转账到银行卡</h4>
-          <p>
-            如果需要，这里可以放一些关于产品的常见问题说明。如果需要，这里可以放一些关于产品的常见问题说明。如果需要，这里可以放一些关于产品的常见问题说明。
-          </p>
-        </div>
       </Fragment>
     );
   }

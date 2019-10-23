@@ -176,7 +176,24 @@ export async function saveRefundConfig(params) {
   return request("/server/travel/refund/config/save", {
     method: "POST",
     data: {
-      ...params
+      ...params,
+      code: 'order'
+    }
+  });
+}
+
+// 退款配置
+export async function getRefundCharteredConfig() {
+  return request("/server/travel/refund/config/get_private");
+}
+
+// 新增/修改退款配置
+export async function saveRefundCharteredConfig(params) {
+  return request("/server/travel/refund/config/save", {
+    method: "POST",
+    data: {
+      ...params,
+      code: 'private'
     }
   });
 }

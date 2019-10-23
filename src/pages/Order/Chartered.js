@@ -10,7 +10,6 @@ import {
   Form,
   Row,
   Col,
-  Popconfirm,
   message,
   Divider,
   Tooltip
@@ -21,19 +20,19 @@ import { connect } from "dva";
 import LocationInput from "@/components/LocationInput";
 import moment from "moment";
 import NumberInput from "@/components/NumberInput";
-import ORDER_STATUS from "../Order/orderStatus";
+import ORDER_STATUS from "./orderStatus";
 import styles from "../index.less";
+import ShopInput from "../Settlement/shopInput";
 import OrderHistory from "@/components/OrderHistory";
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
+const INIT_SCENE = ["DAY_PRIVATE", "ROAD_PRIVATE"].toString();
+
 const NewOrder = Form.create()(props => {
   const {
-    handleAddOrder,
-    carTypes,
-    consumeList,
     type,
     handleEdit,
     modalVisible,
@@ -43,20 +42,6 @@ const NewOrder = Form.create()(props => {
     updateFormValue
   } = props;
 
-  let origin = null;
-  let destination = null;
-  if (formValues.start_longitude && formValues.start_latitude) {
-    origin = {
-      longitude: formValues.start_longitude,
-      latitude: formValues.start_latitude
-    };
-  }
-  if (formValues.target_longitude && formValues.target_latitude) {
-    destination = {
-      longitude: formValues.target_longitude,
-      latitude: formValues.target_latitude
-    };
-  }
   const labelLayout = {
     labelCol: { span: 6 },
     wrapperCol: { span: 18 }
@@ -69,81 +54,17 @@ const NewOrder = Form.create()(props => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
-      if (type === "edit") {
-        handleEdit(fieldsValue);
-      } else {
-        handleAddOrder(fieldsValue);
-      }
+      handleEdit(fieldsValue);
     });
-    return null;
-  };
-
-  form.getFieldDecorator("route", {
-    initialValue: null
-  });
-
-  const updateRoute = value => {
-    if (value.time && value.distance) {
-      form.setFieldsValue({
-        route: {
-          time: value.time || 0,
-          kilo: value.distance || 0
-        }
-      });
-    }
   };
 
   const originChange = value => {
     updateFormValue({
       start_longitude: value.location.longitude,
       start_latitude: value.location.latitude,
-      start_place: value.address,
-      time: value.time || 0,
-      kilo: value.distance || 0
-    });
-    updateRoute(value);
-  };
-
-  const destinationChange = value => {
-    updateFormValue({
-      target_longitude: value.location.longitude,
-      target_latitude: value.location.latitude,
-      target_place: value.address,
-      time: value.time || 0,
-      kilo: value.distance || 0
-    });
-    updateRoute(value);
-  };
-
-  const changeScene = value => {
-    updateFormValue({
-      scene: value,
-      car_config_id: undefined
-    });
-    form.setFieldsValue({
-      car_config_id: undefined
-    })
-  };
-
-  const changeCarConfigId = value => {
-    updateFormValue({
-      car_config_id: value
+      start_place: value.address
     });
   };
-
-  const changeStartTime = value => {
-    updateFormValue({
-      start_time: value ? value.valueOf() : ''
-    })
-  }
-
-  let consumeArr = []
-  if (formValues.scene) {
-    const consume = consumeList.find(item=>item.consume.scene === formValues.scene);
-    if (consume) {
-      consumeArr = consume.car_levels ? consume.car_levels : []
-    }
-  }
 
   return (
     <Modal
@@ -159,51 +80,9 @@ const NewOrder = Form.create()(props => {
       <Row>
         <Col>
           <FormItem {...labelLayout} label="类型">
-            {readonly ? (
-              <span>
-                {formValues.scene === "JIEJI"
-                  ? "接机/站"
-                  : formValues.scene === "SONGJI"
-                  ? "送机/站"
-                  : "单次用车"}
-              </span>
-            ) : (
-              form.getFieldDecorator("scene", {
-                rules: [{ required: true, message: "请选择订单类型" }],
-                initialValue: formValues.scene || ""
-              })(
-                <Select style={{ width: "100%" }} onChange={changeScene}>
-                  <Option value="JIEJI">接机/站</Option>
-                  <Option value="SONGJI">送机/站</Option>
-                  <Option value="ORDER_SCENE">单次用车</Option>
-                </Select>
-              )
-            )}
-          </FormItem>
-        </Col>
-        <Col>
-          <FormItem {...labelLayout} label="车型">
-            {readonly ? (
-              <span>
-                {formValues.car_config_id
-                  ? carTypes.find(item => item.id === formValues.car_config_id)
-                      .name
-                  : ""}
-              </span>
-            ) : (
-              form.getFieldDecorator("car_config_id", {
-                rules: [{ required: true, message: "请选择车型" }],
-                initialValue: formValues.car_config_id || ""
-              })(
-                <Select style={{ width: "100%" }} onChange={changeCarConfigId}>
-                  {consumeArr.map(item => (
-                    <Option key={item.config_id} value={item.config_id}>
-                      {item.config_name}
-                    </Option>
-                  ))}
-                </Select>
-              )
-            )}
+            <span>
+              {formValues.scene === "DAY_PRIVATE" ? "按天包车" : "线路包车"}
+            </span>
           </FormItem>
         </Col>
         <Col>
@@ -227,9 +106,8 @@ const NewOrder = Form.create()(props => {
                   : null
               })(
                 <DatePicker
-                  onChange={changeStartTime}
-                  format="YYYY-MM-DD HH:mm"
-                  showTime={{ format: "HH:mm" }}
+                  format="YYYY-MM-DD"
+                  // showTime={{ format: "HH:mm" }}
                   placeholder="上车时间"
                   style={{ width: "100%" }}
                   getPopupContainer={trigger => trigger.parentNode}
@@ -241,7 +119,7 @@ const NewOrder = Form.create()(props => {
         <Col>
           <FormItem {...labelLayout} label="上车地点">
             {readonly ? (
-              <span>{formValues.start_place || ""}</span>
+              <span>{formValues.start_place}</span>
             ) : (
               form.getFieldDecorator("start_location", {
                 rules: [
@@ -260,39 +138,7 @@ const NewOrder = Form.create()(props => {
                         }
                       }
                     : undefined
-              })(
-                <LocationInput
-                  isShop
-                  destination={destination}
-                  onChange={originChange}
-                />
-              )
-            )}
-          </FormItem>
-        </Col>
-        <Col>
-          <FormItem {...labelLayout} label="目的地">
-            {readonly ? (
-              <span>{formValues.target_place || ""}</span>
-            ) : (
-              form.getFieldDecorator("end_location", {
-                rules: [
-                  {
-                    required: true,
-                    message: "请选择目的地"
-                  }
-                ],
-                initialValue:
-                  type === "edit"
-                    ? {
-                        address: formValues.target_place,
-                        location: {
-                          longitude: formValues.target_longitude,
-                          latitude: formValues.target_latitude
-                        }
-                      }
-                    : undefined
-              })(<LocationInput isShop origin={origin} onChange={destinationChange} />)
+              })(<LocationInput onChange={originChange} />)
             )}
           </FormItem>
         </Col>
@@ -303,17 +149,6 @@ const NewOrder = Form.create()(props => {
             </FormItem>
           </Col>
         )}
-        <Col>
-          <FormItem {...labelLayout} label="航班号">
-            {readonly ? (
-              <span>{formValues.air_no || ""}</span>
-            ) : (
-              form.getFieldDecorator("air_no", {
-                initialValue: formValues.air_no || ""
-              })(<Input />)
-            )}
-          </FormItem>
-        </Col>
         <Col>
           <FormItem {...labelLayout} label="乘客姓名">
             {readonly ? (
@@ -352,65 +187,21 @@ const NewOrder = Form.create()(props => {
             )}
           </FormItem>
         </Col>
-        <Col>
-          <FormItem {...labelLayout} label="紧急联系人">
-            {readonly ? (
-              <span>{formValues.contact || ""}</span>
-            ) : (
-              form.getFieldDecorator("contact", {
-                initialValue: formValues.contact || ""
-              })(<Input />)
-            )}
-          </FormItem>
-        </Col>
-        <Col>
-          <FormItem {...labelLayout} label="紧急联系人电话">
-            {readonly ? (
-              <span>{formValues.contact_mobile}</span>
-            ) : (
-              form.getFieldDecorator("contact_mobile", {
-                rules: [
-                  {
-                    len: 11,
-                    message: "请输入正确的手机号码"
-                  }
-                ],
-                initialValue: formValues.contact_mobile || ""
-              })(<NumberInput numberType="positive integer" />)
-            )}
-          </FormItem>
-        </Col>
-        <Col>
-          <FormItem {...labelLayout} label="用户备注">
-            {readonly ? (
-              <span>{formValues.remark}</span>
-            ) : (
-              form.getFieldDecorator("remark", {
-                initialValue: formValues.remark || ""
-              })(<Input />)
-            )}
-          </FormItem>
-        </Col>
       </Row>
     </Modal>
   );
 });
 
-@connect(({ consume, order, user, car_type, loading }) => ({
+@connect(({ order, loading }) => ({
   loading: loading.effects["order/fetchOrderPage"],
+  historyLoading: loading.effects["order/fetchOrderHistory"],
   data: order.list,
   page: order.page,
   total: order.total,
-  carTypes: car_type.list,
-  shop_id: user.shopId,
-  shop_name: user.shopName,
-  config: order.config,
-  historyLoading: loading.effects["order/fetchOrderHistory"],
-  orderHistory: order.history,
-  consumeList: consume.list
+  orderHistory: order.history
 }))
 @Form.create()
-class Book extends PureComponent {
+class Shuttle extends PureComponent {
   static propTypes = {};
 
   state = {
@@ -418,26 +209,52 @@ class Book extends PureComponent {
     historyVisible: false,
     formValues: {},
     timeType: undefined,
-    type: "add",
-    selectedRowKeys: []
+    type: "readonly"
   };
 
   columns = [
+    {
+      title: "来源",
+      dataIndex: "source",
+      key: "source",
+      textWrap: "word-break",
+      render: (text, record) => record.shop_name || record.mobile
+    },
+    {
+      title: "订单状态",
+      dataIndex: "order_status",
+      key: "order_status",
+      render: text => {
+        const status = ORDER_STATUS.find(item => item.name === text);
+        return text && status ? status.desc : "";
+      }
+    },
+    {
+      title: "类型",
+      dataIndex: "scene",
+      key: "scene",
+      render: text => (text === "DAY_PRIVATE" ? "按天包车" : "线路包车")
+    },
     {
       title: "乘车人姓名",
       dataIndex: "username",
       key: "username"
     },
     {
-      title: "类型",
-      dataIndex: "scene",
-      key: "scene",
-      render: text =>
-        text === "JIEJI"
-          ? "接机/站"
-          : text === "SONGJI"
-          ? "送机/站"
-          : "单次用车"
+      title: "电话",
+      dataIndex: "mobile",
+      key: "mobile"
+    },
+    {
+      title: "紧急联系人",
+      dataIndex: "contact",
+      key: "contact"
+    },
+    {
+      title: "上车时间",
+      dataIndex: "start_time",
+      key: "start_time",
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "上车地点",
@@ -458,50 +275,6 @@ class Book extends PureComponent {
       )
     },
     {
-      title: "上车时间",
-      dataIndex: "start_time",
-      key: "start_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
-    },
-    {
-      title: "目的地",
-      dataIndex: "target_place",
-      key: "target_place",
-      render: text => (
-        <Tooltip title={text}>
-          <div
-            style={{
-              width: "200px",
-              overflow: "hidden",
-              textOverflow: "ellipsis"
-            }}
-          >
-            {text}
-          </div>
-        </Tooltip>
-      )
-    },
-    {
-      title: "航班号/班次",
-      dataIndex: "air_no",
-      key: "air_no"
-    },
-    {
-      title: "联系电话",
-      dataIndex: "mobile",
-      key: "mobile"
-    },
-    {
-      title: "紧急联系人",
-      dataIndex: "contact",
-      key: "contact"
-    },
-    {
-      title: "备注",
-      dataIndex: "remark",
-      key: "remark"
-    },
-    {
       title: "下单时间",
       dataIndex: "create_time",
       key: "create_time",
@@ -518,9 +291,23 @@ class Book extends PureComponent {
       key: "driver_car_no"
     },
     {
+      title: "价格",
+      dataIndex: "price",
+      key: "price"
+    },
+    {
       title: "手续费",
       dataIndex: "refund_fee",
       key: "refund_fee"
+    },
+    ,
+    {
+      title: "实收金额",
+      dataIndex: "final_price",
+      key: "final_price",
+      render: (text, record) => {
+        return record.refund_fee ? record.refund_fee : record.price;
+      }
     },
     {
       title: "订单ID",
@@ -528,19 +315,10 @@ class Book extends PureComponent {
       key: "id"
     },
     {
-      title: "订单状态",
-      dataIndex: "order_status",
-      key: "order_status",
-      render: text => {
-        const status = ORDER_STATUS.find(item => item.name === text);
-        return text && status ? status.desc : "";
-      }
-    },
-    {
       title: "操作",
       fixed: "right",
       key: "aciton",
-      width: 200,
+      width: 150,
       render: (text, record) => (
         <span className={styles.actionColumn}>
           <a href="javascript:;" onClick={() => this.onReadonly(record)}>
@@ -550,134 +328,26 @@ class Book extends PureComponent {
           <a href="javascript:;" onClick={() => this.showHistory(record)}>
             历史
           </a>
-          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
-            <Divider type="vertical" />
-          )}
-          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
-            <a href="javascript:;" onClick={() => this.onEdit(record)}>
-              编辑
-            </a>
-          )}
-          {(record.order_status === "WAIT_ACCEPT" ||
-            record.order_status === "AUTO" ||
-            record.order_status === "ACCEPTED") && <Divider type="vertical" />}
-          {(record.order_status === "WAIT_ACCEPT" ||
-            record.order_status === "AUTO" ||
-            record.order_status === "ACCEPTED") && (
-            <Popconfirm
-              title={this.getCancelInfo(record)}
-              onConfirm={() => {
-                this.handleCancel(record);
-              }}
-              okText="是"
-              cancelText="否"
-            >
-              <a href="javascript:;">取消</a>
-            </Popconfirm>
-          )}
-          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
-            <Divider type="vertical" />
-          )}
-          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
-            <a href="javascript:;" onClick={() => this.handlePush(record)}>
-              推送
-            </a>
-          )}
         </span>
       )
     }
   ];
 
-  rowSelection = {
-    onChange: selectedRowKeys => {
-      this.setState({
-        selectedRowKeys
-      });
-    },
-    getCheckboxProps: record => ({
-      disabled: record.order_status !== "WAIT_APPROVAL_OR_PAY"
-    })
-  };
-
   componentDidMount() {
-    const { dispatch, shop_id } = this.props;
-    this.searchKeys = { shop_id };
+    const { dispatch } = this.props;
+    this.searchKeys = { scene: INIT_SCENE };
     dispatch({
-      type: "order/fetchRefundConfig"
-    });
-    dispatch({
-      type: "consume/fetchConsumeList",
+      type: "order/fetchOrderPage",
       payload: {
+        page: 0,
+        size: 10,
+        ...this.searchKeys,
         onFailure: msg => {
-          message.error(msg || "获取车型分级列表失败");
+          message.error(msg || "获取订单列表失败");
         }
       }
     });
-    dispatch({
-      type: "car_type/fetchCarTypes",
-      payload: {
-        onFailure: msg => {
-          message.error(msg || "获取车辆分类列表失败");
-        }
-      }
-    });
-    if (shop_id) {
-      dispatch({
-        type: "order/fetchOrderPage",
-        payload: {
-          page: 0,
-          size: 10,
-          ...this.searchKeys,
-          onFailure: msg => {
-            message.error(msg || "获取订单列表失败");
-          }
-        }
-      });
-    }
   }
-
-  componentWillReceiveProps(nextProps) {
-    const { shop_id, dispatch } = this.props;
-    if (shop_id !== nextProps.shop_id) {
-      this.searchKeys = { ...this.searchKeys, shop_id: nextProps.shop_id };
-      dispatch({
-        type: "order/fetchOrderPage",
-        payload: {
-          page: 0,
-          size: 10,
-          ...this.searchKeys,
-          onFailure: msg => {
-            message.error(msg || "获取订单列表失败");
-          }
-        }
-      });
-    }
-  }
-
-  getCancelInfo = record => {
-    const { config } = this.props;
-    const {
-      before_first_time,
-      first_fund,
-      before_second_time,
-      second_fund
-    } = config;
-    const delta = record.start_time - moment().valueOf();
-    let fundFee1 = 0;
-    let fundFee2 = 0;
-    if (delta < before_first_time * 60 * 60 * 1000) {
-      fundFee1 = (record.price * first_fund) / 100;
-    }
-
-    if (delta < before_second_time * 60 * 60 * 1000) {
-      fundFee2 = (record.price * second_fund) / 100;
-    }
-    const fundFee = Math.max(fundFee1, fundFee2);
-    if (fundFee) {
-      return `取消该订单将产生${fundFee.toFixed(2)}退款,确认取消吗?`;
-    }
-    return "确定取消该订单吗?";
-  };
 
   onReadonly = record => {
     this.setState({
@@ -685,27 +355,6 @@ class Book extends PureComponent {
       modalVisible: true,
       type: "readonly"
     });
-  };
-
-  showHistory = record => {
-    const {dispatch} = this.props;
-    const {id} = record;
-    dispatch({
-      type: 'order/fetchOrderHistory',
-      payload: {
-        orderId: id,
-        onSuccess: data => {
-          if (!data || data.length <= 0) {
-            message.info('暂无该订单的历史记录!');
-          } else {
-            this.handleHistoryVisible(true);
-          }
-        },
-        onFailure: msg => {
-          message.error(msg || '获取订单历史失败!')
-        }
-      }
-    })
   };
 
   onEdit = record => {
@@ -716,19 +365,10 @@ class Book extends PureComponent {
     });
   };
 
-  onAdd = e => {
-    e.preventDefault();
-    this.setState({
-      formValues: {},
-      modalVisible: true,
-      type: "add"
-    });
-  };
-
   handleCancel = record => {
     const { dispatch, page } = this.props;
     dispatch({
-      type: "order/cancelOrderShop",
+      type: "order/cancelOrder",
       payload: {
         id: record.id,
         ...this.searchKeys,
@@ -739,49 +379,6 @@ class Book extends PureComponent {
         },
         onFailure: msg => {
           message.error(msg || "取消订单失败");
-        }
-      }
-    });
-  };
-
-  handlePush = record => {
-    const { dispatch, page } = this.props;
-    dispatch({
-      type: "order/shopApproval",
-      payload: {
-        id: record.id,
-        ...this.searchKeys,
-        page,
-        size: 10,
-        onSuccess: () => {
-          message.success("推送成功");
-        },
-        onFailure: msg => {
-          message.error(msg || "推送失败");
-        }
-      }
-    });
-  };
-
-  handleMultiPush = () => {
-    const { dispatch, page } = this.props;
-    const { selectedRowKeys } = this.state;
-    const { searchKeys } = this;
-    dispatch({
-      type: "order/batchShopApproval",
-      payload: {
-        ids: selectedRowKeys.toString(),
-        ...searchKeys,
-        page,
-        size: 10,
-        onSuccess: () => {
-          message.success("批量推送成功");
-          this.setState({
-            selectedRowKeys: []
-          });
-        },
-        onFailure: msg => {
-          message.error(msg || "批量推送失败");
         }
       }
     });
@@ -800,16 +397,20 @@ class Book extends PureComponent {
   };
 
   handleExport = e => {
-    const { dispatch, page, form, shop_id } = this.props;
+    const { dispatch, form } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
-      this.searchKeys = { ...values, shop_id };
+      this.searchKeys = { ...values };
       Object.keys(this.searchKeys).forEach(key => {
         if (!this.searchKeys[key]) {
           delete this.searchKeys[key];
         }
       });
+
+      if (!this.searchKeys.scene) {
+        this.searchKeys.scene = INIT_SCENE;
+      }
       if (this.searchKeys.time_range) {
         delete this.searchKeys.time_range;
         this.searchKeys = {
@@ -843,16 +444,20 @@ class Book extends PureComponent {
   };
 
   handleSearch = e => {
-    const { dispatch, page, form, shop_id } = this.props;
+    const { dispatch, form } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
-      this.searchKeys = { ...values, shop_id };
+      this.searchKeys = { ...values };
       Object.keys(this.searchKeys).forEach(key => {
         if (!this.searchKeys[key]) {
           delete this.searchKeys[key];
         }
       });
+
+      if (!this.searchKeys.scene) {
+        this.searchKeys.scene = INIT_SCENE;
+      }
       if (this.searchKeys.time_range) {
         delete this.searchKeys.time_range;
         this.searchKeys = {
@@ -876,9 +481,9 @@ class Book extends PureComponent {
   };
 
   handleReset = () => {
-    const { dispatch, form, shop_id } = this.props;
+    const { dispatch, form } = this.props;
     form.resetFields();
-    this.searchKeys = { shop_id };
+    this.searchKeys = { scene: INIT_SCENE };
     dispatch({
       type: "order/fetchOrderPage",
       payload: {
@@ -919,54 +524,6 @@ class Book extends PureComponent {
     return current && current > moment().endOf("day");
   };
 
-  handleAddOrder = value => {
-    const { dispatch, page, shop_id, shop_name } = this.props;
-    const {
-      start_time,
-      start_location,
-      end_location,
-      route,
-      ...others
-    } = value;
-    const params = {
-      start_time: start_time.valueOf(),
-      start_place: start_location.address,
-      start_longitude: start_location.location.longitude,
-      start_latitude: start_location.location.latitude,
-      target_place: end_location.address,
-      target_longitude: end_location.location.longitude,
-      target_latitude: end_location.location.latitude
-    };
-    if (route && route.time && route.kilo) {
-      params.priceParams = {
-        kilo: route.kilo,
-        time: route.time
-      };
-    }
-
-    dispatch({
-      type: "order/createOrder",
-      payload: {
-        ...others,
-        ...params,
-        order_source: "SHOP",
-        common_scene: "ORDER",
-        shop_id,
-        searchParams: {
-          ...this.searchKeys
-        },
-        onSuccess: () => {
-          message.success("操作成功");
-        },
-        onFailure: msg => {
-          message.error(msg || "操作失败");
-        }
-      }
-    });
-
-    this.handleModalVisible();
-  };
-
   handleEdit = info => {
     const { dispatch, page } = this.props;
     const { formValues } = this.state;
@@ -981,7 +538,6 @@ class Book extends PureComponent {
 
     const params = {
       start_time: start_time.valueOf(),
-      car_config_id,
       start_place: start_location.address,
       start_longitude: start_location.location.longitude,
       start_latitude: start_location.location.latitude,
@@ -1068,6 +624,7 @@ class Book extends PureComponent {
         price: undefined
       }
     });
+
     const { dispatch } = this.props;
     const { scene, car_config_id, kilo, time, start_time } = newFormValues;
     if (scene && car_config_id && kilo && time) {
@@ -1093,6 +650,27 @@ class Book extends PureComponent {
         }
       });
     }
+  };
+
+  showHistory = record => {
+    const { dispatch } = this.props;
+    const { id } = record;
+    dispatch({
+      type: "order/fetchOrderHistory",
+      payload: {
+        orderId: id,
+        onSuccess: data => {
+          if (!data || data.length <= 0) {
+            message.info("暂无该订单的历史记录!");
+          } else {
+            this.handleHistoryVisible(true);
+          }
+        },
+        onFailure: msg => {
+          message.error(msg || "获取订单历史失败!");
+        }
+      }
+    });
   };
 
   renderForm() {
@@ -1164,9 +742,8 @@ class Book extends PureComponent {
             <FormItem label="订单类型">
               {getFieldDecorator("scene")(
                 <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
-                  <Option key="JIEJI">接机/站</Option>
-                  <Option key="SONGJI">送机/站</Option>
-                  <Option key="ORDER_SCENE">单次用车</Option>
+                  <Option key="DAY_PRIVATE">按天包车</Option>
+                  <Option key="ROAD_PRIVATE">线路包车</Option>
                 </Select>
               )}
             </FormItem>
@@ -1192,18 +769,22 @@ class Book extends PureComponent {
   }
 
   render() {
-    const { loading, data, page, total, carTypes, orderHistory, historyLoading, consumeList } = this.props;
-    const { modalVisible, historyVisible, formValues, type, selectedRowKeys } = this.state;
+    const {
+      loading,
+      historyLoading,
+      data,
+      page,
+      total,
+      orderHistory
+    } = this.props;
+    const { modalVisible, formValues, type, historyVisible } = this.state;
 
     const parentMethods = {
       type,
-      carTypes,
-      consumeList,
       formValues,
       handleModalVisible: this.handleModalVisible,
       handleEdit: this.handleEdit,
-      updateFormValue: this.updateFormValue,
-      handleAddOrder: this.handleAddOrder
+      updateFormValue: this.updateFormValue
     };
 
     const historyMethod = {
@@ -1213,19 +794,11 @@ class Book extends PureComponent {
     };
 
     return (
-      <PageHeaderWrap title="预约订单管理">
+      <PageHeaderWrap title="包车订单管理">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListOperator}>
-              <Button icon="plus" type="primary" onClick={this.onAdd}>
-                新增订单
-              </Button>
-              {selectedRowKeys && selectedRowKeys.length > 0 && (
-                <Button type="primary" onClick={this.handleMultiPush}>
-                  批量推送
-                </Button>
-              )}
               <Button icon="reload" type="primary" onClick={this.handleRefresh}>
                 刷新
               </Button>
@@ -1236,7 +809,6 @@ class Book extends PureComponent {
             <div className={styles.tableWrapper}>
               <Table
                 rowKey={record => record.id}
-                rowSelection={this.rowSelection}
                 loading={loading || historyLoading}
                 pagination={{
                   pageSize: 10,
@@ -1248,7 +820,7 @@ class Book extends PureComponent {
                 }}
                 dataSource={data}
                 columns={this.columns}
-                scroll={{ x: 2600 }}
+                scroll={{ x: 2080 }}
               />
             </div>
           </div>
@@ -1259,5 +831,4 @@ class Book extends PureComponent {
     );
   }
 }
-
-export default Book;
+export default Shuttle;

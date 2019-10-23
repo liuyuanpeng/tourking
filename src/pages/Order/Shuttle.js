@@ -29,6 +29,8 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
+const INIT_SCENE = ["JIEJI", "SONGJI", "ORDER_SCENE"].toString();
+
 const NewOrder = Form.create()(props => {
   const {
     carTypes,
@@ -161,7 +163,7 @@ const NewOrder = Form.create()(props => {
                   ? "接机/站"
                   : formValues.scene === "SONGJI"
                   ? "送机/站"
-                  : "预约用车"}
+                  : "单次用车"}
               </span>
             ) : (
               form.getFieldDecorator("scene", {
@@ -171,7 +173,7 @@ const NewOrder = Form.create()(props => {
                 <Select style={{ width: "100%" }} onChange={changeScene}>
                   <Option value="JIEJI">接机/站</Option>
                   <Option value="SONGJI">送机/站</Option>
-                  <Option value="ORDER_SCENE">预约用车</Option>
+                  <Option value="ORDER_SCENE">单次用车</Option>
                 </Select>
               )
             )}
@@ -418,7 +420,7 @@ class Shuttle extends PureComponent {
       dataIndex: "source",
       key: "source",
       textWrap: "word-break",
-      render: (text, record) => (record.shop_name || record.mobile)
+      render: (text, record) => record.shop_name || record.mobile
     },
     {
       title: "扫码商家",
@@ -443,7 +445,7 @@ class Shuttle extends PureComponent {
           ? "接机/站"
           : text === "SONGJI"
           ? "送机/站"
-          : "预约用车"
+          : "单次用车"
     },
     {
       title: "乘车人姓名",
@@ -582,7 +584,7 @@ class Shuttle extends PureComponent {
 
   componentDidMount() {
     const { dispatch } = this.props;
-    this.searchKeys = {};
+    this.searchKeys = { scene: INIT_SCENE };
     dispatch({
       type: "car_type/fetchCarTypes",
       payload: {
@@ -605,6 +607,7 @@ class Shuttle extends PureComponent {
       payload: {
         page: 0,
         size: 10,
+        ...this.searchKeys,
         onFailure: msg => {
           message.error(msg || "获取订单列表失败");
         }
@@ -664,12 +667,17 @@ class Shuttle extends PureComponent {
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
-      this.searchKeys = { ...values };
+      this.searchKeys = {
+        ...values
+      };
       Object.keys(this.searchKeys).forEach(key => {
         if (!this.searchKeys[key]) {
           delete this.searchKeys[key];
         }
       });
+      if (!this.searchKeys.scene) {
+        this.searchKeys.scene = INIT_SCENE;
+      }
       if (this.searchKeys.time_range) {
         delete this.searchKeys.time_range;
         this.searchKeys = {
@@ -707,12 +715,18 @@ class Shuttle extends PureComponent {
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
-      this.searchKeys = { ...values };
+      this.searchKeys = {
+        ...values
+      };
       Object.keys(this.searchKeys).forEach(key => {
         if (!this.searchKeys[key]) {
           delete this.searchKeys[key];
         }
       });
+
+      if (!this.searchKeys.scene) {
+        this.searchKeys.scene = INIT_SCENE;
+      }
       if (this.searchKeys.time_range) {
         delete this.searchKeys.time_range;
         this.searchKeys = {
@@ -738,12 +752,13 @@ class Shuttle extends PureComponent {
   handleReset = () => {
     const { dispatch, form } = this.props;
     form.resetFields();
-    this.searchKeys = {};
+    this.searchKeys = { scene: INIT_SCENE };
     dispatch({
       type: "order/fetchOrderPage",
       payload: {
         page: 0,
         size: 10,
+        ...this.searchKeys,
         onFailure: msg => {
           message.error(msg || "获取订单列表失败!");
         }
@@ -998,7 +1013,7 @@ class Shuttle extends PureComponent {
                 <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
-                  <Option key="ORDER_SCENE">预约用车</Option>
+                  <Option key="ORDER_SCENE">单次用车</Option>
                 </Select>
               )}
             </FormItem>

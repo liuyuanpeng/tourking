@@ -6,10 +6,6 @@ th {
   text-align: center !important;
 }
 
-tr {
-  height: initial !important;
-}
-
 .actionColumn {
   text-align: center;
   display: block;
@@ -78,5 +74,14 @@ tr {
 @media screen and (max-width: @screen-md) {
   .tableListForm :global(.ant-form-item) {
     margin-right: 8px;
+  }
+}
+
+.avatarUploader {
+  :global {
+    .ant-upload {
+      width: 256px;
+      height: 128px;
+    }
   }
 }

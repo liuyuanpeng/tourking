@@ -186,7 +186,7 @@ const NewLevel = Form.create()(props => {
                 ? "接机/站"
                 : formValues.consume.scene === "JIEJI"
                 ? "送机/站"
-                : "预约用车"}
+                : "单次用车"}
             </span>
           ) : (
             form.getFieldDecorator("scene", {
@@ -196,7 +196,7 @@ const NewLevel = Form.create()(props => {
               <Select style={{ width: "100%" }}>
                 <Option key="JIEJI">接机/站</Option>
                 <Option key="SONGJI">送机/站</Option>
-                <Option key="ORDER_SCENE">预约用车</Option>
+                <Option key="ORDER_SCENE">单次用车</Option>
               </Select>
             )
           )}
@@ -329,7 +329,7 @@ export default class CarManager extends PureComponent {
           ? "接机/站"
           : text === "SONGJI"
           ? "送机/站"
-          : "预约用车"
+          : "单次用车"
     },
     {
       title: "备注",
@@ -463,6 +463,7 @@ export default class CarManager extends PureComponent {
                 rowKey={record => record.consume.id}
                 loading={loading}
                 dataSource={data}
+                pagination={false}
                 columns={this.columns}
               />
             </div>

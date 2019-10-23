@@ -62,7 +62,7 @@ const OrderDetail = Form.create()(props => {
                 ? "接机/站"
                 : formValues.scene === "SONGJI"
                 ? "送机/站"
-                : "预约用车"}
+                : "单次用车"}
             </span>
           </FormItem>
         </Col>
@@ -231,7 +231,7 @@ class Dispatch extends PureComponent {
           ? "接机/站"
           : text === "SONGJI"
           ? "送机/站"
-          : "预约用车"
+          : "单次用车"
     },
     {
       title: "状态",

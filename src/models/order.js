@@ -8,7 +8,9 @@ import {
   settled,
   queryRefundPage,
   getRefundConfig,
+  getRefundCharteredConfig,
   saveRefundConfig,
+  saveRefundCharteredConfig,
   refund,
   batchShopApproval,
   shopApproval,
@@ -32,6 +34,7 @@ export default {
     page: 0,
     total: 0,
     config: {},
+    charteredConfig: {},
     history: []
   },
 
@@ -76,6 +79,29 @@ export default {
       if (response.code === "SUCCESS") {
         yield put({
           type: "saveConfig",
+          payload: response.data
+        });
+        payload.onSuccess && payload.onSuccess();
+      } else {
+        payload.onFailure && payload.onFailure(response.message);
+      }
+    },
+    *fetchRefundCharteredConfig({ payload }, { call, put }) {
+      const response = yield call(getRefundCharteredConfig, payload);
+      if (response.code === "SUCCESS" && response.data) {
+        yield put({
+          type: "saveCharteredConfig",
+          payload: response.data
+        });
+      } else {
+        payload.onFailure && payload.onFailure(response.message);
+      }
+    },
+    *saveRefundCharteredConfig({ payload }, { call, put }) {
+      const response = yield call(saveRefundCharteredConfig, payload);
+      if (response.code === "SUCCESS") {
+        yield put({
+          type: "saveCharteredConfig",
           payload: response.data
         });
         payload.onSuccess && payload.onSuccess();
@@ -431,6 +457,14 @@ export default {
       return {
         ...state,
         config: {
+          ...action.payload
+        }
+      };
+    },
+    saveCharteredConfig(state, action) {
+      return {
+        ...state,
+        charteredConfig: {
           ...action.payload
         }
       };
