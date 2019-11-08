@@ -112,12 +112,15 @@ const NewAccount = Form.create()(props => {
           )}
         </FormItem>
       )}
-      <FormItem {...labelLayout} label={selectRole.role_type === 'PLATFORM_USER_INIT' ? '商家名称' : '联系人'}>
+      <FormItem
+        {...labelLayout}
+        label={
+          selectRole.role_type === "PLATFORM_USER_INIT" ? "商家名称" : "联系人"
+        }
+      >
         {form.getFieldDecorator("name", {
           initialValue: formValues.name || "",
-          rules: [
-            {required: true, message: '请输入联系人'}
-          ]
+          rules: [{ required: true, message: "请输入联系人" }]
         })(<Input style={{ width: "100%" }} />)}
       </FormItem>
       {type === "add" && (
@@ -141,7 +144,8 @@ const NewAccount = Form.create()(props => {
           )}
         </FormItem>
       )}
-      {selectRole.role_type === "APPLICATION_USER_CUSTOM" &&
+      {type === "add" &&
+        selectRole.role_type === "APPLICATION_USER_CUSTOM" &&
         selectRole.is_init && (
           <FormItem {...labelLayout} label="司机评分">
             {form.getFieldDecorator("driver_evaluate", {
@@ -155,7 +159,7 @@ const NewAccount = Form.create()(props => {
                   validator: checkDriverEvaluate
                 }
               ]
-            })(<NumberInput />)}
+            })(<NumberInput numberType="positive integer" />)}
           </FormItem>
         )}
     </Modal>
@@ -325,9 +329,9 @@ class Account extends PureComponent {
 
   handleAdd = fields => {
     const { dispatch } = this.props;
-    const {selectRole} = this.state;
-    const data = {...fields};
-    if (selectRole.role_type === 'PLATFORM_USER_INIT') {
+    const { selectRole } = this.state;
+    const data = { ...fields };
+    if (selectRole.role_type === "PLATFORM_USER_INIT") {
       data.shop_name = fields.name;
     }
     dispatch({
@@ -393,14 +397,13 @@ class Account extends PureComponent {
           <Col span={9}>
             <FormItem label="角色">
               {getFieldDecorator("role_id")(
-                <Select
-                allowClear
-                >
-                  {
-                    roleList && roleList.map((item, index)=>(
-                      <Option key={index} value={item.id}>{item.name}</Option>
-                    ))
-                  }
+                <Select allowClear>
+                  {roleList &&
+                    roleList.map((item, index) => (
+                      <Option key={index} value={item.id}>
+                        {item.name}
+                      </Option>
+                    ))}
                 </Select>
               )}
             </FormItem>
@@ -448,9 +451,32 @@ class Account extends PureComponent {
   };
 
   onEdit = record => {
+    console.log("record:", record);
+    let selectRole = {};
+    const hasDriver = record.roles.find(
+      item => item.role_type === "APPLICATION_USER_CUSTOM"
+    );
+    if (hasDriver) {
+      selectRole = hasDriver;
+    } else {
+      const hasShop = record.roles.find(
+        item => item.role_type === "PLATFORM_USER_INIT"
+      );
+      if (hasShop) {
+        selectRole = hasShop;
+      } else {
+        const hasAdmin = record.roles.find(
+          item => item.type === "PLATFORM_ADMIN_INIT"
+        );
+        if (hasAdmin) {
+          selectRole = hasAdmin;
+        }
+      }
+    }
     this.setState({
       formValues: { ...record.user },
       modalVisible: true,
+      selectRole,
       type: "edit"
     });
   };
@@ -486,6 +512,13 @@ class Account extends PureComponent {
     });
   };
 
+  onAdd = () => {
+    this.setState({
+      selectRole: {}
+    });
+    this.handleModalVisible(true);
+  };
+
   render() {
     const { loading, data, currentPage, totalPages } = this.props;
     const {
@@ -515,11 +548,7 @@ class Account extends PureComponent {
             </div>
             <div className={styles.tableListForm}>
               <div className={styles.tableListOperator}>
-                <Button
-                  icon="plus"
-                  type="primary"
-                  onClick={() => this.handleModalVisible(true)}
-                >
+                <Button icon="plus" type="primary" onClick={this.onAdd}>
                   新增账号
                 </Button>
               </div>
