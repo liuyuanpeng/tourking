@@ -60,6 +60,7 @@ class ShopInput extends Component {
         {...this.props}
         showSearch
         value={value}
+        placeholder="请输入商家名称搜索"
         notFoundContent={loading ? <Spin size="small" /> : null}
         filterOption={false}
         onSearch={this.fetchDrivers}

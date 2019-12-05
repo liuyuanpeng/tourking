@@ -23,6 +23,7 @@ import NumberInput from "@/components/NumberInput";
 import ORDER_STATUS from "./orderStatus";
 import styles from "../index.less";
 import ShopInput from "../Settlement/shopInput";
+import DriverInput from "../Base/DriverInput";
 import OrderHistory from "@/components/OrderHistory";
 
 const FormItem = Form.Item;
@@ -426,6 +427,11 @@ class Shuttle extends PureComponent {
       title: "扫码商家",
       dataIndex: "source_shop_name",
       key: "source_shop_name"
+    },
+    {
+      title: "扫码司机",
+      dataIndex: "source_driver_user_name",
+      key: "source_driver_user_name"
     },
     {
       title: "订单状态",
@@ -1026,6 +1032,11 @@ class Shuttle extends PureComponent {
           <Col span={8}>
             <FormItem label="扫码商家">
               {getFieldDecorator("source_shop_id")(<ShopInput allowClear />)}
+            </FormItem>
+          </Col>
+          <Col span={8}>
+            <FormItem label="扫码司机">
+              {getFieldDecorator("source_driver_user_id")(<DriverInput allowClear />)}
             </FormItem>
           </Col>
           <Col>

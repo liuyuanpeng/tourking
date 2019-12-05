@@ -94,7 +94,7 @@ export default [
       {
         path: "/usermanager",
         name: "usermanager",
-        authority: ["role", "account", "shopmanager"],
+        authority: ["role", "account", "shopmanager", "drivermanager"],
         icon: "user",
         routes: [
           {
@@ -114,6 +114,12 @@ export default [
             name: "shopmanager",
             authority: "shopmanager",
             component: "./UserManager/ShopManager"
+          },
+          {
+            path: "/usermanager/drivermanager",
+            name: "drivermanager",
+            authority: "drivermanager",
+            component: "./UserManager/DriverManager"
           }
         ]
       },

@@ -9,6 +9,26 @@ export default {
   },
 
   effects: {
+    *fetchDriverQRCode ({payload}, {call, put}) {
+      yield put({
+        type: 'save',
+        payload: null
+      });
+      payload.onLoad && payload.onLoad("正在获取司机二维码...");
+      const res = yield call(queryQRCode, {
+        shopId: payload.user_id
+      });
+      if (res.type.indexOf("application/json") !== -1) {
+        payload.onFailure && payload.onFailure(res.errmsg);
+        return;
+      }
+      
+      payload.onSuccess && payload.onSuccess(res);
+      yield put({
+        type: "save",
+        payload: res
+      });
+    },
     *fetchQRCode({ payload }, { call, put }) {
       yield put({
         type: "save",

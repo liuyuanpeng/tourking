@@ -15,6 +15,7 @@ export default {
   "menu.usermanager.role": "角色管理",
   "menu.usermanager.account": "账户管理",
   "menu.usermanager.shopmanager": "商家管理",
+  "menu.usermanager.drivermanager": "司机管理",
   "menu.base": "基础配置",
   "menu.base.coversmanager": "首页大图",
   "menu.base.charteredmanager": "包车管理",

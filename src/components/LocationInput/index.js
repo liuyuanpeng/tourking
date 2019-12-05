@@ -63,8 +63,8 @@ export default class LocationInput extends Component {
 
           window.AMap.event.addListener(this.autoComplete, "select", data => {
             const lct = {
-              longitude: data.poi.location.lng,
-              latitude: data.poi.location.lat
+              longitude: data.poi.location ? data.poi.location.lng : CENTER.longitude,
+              latitude: data.poi.location ? data.poi.location.lat : CENTER.latitude
             };
             this.setState({
               mapAddress: data.poi.district + data.poi.address + data.poi.name,
@@ -214,8 +214,14 @@ export default class LocationInput extends Component {
     this.geoCode.getAddress(lnglat, (status, result) => {
       if (status === "complete") {
         if (result.regeocode) {
+          let mapAddress = result.regeocode.formattedAddress;
+          let start = mapAddress.indexOf("市");
+          if (start != -1) {
+            mapAddress = mapAddress.substr(start+1);
+            console.log(mapAddress)
+          }
           this.setState({
-            mapAddress: result.regeocode.formattedAddress || "未知地点"
+            mapAddress: mapAddress || "未知地点"
           });
         } else {
           this.setState({

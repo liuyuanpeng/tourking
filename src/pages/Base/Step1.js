@@ -98,7 +98,7 @@ class Step1 extends React.PureComponent {
             ) : (
               getFieldDecorator("tag", {
                 initialValue: data.tag || ""
-              })(<Input placeholder={`多个标签用","隔开`} />)
+              })(<Input placeholder={`多个标签用","隔开(英文半角的",")`} />)
             )}
           </Form.Item>
           <Form.Item {...formItemLayout} label="开放时间段">

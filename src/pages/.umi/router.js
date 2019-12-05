@@ -224,7 +224,8 @@ models: () => [
         "authority": [
           "role",
           "account",
-          "shopmanager"
+          "shopmanager",
+          "drivermanager"
         ],
         "icon": "user",
         "routes": [
@@ -266,6 +267,20 @@ models: () => [
   import(/* webpackChunkName: 'p__UserManager__models__weixin.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/weixin.js').then(m => { return { namespace: 'weixin',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__UserManager__ShopManager" */'../UserManager/ShopManager'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/usermanager/drivermanager",
+            "name": "drivermanager",
+            "authority": "drivermanager",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__UserManager__models__weixin.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/UserManager/models/weixin.js').then(m => { return { namespace: 'weixin',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__UserManager__DriverManager" */'../UserManager/DriverManager'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true

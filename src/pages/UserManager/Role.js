@@ -130,6 +130,10 @@ const PermissionSetting = Form.create()(props => {
           key: "shuttle"
         },
         {
+          title: "包车订单",
+          key: 'chartered'
+        },
+        {
           title: "派单预警",
           key: "dispatch"
         }
@@ -150,6 +154,10 @@ const PermissionSetting = Form.create()(props => {
         {
           title: "商家管理",
           key: "shopmanager"
+        },
+        {
+          title: "司机管理",
+          key: "drivermanager"
         }
       ]
     },
@@ -157,6 +165,18 @@ const PermissionSetting = Form.create()(props => {
       title: "基础配置",
       key: "base",
       children: [
+        {
+          title: "首页大图",
+          key: "coversmanager"
+        },
+        {
+          title: "包车管理",
+          key: "charteredmanager"
+        },
+        {
+          title: "价格策略",
+          key: "pricestrategy"
+        },
         {
           title: "价格策略",
           key: "pricestrategy"
