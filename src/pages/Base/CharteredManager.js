@@ -119,7 +119,7 @@ export default class Charted extends PureComponent {
           </a>
           <Divider type="vertical" />
           <Popconfirm
-            title="确定删除该车辆吗?"
+            title="确定删除该模板吗?"
             onConfirm={() => {
               this.handleDelete(record);
             }}
@@ -200,18 +200,18 @@ export default class Charted extends PureComponent {
 
   handleDelete = record => {
     const { dispatch } = this.props;
-    // dispatch({
-    //   type: "car/deleteCar",
-    //   payload: {
-    //     data: record.car.id,
-    //     onSuccess: () => {
-    //       message.success("删除成功");
-    //     },
-    //     onFailure: msg => {
-    //       message.error(msg || "删除失败");
-    //     }
-    //   }
-    // });
+    dispatch({
+      type: "chartered/deleteChartered",
+      payload: {
+        data: record.private_consume.id,
+        onSuccess: () => {
+          message.success("删除成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "删除失败");
+        }
+      }
+    });
   };
 
   handleSearch = e => {
@@ -326,6 +326,7 @@ export default class Charted extends PureComponent {
   };
 
   handlePageChange = (page, size) => {
+    console.log(page, size, 'kdkkdkdkd')
     this.props.dispatch({
       type: "chartered/fetchCharteredPage",
       payload: {
@@ -333,11 +334,11 @@ export default class Charted extends PureComponent {
           page,
           size
         },
-        data: {
+        params: {
           ...this.searchKeys
         },
         onFailure: msg => {
-          message.error(msg || "获取车辆列表失败");
+          message.error(msg || "获取包车模板失败!");
         }
       }
     });

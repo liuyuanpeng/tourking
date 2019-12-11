@@ -42,13 +42,13 @@ export default {
     *deleteChartered({ payload }, { call, put }) {
       const { data, onSuccess, onFailure } = payload;
       const response = yield call(deleteChartered, data);
-      if (response.code === "SUCCESS" && response.data) {
+      if (response.code === "SUCCESS") {
         yield put({
           type: "fetchCharteredPage"
         });
         onSuccess && onSuccess();
       } else {
-        payload.onFailure && payload.onFailure(response.message);
+        onFailure && onFailure(response.message);
       }
     }
   },
