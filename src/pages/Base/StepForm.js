@@ -11,7 +11,9 @@ import Step3 from "./Step3";
 const { Step } = Steps;
 
 @connect(({ formStepForm }) => ({
-  current: formStepForm.current
+  current: formStepForm.current,
+  mode: formStepForm.mode,
+  type: formStepForm.type
 }))
 class StepForm extends PureComponent {
   getCurrentStep() {
@@ -32,6 +34,10 @@ class StepForm extends PureComponent {
 
   render() {
     const currentStep = this.getCurrentStep();
+    const { mode, type } = this.props;
+    const readonly = mode === "readonly";
+    const editable = mode === "edit";
+    const isChartered = type === "chartered";
     let stepComponent;
     if (currentStep === 1) {
       stepComponent = <Step2 />;
@@ -41,13 +47,15 @@ class StepForm extends PureComponent {
       stepComponent = <Step1 />;
     }
     return (
-      <PageHeaderWrapper title="新增线路">
+      <PageHeaderWrapper
+        title={readonly ? "线路详情" : editable ? "编辑线路" : "新增线路"}
+      >
         <Card bordered={false}>
           <Fragment>
             <Steps current={this.getCurrentStep()} className={styles.steps}>
               <Step title="基础信息" />
-              <Step title="行程线路" />
-              <Step title="其他" />
+              {isChartered && <Step title="行程线路" />}
+              {isChartered && <Step title="其他" />}
             </Steps>
             {stepComponent}
           </Fragment>

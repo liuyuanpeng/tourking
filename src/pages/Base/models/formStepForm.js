@@ -7,7 +7,8 @@ export default {
     current: 'unknown',
     step: {
     },
-    mode: 'add'
+    mode: 'add',
+    type: 'chartered' // chartered: 按天包车或者线路包车, scenicfood: 景点美食, souvenir: 伴手礼
   },
 
   effects: {

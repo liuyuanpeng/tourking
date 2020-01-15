@@ -15,7 +15,7 @@ const formItemLayout = {
   }
 };
 
-let id = 0;
+let id = 1;
 
 @connect(({ formStepForm }) => ({
   data: formStepForm.step,
@@ -23,6 +23,17 @@ let id = 0;
 }))
 @Form.create()
 class Step2 extends React.PureComponent {
+  constructor(props) {
+    super(props);
+    const { data } = props;
+    const keysValue =
+      data.roads && data.roads.length > 0
+        ? data.roads.filter(item => item).map((item, index) => index)
+        : [0];
+    id = keysValue.length;
+    console.log(' construct id: ', id)
+  }
+
   remove = k => {
     const { form } = this.props;
     // can use data-binding to get
@@ -50,6 +61,20 @@ class Step2 extends React.PureComponent {
     });
   };
 
+  checkRoad = (rule, value, callback) => {
+    if (
+      value &&
+      value.name &&
+      value.day_road &&
+      value.start_time &&
+      value.play_time
+    ) {
+      callback();
+    } else {
+      callback("请填写行程的各个必填项!");
+    }
+  };
+
   render() {
     const { form, data, dispatch, mode } = this.props;
     const { getFieldDecorator, validateFields, getFieldValue } = form;
@@ -60,7 +85,10 @@ class Step2 extends React.PureComponent {
         sm: { span: 20, offset: 4 }
       }
     };
-    const keysValue = data.roads && data.roads.length > 0 ? data.roads.filter(item=>item).map((item, index)=>index) : [1]
+    const keysValue =
+      data.roads && data.roads.length > 0
+        ? data.roads.filter(item => item).map((item, index) => index)
+        : [0];
     getFieldDecorator("keys", { initialValue: keysValue });
     const keys = getFieldValue("keys");
 
@@ -79,11 +107,12 @@ class Step2 extends React.PureComponent {
           message.error("请添加行程信息!");
           return;
         }
+        const roads = values.roads.filter(road=>road)
         if (!err) {
           dispatch({
             type: "formStepForm/saveStepFormData",
             payload: {
-              roads: values.roads
+              roads
             }
           });
           dispatch({
@@ -94,12 +123,14 @@ class Step2 extends React.PureComponent {
       });
     };
 
-    const formItems = keys.map((k, index) => {
-      const itemValue = data.roads && data.roads.length > index ? data.roads[index] : {}
+    const formItems = keys ? keys.map((k, index) => {
+      const itemValue =
+        data.roads && data.roads.length > index ? data.roads[index] : {};
       return (
         <Form.Item
+          id={`form_item_${index}`}
           {...formItemLayoutWithOutLabel}
-          label={`行程${index+1}`}
+          label={`行程${index + 1}`}
           required={false}
           key={k}
         >
@@ -110,6 +141,9 @@ class Step2 extends React.PureComponent {
               {
                 required: true,
                 message: "请填写行程内的各项内容"
+              },
+              {
+                validator: this.checkRoad
               }
             ]
           })(<RouteInput readonly={readonly} />)}
@@ -122,7 +156,7 @@ class Step2 extends React.PureComponent {
           ) : null}
         </Form.Item>
       );
-    });
+    }) : null;
 
     return (
       <Form className={styles.stepForm}>

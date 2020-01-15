@@ -69,7 +69,7 @@ export default [
         path: "/order",
         name: "order",
         icon: "bars",
-        authority: ["shuttle", "dispatch", "chartered"],
+        authority: ["shuttle", "dispatch", "chartered", "scenicfood", "souvenir"],
         routes: [
           {
             path: "/order/shuttle",
@@ -81,6 +81,18 @@ export default [
             name: "chartered",
             authority: "chartered",
             component: "./Order/Chartered"
+          },
+          {
+            path: "/order/scenicfood",
+            name: "scenicfood",
+            authority: "scenicfood",
+            component: "./Order/ScenicFood"
+          },
+          {
+            path: "/order/souvenir",
+            name: "souvenir",
+            authority: "souvenir",
+            component: "./Order/Souvenir"
           },
           {
             path: "/order/dispatch",
@@ -130,6 +142,8 @@ export default [
         authority: [
           "coversmanager",
           "charteredmanager",
+          "scenicfoodmanager",
+          "souvenirmanager",
           "pricestrategy",
           "cartype",
           "carlevel",
@@ -151,6 +165,18 @@ export default [
             name: "charteredmanager",
             authority: "charteredmanager",
             component: "./Base/CharteredManager"
+          },
+          {
+            path: "/base/scenicfoodmanager",
+            name: "scenicfoodmanager",
+            authority: "scenicfoodmanager",
+            component: "./Base/ScenicFoodManager"
+          },
+          {
+            path: "/base/souvenirmanager",
+            name: "souvenirmanager",
+            authority: "souvenirmanager",
+            component: "./Base/SouvenirManager"
           },
           {
             path: "/base/stepform",

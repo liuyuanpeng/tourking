@@ -1,13 +1,15 @@
 import React from "react";
 import { Steps, Icon, Modal } from "antd";
 import ORDER_STATUS from '@/pages/Order/orderStatus'
+import SOUVENIR_STATUS from '@/pages/Order/souvenirStatus'
 import moment from 'moment'
 
 const { Step } = Steps;
 export default function OrderHistory({
   data,
   handleModalVisible,
-  modalVisible
+  modalVisible,
+  isSouvenir
 }) {
   return (
     <Modal
@@ -25,7 +27,9 @@ export default function OrderHistory({
       <Steps direction="vertical" size="small">
         {data &&
           data.map(item => {
-            const {desc} = ORDER_STATUS.find(orderStatus=>orderStatus.name === item.order_status)
+            const TARGET_STATUS = isSouvenir ? SOUVENIR_STATUS : ORDER_STATUS;
+            const {desc} = TARGET_STATUS.find(orderStatus=>orderStatus.name === item.order_status)
+
             return (
               <Step
                 key={item.id}

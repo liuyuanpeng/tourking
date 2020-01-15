@@ -5,8 +5,8 @@ const ORDER_STATUS = [
     desc: "等待派单"
   },
   {
-    name: "AUTO",
-    desc: "自动派单中"
+      name: "AUTO",
+      desc: "自动派单中"
   },
   {
     name: "ACCEPTED",

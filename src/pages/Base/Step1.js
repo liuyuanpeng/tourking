@@ -1,8 +1,10 @@
 import React, { Fragment } from "react";
 import { connect } from "dva";
-import { Form, Input, Button, Select, DatePicker } from "antd";
+import { Form, Input, Button, Select, DatePicker, message } from "antd";
 import ImageInput from "@/components/ImageInput";
 import NumberInput from "@/components/NumberInput";
+import LocationInput from "@/components/LocationInput";
+import { router } from "umi";
 import moment from "moment";
 import styles from "./style.less";
 
@@ -23,15 +25,58 @@ const formItemLayout = {
 const dateFormat = "YYYY-MM-DD";
 @connect(({ formStepForm }) => ({
   data: formStepForm.step,
-  mode: formStepForm.mode
+  mode: formStepForm.mode,
+  type: formStepForm.type
 }))
 @Form.create()
 class Step1 extends React.PureComponent {
+  onSubmit = () => {
+    const { dispatch, type } = this.props;
+    const isScenicFood = type === "scenicfood";
+    const isSouvenir = type === "souvenir";
+    const isChartered = type === "chartered";
+    dispatch({
+      type: "formStepForm/submitStepForm",
+      payload: {
+        onSuccess: () => {
+          isScenicFood && router.push("scenicfoodmanager");
+          isSouvenir && router.push("souvenirmanager");
+          isChartered && router.push("charteredmanager");
+        },
+        onFailure: msg => {
+          message.error(msg || "操作失败!");
+        }
+      }
+    });
+  };
+
   render() {
-    const { form, dispatch, data, mode } = this.props;
+    const { form, dispatch, data, mode, type } = this.props;
     const { getFieldDecorator, validateFields } = form;
     const readonly = mode === "readonly";
+
+    const isScenicFood = type === "scenicfood";
+    const isSouvenir = type === "souvenir";
+    const isChartered = type === "chartered";
+
     const onValidateForm = () => {
+      if (!isChartered) {
+        if (readonly) {
+          isScenicFood && router.push("scenicfoodmanager");
+          isSouvenir && router.push("souvenirmanager");
+          return;
+        }
+        validateFields((err, values) => {
+          if (!err) {
+            dispatch({
+              type: "formStepForm/saveStepFormData",
+              payload: values
+            });
+            this.onSubmit();
+          }
+        });
+        return;
+      }
       if (readonly) {
         dispatch({
           type: "formStepForm/saveCurrentStep",
@@ -46,13 +91,17 @@ class Step1 extends React.PureComponent {
             type: "formStepForm/saveStepFormData",
             payload: {
               ...others,
-              start_time: timeRange[0] ? moment(timeRange[0])
-                .startOf("day")
-                .valueOf() : undefined,
-              end_time: timeRange[1] ? moment(timeRange[1])
-                .endOf("day")
-                .valueOf(): undefined,
-              weight: others.weight ? parseInt(others.weight, 10): 0
+              start_time: timeRange[0]
+                ? moment(timeRange[0])
+                    .startOf("day")
+                    .valueOf()
+                : undefined,
+              end_time: timeRange[1]
+                ? moment(timeRange[1])
+                    .endOf("day")
+                    .valueOf()
+                : undefined,
+              weight: others.weight ? parseInt(others.weight, 10) : 0
             }
           });
           dispatch({
@@ -65,23 +114,41 @@ class Step1 extends React.PureComponent {
     return (
       <Fragment>
         <Form layout="horizontal" className={styles.stepForm}>
-          <Form.Item {...formItemLayout} label="包车类型">
-            {readonly ? (
-              <span>
-                {data.scene === "DAY_PRIVATE" ? "按天包车" : "线路包车"}
-              </span>
-            ) : (
-              getFieldDecorator("scene", {
-                initialValue: data.scene || "",
-                rules: [{ required: true, message: "请选择包车类型" }]
-              })(
-                <Select placeholder="请选择包车类型">
-                  <Option value="DAY_PRIVATE">按天包车</Option>
-                  <Option value="ROAD_PRIVATE">线路包车</Option>
-                </Select>
-              )
-            )}
-          </Form.Item>
+          {isChartered ? (
+            <Form.Item {...formItemLayout} label="包车类型">
+              {readonly ? (
+                <span>
+                  {data.scene === "DAY_PRIVATE" ? "按天包车" : "线路包车"}
+                </span>
+              ) : (
+                getFieldDecorator("scene", {
+                  initialValue: data.scene || "",
+                  rules: [{ required: true, message: "请选择包车类型" }]
+                })(
+                  <Select placeholder="请选择包车类型">
+                    <Option value="DAY_PRIVATE">按天包车</Option>
+                    <Option value="ROAD_PRIVATE">线路包车</Option>
+                  </Select>
+                )
+              )}
+            </Form.Item>
+          ) : (
+            <Form.Item {...formItemLayout} label="类型" visible={false}>
+              {readonly ? (
+                <span>{isScenicFood ? "景点美食" : "伴手礼"}</span>
+              ) : (
+                getFieldDecorator("scene", {
+                  initialValue: isScenicFood ? "SCENIC_FOOD" : "SOUVENIR",
+                  rules: [{ required: true, message: "请选择类型" }]
+                })(
+                  <Select placeholder="请选择类型" disabled>
+                    <Option value="SCENIC_FOOD">景点美食</Option>
+                    <Option value="SOUVENIR">伴手礼</Option>
+                  </Select>
+                )
+              )}
+            </Form.Item>
+          )}
           <Form.Item {...formItemLayout} label="线路名称">
             {readonly ? (
               <span>{data.name}</span>
@@ -101,49 +168,74 @@ class Step1 extends React.PureComponent {
               })(<Input placeholder={`多个标签用","隔开(英文半角的",")`} />)
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="开放时间段">
-            {readonly ? (
-              <span>
-                {`${moment(data.start_time).format(dateFormat)}~
+          {isScenicFood && (
+            <Form.Item {...formItemLayout} label="地图标注">
+              {readonly ? (
+                <span>地图标注</span>
+              ) : (
+                getFieldDecorator("address", {
+                  initialValue: data.id
+                    ? {
+                        address: data.detail,
+                        location: {
+                          longitude: data.longitude,
+                          latitude: data.latitude
+                        }
+                      }
+                    : "",
+                  rules: [
+                    {
+                      required: true,
+                      message: "请选择地图标注"
+                    }
+                  ]
+                })(<LocationInput />)
+              )}
+            </Form.Item>
+          )}
+          {isChartered && (
+            <Form.Item {...formItemLayout} label="开放时间段">
+              {readonly ? (
+                <span>
+                  {`${moment(data.start_time).format(dateFormat)}~
               ${moment(data.end_time).format(dateFormat)}}`}
-              </span>
-            ) : (
-              getFieldDecorator("timeRange", {
-                rules: [{required: true, message: "请选择开放时间段"}],
-                initialValue:
-                  data.start_time && data.end_time
-                    ? [moment(data.start_time), moment(data.end_time)]
-                    : ""
-              })(<RangePicker format={dateFormat} />)
-            )}
-          </Form.Item>
-          <Form.Item {...formItemLayout} label="预约时间">
-            {readonly ? (
-              <span>{data.show_days}天内</span>
-            ) : (
-              getFieldDecorator("show_days", {
-                initialValue: data.show_days || "",
-                rules:[
-                  {required: true, message: '请输入预约时间'}
-                ]
-              })(
-                <NumberInput
-                  numberType="integer"
-                  addonAfter="天内"
-                  style={{ textAlight: "right" }}
-                />
-              )
-            )}
-          </Form.Item>
+                </span>
+              ) : (
+                getFieldDecorator("timeRange", {
+                  rules: [{ required: true, message: "请选择开放时间段" }],
+                  initialValue:
+                    data.start_time && data.end_time
+                      ? [moment(data.start_time), moment(data.end_time)]
+                      : ""
+                })(<RangePicker format={dateFormat} />)
+              )}
+            </Form.Item>
+          )}
+          {isChartered && (
+            <Form.Item {...formItemLayout} label="预约时间">
+              {readonly ? (
+                <span>{data.show_days}天内</span>
+              ) : (
+                getFieldDecorator("show_days", {
+                  initialValue: data.show_days || "",
+                  rules: [{ required: true, message: "请输入预约时间" }]
+                })(
+                  <NumberInput
+                    numberType="integer"
+                    addonAfter="天内"
+                    style={{ textAlight: "right" }}
+                  />
+                )
+              )}
+            </Form.Item>
+          )}
           <Form.Item {...formItemLayout} label="权重">
             {readonly ? (
               <span>{data.weight}</span>
             ) : (
               getFieldDecorator("weight", {
                 initialValue: data.weight || "",
-                rules: [
-                  {required: true, message: '请输入权重'}
-                ]
+                rules: [{ required: true, message: "请输入权重" }]
               })(<NumberInput numberType="integer" />)
             )}
           </Form.Item>
@@ -158,23 +250,26 @@ class Step1 extends React.PureComponent {
           </Form.Item>
           <Form.Item {...formItemLayout} label="线路图片">
             {getFieldDecorator("images", {
-              initialValue: data.images || ''
+              initialValue: data.images || ""
             })(<ImageInput readonly={readonly} />)}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="价格">
-            {readonly ? (
-              <span>{data.price}</span>
-            ) : (
-              getFieldDecorator("price", {
-                initialValue: data.price || "",
-                rules:[
-                  {required: true, message: '请输入价格'}
-                ]
-              })(
-                <NumberInput addonAfter="元" style={{ textAlight: "right" }} />
-              )
-            )}
-          </Form.Item>
+          {!isScenicFood && (
+            <Form.Item {...formItemLayout} label="价格">
+              {readonly ? (
+                <span>{data.price}</span>
+              ) : (
+                getFieldDecorator("price", {
+                  initialValue: data.price || "",
+                  rules: [{ required: true, message: "请输入价格" }]
+                })(
+                  <NumberInput
+                    addonAfter="元"
+                    style={{ textAlight: "right" }}
+                  />
+                )
+              )}
+            </Form.Item>
+          )}
           <Form.Item
             wrapperCol={{
               xs: { span: 24, offset: 0 },
@@ -186,7 +281,7 @@ class Step1 extends React.PureComponent {
             label=""
           >
             <Button type="primary" onClick={onValidateForm}>
-              下一步
+              {isChartered ? "下一步" : readonly ? "返回" : "提交"}
             </Button>
           </Form.Item>
         </Form>

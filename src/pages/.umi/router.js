@@ -165,7 +165,9 @@ models: () => [
         "authority": [
           "shuttle",
           "dispatch",
-          "chartered"
+          "chartered",
+          "scenicfood",
+          "souvenir"
         ],
         "routes": [
           {
@@ -194,6 +196,36 @@ models: () => [
   import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Order__Chartered" */'../Order/Chartered'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/order/scenicfood",
+            "name": "scenicfood",
+            "authority": "scenicfood",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
+  import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Order__ScenicFood" */'../Order/ScenicFood'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/order/souvenir",
+            "name": "souvenir",
+            "authority": "souvenir",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
+  import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Order__Souvenir" */'../Order/Souvenir'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true
@@ -296,6 +328,8 @@ models: () => [
         "authority": [
           "coversmanager",
           "charteredmanager",
+          "scenicfoodmanager",
+          "souvenirmanager",
           "pricestrategy",
           "cartype",
           "carlevel",
@@ -338,6 +372,42 @@ models: () => [
   import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__CharteredManager" */'../Base/CharteredManager'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/base/scenicfoodmanager",
+            "name": "scenicfoodmanager",
+            "authority": "scenicfoodmanager",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__chartered.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/chartered.js').then(m => { return { namespace: 'chartered',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__covers.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/covers.js').then(m => { return { namespace: 'covers',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Base__ScenicFoodManager" */'../Base/ScenicFoodManager'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/base/souvenirmanager",
+            "name": "souvenirmanager",
+            "authority": "souvenirmanager",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__chartered.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/chartered.js').then(m => { return { namespace: 'chartered',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__covers.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/covers.js').then(m => { return { namespace: 'covers',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Base__SouvenirManager" */'../Base/SouvenirManager'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true

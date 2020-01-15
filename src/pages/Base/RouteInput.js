@@ -1,22 +1,13 @@
 import React, { Component } from "react";
-import { Input, Form, TimePicker } from "antd";
+import { Input, TimePicker } from "antd";
 import ImageInput from "@/components/ImageInput";
 import NumberInput from "@/components/NumberInput";
 import moment from "moment";
+import classnames from "classnames";
+import styles from "./RouteInput.less";
 
 const { TextArea } = Input;
-const FormItem = Form.Item;
 
-const formItemLayout = {
-  labelCol: {
-    span: 5
-  },
-  wrapperCol: {
-    span: 19
-  }
-};
-
-@Form.create()
 class RouteInput extends Component {
   static getDerivedStateFromProps(nextProps, state) {
     if (nextProps.value !== state.value) {
@@ -101,8 +92,11 @@ class RouteInput extends Component {
   render() {
     const { name, day_road, images, play_time, start_time } = this.state;
 
-    const { form, readonly } = this.props;
-    const { getFieldDecorator } = form;
+    const {readonly } = this.props;
+
+    const requiredClassName = classnames(styles.label, {
+      [styles.label_required]: true
+    });
 
     return (
       <div
@@ -115,72 +109,63 @@ class RouteInput extends Component {
           display: "inline-block"
         }}
       >
-        <FormItem {...formItemLayout} label="行程名称">
+        <span className={requiredClassName}>行程名称</span>
+        <span className={styles.form_content}>
           {readonly ? (
-            <span>{name}</span>
+            name
           ) : (
-            getFieldDecorator("name", {
-              initialValue: name,
-              rules: [{ required: true, message: "请输入行程名称" }]
-            })(
-              <Input
-                onChange={this.onChangeRouteName}
-                placeholder="请输入行程名称"
-              />
-            )
-          )}
-        </FormItem>
-        <FormItem {...formItemLayout} label="当日行程">
-          {readonly ? (
-            <span>{day_road}</span>
-          ) : (
-            getFieldDecorator("day_road", {
-              initialValue: day_road,
-              rules: [{ required: true, message: "请编辑行程内容" }]
-            })(
-              <TextArea
-                onChange={this.onChangeRouteDesc}
-                placeholder="请编辑行程内容"
-              />
-            )
-          )}
-        </FormItem>
-        <FormItem {...formItemLayout} label="行程图片">
-          {getFieldDecorator("images", {
-            initialValue: images
-          })(
-            <ImageInput
-              readonly={readonly}
-              onChange={this.onChangeRouteImages}
+            <Input
+              onChange={this.onChangeRouteName}
+              placeholder="请输入行程名称"
+              value={name}
             />
           )}
-        </FormItem>
-        <FormItem {...formItemLayout} label="开始时间">
+        </span>
+        <span className={requiredClassName}>当日行程</span>
+        <span className={styles.form_content}>
+          {readonly ? (
+            day_road
+          ) : (
+            <TextArea
+              value={day_road}
+              onChange={this.onChangeRouteDesc}
+              placeholder="请编辑行程内容"
+            />
+          )}
+        </span>
+
+        <span className={requiredClassName}>行程图片</span>
+        <ImageInput
+          className={styles.form_content}
+          value={images}
+          readonly={readonly}
+          onChange={this.onChangeRouteImages}
+        />
+        <span className={requiredClassName}>开始时间</span>
+        <span className={styles.form_content}>
           {readonly ? (
             <span>{start_time ? moment(start_time).format("HH:mm") : ""}</span>
           ) : (
-            getFieldDecorator("start_time", {
-              initialValue: start_time ? moment(start_time) : undefined,
-              rules: [{ required: true, message: "请输入开始时间" }]
-            })(<TimePicker format="HH:mm" onChange={this.onChangeStartTime} />)
+            <TimePicker
+              value={start_time ? moment(start_time) : undefined}
+              format="HH:mm"
+              onChange={this.onChangeStartTime}
+            />
           )}
-        </FormItem>
-        <FormItem {...formItemLayout} label="游玩时间">
+        </span>
+        <span className={requiredClassName}>游玩时间</span>
+        <span className={styles.form_content}>
           {readonly ? (
             <span>{play_time}小时</span>
           ) : (
-            getFieldDecorator("play_time", {
-              initialValue: play_time,
-              rules: [{ required: true, message: "请输入游玩时间" }]
-            })(
-              <NumberInput
-                addonAfter="小时"
-                onChange={this.onChangeRouteTime}
-                placeholder="请输入游玩时间"
-              />
-            )
+            <NumberInput
+              value={play_time}
+              addonAfter="小时"
+              onChange={this.onChangeRouteTime}
+              placeholder="请输入游玩时间"
+            />
           )}
-        </FormItem>
+        </span>
       </div>
     );
   }

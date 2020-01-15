@@ -31,8 +31,7 @@ const FormItem = Form.Item;
 const confirm = Modal.confirm;
 const { RangePicker } = DatePicker;
 
-// const INIT_SCENE = ["JIEJI", "SONGJI", "ORDER_SCENE"].toString();
-const INIT_SCENE = '';
+const INIT_SCENE =  'JINGDIAN_PRIVATE';
 
 @connect(({ chartered, loading }) => ({
   loading: loading.effects["chartered/fetchCharteredPage"],
@@ -41,7 +40,7 @@ const INIT_SCENE = '';
   total: chartered.total
 }))
 @Form.create()
-export default class Charted extends PureComponent {
+export default class ScenicFoodManager extends PureComponent {
   static propTypes = {};
   state = {
     modalVisible: false,
@@ -59,7 +58,7 @@ export default class Charted extends PureComponent {
           size: 10
         },
         onFailure: msg => {
-          message.error(msg || "获取包车模板失败!");
+          message.error(msg || "获取景点美食模板失败!");
         },
         params: {
           ...this.searchKeys
@@ -89,12 +88,6 @@ export default class Charted extends PureComponent {
       title: "线路标签",
       dataIndex: "private_consume.tag",
       key: "private_consume.tag"
-    },
-    {
-      title: "包车类型",
-      dataIndex: "private_consume.scene",
-      key: "private_consume.scene",
-      render: text => (text === "DAY_PRIVATE" ? "按天包车" : "路线包车")
     },
     {
       title: "优先级",
@@ -167,7 +160,7 @@ export default class Charted extends PureComponent {
       type: "formStepForm/resetFormData",
       payload: {
         mode: "add",
-        type: "chartered",
+        type: 'scenicfood',
         current: "basic_info",
         step: {}
       }
@@ -180,7 +173,7 @@ export default class Charted extends PureComponent {
       type: "formStepForm/resetFormData",
       payload: {
         mode: "edit",
-        type: "chartered",
+        type: 'scenicfood',
         current: "basic_info",
         step: {
           ...record.private_consume,
@@ -196,7 +189,7 @@ export default class Charted extends PureComponent {
       type: "formStepForm/resetFormData",
       payload: {
         mode: "readonly",
-        type: "chartered",
+        type: 'scenicfood',
         current: "basic_info",
         step: {
           ...record.private_consume,
@@ -267,23 +260,6 @@ export default class Charted extends PureComponent {
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
-          <Col span={8}>
-            <FormItem label="包车分类">
-              {getFieldDecorator("scene")(
-                <Select
-                  placeholder="请选择"
-                  allowClear
-                  style={{ width: "100%" }}
-                >
-                  {CHARTERED.map(item => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
           <Col>
             <FormItem label="创建时间">
               {getFieldDecorator("timeRange")(
@@ -327,7 +303,7 @@ export default class Charted extends PureComponent {
           size: 10
         },
         onFailure: msg => {
-          message.error(msg || "获取包车模板失败!");
+          message.error(msg || "获取景点美食模板失败!");
         },
         params: {
           ...this.searchKeys
@@ -348,7 +324,7 @@ export default class Charted extends PureComponent {
           ...this.searchKeys
         },
         onFailure: msg => {
-          message.error(msg || "获取包车模板失败!");
+          message.error(msg || "获取景点美食模板失败!");
         }
       }
     });
@@ -360,7 +336,7 @@ export default class Charted extends PureComponent {
     const { modalVisible, type, formValues } = this.state;
 
     return (
-      <PageHeaderWrap title="包车管理">
+      <PageHeaderWrap title="景点美食管理">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -371,7 +347,7 @@ export default class Charted extends PureComponent {
                   type="primary"
                   onClick={() => this.onAdd()}
                 >
-                  新增线路
+                  新增景点美食
                 </Button>
               </div>
               <Table
