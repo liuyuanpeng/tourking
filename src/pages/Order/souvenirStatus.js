@@ -1,5 +1,8 @@
 const SOUVENIR_STATUS = [
-  { name: "WAIT_APPROVAL_OR_PAY", desc: "待支付" },
+  {
+    name: "WAIT_APPROVAL_OR_PAY",
+    desc: "待付款"
+  },
   {
     name: "WAIT_ACCEPT",
     desc: "待发货"

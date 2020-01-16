@@ -218,7 +218,6 @@ export default class LocationInput extends Component {
           let start = mapAddress.indexOf("市");
           if (start != -1) {
             mapAddress = mapAddress.substr(start+1);
-            console.log(mapAddress)
           }
           this.setState({
             mapAddress: mapAddress || "未知地点"

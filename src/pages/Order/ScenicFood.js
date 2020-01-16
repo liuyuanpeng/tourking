@@ -22,15 +22,13 @@ import moment from "moment";
 import NumberInput from "@/components/NumberInput";
 import ORDER_STATUS from "./orderStatus";
 import styles from "../index.less";
-import ShopInput from "../Settlement/shopInput";
-import DriverInput from "../Base/DriverInput";
 import OrderHistory from "@/components/OrderHistory";
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const INIT_SCENE = ["DAY_PRIVATE", "ROAD_PRIVATE"].toString();
+const INIT_SCENE = "JINGDIAN_PRIVATE";
 
 const NewOrder = Form.create()(props => {
   const {
@@ -220,16 +218,6 @@ class ScenicFood extends PureComponent {
       key: "source",
       textWrap: "word-break",
       render: (text, record) => record.shop_name || record.mobile
-    },
-    {
-      title: "扫码商家",
-      dataIndex: "source_shop_name",
-      key: "source_shop_name"
-    },
-    {
-      title: "扫码司机",
-      dataIndex: "source_driver_user_name",
-      key: "source_driver_user_name"
     },
     {
       title: "订单状态",
@@ -743,16 +731,6 @@ class ScenicFood extends PureComponent {
               </FormItem>
             </Col>
           )}
-          <Col span={8}>
-            <FormItem label="扫码商家">
-              {getFieldDecorator("source_shop_id")(<ShopInput allowClear />)}
-            </FormItem>
-          </Col>
-          <Col span={8}>
-            <FormItem label="扫码司机">
-              {getFieldDecorator("source_driver_user_id")(<DriverInput allowClear />)}
-            </FormItem>
-          </Col>
           <Col>
             <FormItem label="输入查找">
               {getFieldDecorator("value")(

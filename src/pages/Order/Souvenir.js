@@ -12,7 +12,8 @@ import {
   Col,
   message,
   Divider,
-  Tooltip
+  Tooltip,
+  Popconfirm
 } from "antd";
 import PageHeaderWrap from "@/components/PageHeaderWrapper";
 import { formatMessage } from "umi-plugin-react/locale";
@@ -22,15 +23,13 @@ import moment from "moment";
 import NumberInput from "@/components/NumberInput";
 import ORDER_STATUS from "./souvenirStatus";
 import styles from "../index.less";
-import ShopInput from "../Settlement/shopInput";
-import DriverInput from "../Base/DriverInput";
 import OrderHistory from "@/components/OrderHistory";
 
 const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const INIT_SCENE = ["DAY_PRIVATE", "ROAD_PRIVATE"].toString();
+const INIT_SCENE = "BANSHOU_PRIVATE";
 
 const NewOrder = Form.create()(props => {
   const {
@@ -209,28 +208,10 @@ class Souvenir extends PureComponent {
     modalVisible: false,
     historyVisible: false,
     formValues: {},
-    timeType: undefined,
     type: "readonly"
   };
 
   columns = [
-    {
-      title: "来源",
-      dataIndex: "source",
-      key: "source",
-      textWrap: "word-break",
-      render: (text, record) => record.shop_name || record.mobile
-    },
-    {
-      title: "扫码商家",
-      dataIndex: "source_shop_name",
-      key: "source_shop_name"
-    },
-    {
-      title: "扫码司机",
-      dataIndex: "source_driver_user_name",
-      key: "source_driver_user_name"
-    },
     {
       title: "订单状态",
       dataIndex: "order_status",
@@ -241,7 +222,7 @@ class Souvenir extends PureComponent {
       }
     },
     {
-      title: "乘车人姓名",
+      title: "收货人姓名",
       dataIndex: "username",
       key: "username"
     },
@@ -251,20 +232,9 @@ class Souvenir extends PureComponent {
       key: "mobile"
     },
     {
-      title: "紧急联系人",
-      dataIndex: "contact",
-      key: "contact"
-    },
-    {
-      title: "上车时间",
-      dataIndex: "start_time",
-      key: "start_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
-    },
-    {
-      title: "上车地点",
-      dataIndex: "start_place",
-      key: "start_place",
+      title: "收货地址",
+      dataIndex: "receive_address",
+      key: "receive_address",
       render: text => (
         <Tooltip title={text}>
           <div
@@ -286,33 +256,9 @@ class Souvenir extends PureComponent {
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
-      title: "司机电话",
-      dataIndex: "driver_mobile",
-      key: "driver_mobile"
-    },
-    {
-      title: "车牌号",
-      dataIndex: "driver_car_no",
-      key: "driver_car_no"
-    },
-    {
       title: "价格",
       dataIndex: "price",
       key: "price"
-    },
-    {
-      title: "手续费",
-      dataIndex: "refund_fee",
-      key: "refund_fee"
-    },
-    ,
-    {
-      title: "实收金额",
-      dataIndex: "final_price",
-      key: "final_price",
-      render: (text, record) => {
-        return record.refund_fee ? record.refund_fee : record.price;
-      }
     },
     {
       title: "订单ID",
@@ -324,17 +270,47 @@ class Souvenir extends PureComponent {
       fixed: "right",
       key: "aciton",
       width: 150,
-      render: (text, record) => (
-        <span className={styles.actionColumn}>
-          <a href="javascript:;" onClick={() => this.onReadonly(record)}>
-            查看
-          </a>
-          <Divider type="vertical" />
-          <a href="javascript:;" onClick={() => this.showHistory(record)}>
-            历史
-          </a>
-        </span>
-      )
+      render: (text, record) => {
+        const status = ORDER_STATUS.find(
+          item => item.name === record.order_status
+        );
+        const statusName = status ? status.desc : "";
+        
+        return (
+          <span className={styles.actionColumn}>
+            <a href="javascript:;" onClick={() => this.onReadonly(record)}>
+              查看
+            </a>
+            {(statusName === "待发货" || statusName === "已发货") && (
+              <Divider type="vertical" />
+            )}
+            {statusName === "待发货" && (
+              <Popconfirm
+                title="确认现在发货？"
+                onConfirm={() => {
+                  this.handleDispatch(record);
+                }}
+                okText="是"
+                cancelText="否"
+              >
+                <a href="javascript:;">发货</a>
+              </Popconfirm>
+            )}
+            {statusName === "已发货" && (
+              <Popconfirm
+                title="确定该订单已交易完成？"
+                onConfirm={() => {
+                  this.handleFinish(record);
+                }}
+                okText="是"
+                cancelText="否"
+              >
+                <a href="javascript:;">完成订单</a>
+              </Popconfirm>
+            )}
+          </span>
+        );
+      }
     }
   ];
 
@@ -468,7 +444,8 @@ class Souvenir extends PureComponent {
         this.searchKeys = {
           ...this.searchKeys,
           start: values.time_range[0].startOf("day").valueOf(),
-          end: values.time_range[1].endOf("day").valueOf()
+          end: values.time_range[1].endOf("day").valueOf(),
+          type: 1
         };
       }
       dispatch({
@@ -517,15 +494,7 @@ class Souvenir extends PureComponent {
     });
   };
 
-  onTypeChange = type => {
-    this.setState({
-      timeType: type
-    });
-  };
-
   disabledDate = current => {
-    const { timeType } = this.state;
-    if (timeType === "2") return false;
     return current && current > moment().endOf("day");
   };
 
@@ -678,12 +647,48 @@ class Souvenir extends PureComponent {
     });
   };
 
+  handleDispatch = record => {
+    const { dispatch } = this.props;
+    const { id } = record;
+    dispatch({
+      type: "order/changeOrderStatus",
+      payload: {
+        order_id: id,
+        order_status: "ON_THE_WAY",
+        onSuccess: () => {
+          this.handleRefresh();
+          message.info("操作成功");
+        },
+        onFailure: msg => {
+          message.info(msg || "操作失败");
+        }
+      }
+    });
+  };
+
+  handleFinish = record => {
+    const { dispatch } = this.props;
+    const { id } = record;
+    dispatch({
+      type: "order/changeOrderStatus",
+      payload: {
+        order_id: id,
+        order_status: "DONE",
+        onSuccess: () => {
+          this.handleRefresh();
+          message.info("操作成功");
+        },
+        onFailure: msg => {
+          message.info(msg || "操作失败");
+        }
+      }
+    });
+  };
+
   renderForm() {
     const {
       form: { getFieldDecorator }
     } = this.props;
-
-    const { timeType } = this.state;
 
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
@@ -696,61 +701,27 @@ class Souvenir extends PureComponent {
                   allowClear
                   style={{ width: "100%" }}
                 >
-                  {ORDER_STATUS.map(item => (
-                    <Option key={item.name} value={item.name}>
-                      {item.desc}
-                    </Option>
-                  ))}
+                  <Option value="WAIT_APPROVAL_OR_PAY">待付款</Option>
+                  <Option value="WAIT_ACCEPT">待发货</Option>
+                  <Option value="ON_THE_WAY">已发货</Option>
+                  <Option value="DONE">已完成</Option>
+                  <Option value="CANCEL_USER">已取消</Option>
                 </Select>
               )}
             </FormItem>
           </Col>
-          <Col span={8}>
-            <FormItem label="时间类型">
-              {getFieldDecorator("type")(
-                <Select
-                  placeholder="请选择"
-                  allowClear
-                  onChange={this.onTypeChange}
+          <Col>
+            <FormItem label="下单时间">
+              {getFieldDecorator("time_range")(
+                <RangePicker
+                  disabledDate={this.disabledDate}
                   style={{ width: "100%" }}
-                >
-                  <Option value="1">下单时间</Option>
-                  <Option value="2">上车时间</Option>
-                </Select>
+                  placeholder={[
+                    formatMessage({ id: "form.date.placeholder.start" }),
+                    formatMessage({ id: "form.date.placeholder.end" })
+                  ]}
+                />
               )}
-            </FormItem>
-          </Col>
-          {timeType && (
-            <Col>
-              <FormItem label="选择时间">
-                {getFieldDecorator("time_range", {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({ id: "validation.date.required" })
-                    }
-                  ]
-                })(
-                  <RangePicker
-                    disabledDate={this.disabledDate}
-                    style={{ width: "100%" }}
-                    placeholder={[
-                      formatMessage({ id: "form.date.placeholder.start" }),
-                      formatMessage({ id: "form.date.placeholder.end" })
-                    ]}
-                  />
-                )}
-              </FormItem>
-            </Col>
-          )}
-          <Col span={8}>
-            <FormItem label="扫码商家">
-              {getFieldDecorator("source_shop_id")(<ShopInput allowClear />)}
-            </FormItem>
-          </Col>
-          <Col span={8}>
-            <FormItem label="扫码司机">
-              {getFieldDecorator("source_driver_user_id")(<DriverInput allowClear />)}
             </FormItem>
           </Col>
           <Col>
@@ -825,7 +796,7 @@ class Souvenir extends PureComponent {
                 }}
                 dataSource={data}
                 columns={this.columns}
-                scroll={{ x: 2080 }}
+                scroll={{ x: 1200 }}
               />
             </div>
           </div>

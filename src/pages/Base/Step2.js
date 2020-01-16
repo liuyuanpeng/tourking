@@ -31,7 +31,6 @@ class Step2 extends React.PureComponent {
         ? data.roads.filter(item => item).map((item, index) => index)
         : [0];
     id = keysValue.length;
-    console.log(' construct id: ', id)
   }
 
   remove = k => {

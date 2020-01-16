@@ -235,3 +235,12 @@ export async function querySettledPage(params) {
     }
   );
 }
+
+
+// 改变订单状态
+export async function changeOrderStatus(params) {
+  return request(`/server/travel/order/change_status?${queryString.stringify(params)}`,
+  {
+    method: "POST"
+  })
+}

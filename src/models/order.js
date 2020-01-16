@@ -19,7 +19,8 @@ import {
   querySettledPage,
   exportOrder,
   exportSettled,
-  exportWarning
+  exportWarning,
+  changeOrderStatus
 } from "@/services/order";
 
 import { getPrice } from "@/services/price";
@@ -39,6 +40,15 @@ export default {
   },
 
   effects: {
+    *changeOrderStatus({payload}, {call}) {
+      const { onSuccess, onFailure, ...others } = payload;
+      const response = yield call(changeOrderStatus, others)
+      if (response.code === "SUCCESS") {
+        onSuccess && onSuccess();
+      } else {
+        onFailure && onFailure(response.message);
+      }
+    },
     *fetchOrderHistory({ payload }, { call, put }) {
       const { orderId, onSuccess, onFailure } = payload;
       const response = yield call(queryOrderHistory, { order_id: orderId });

@@ -23,13 +23,24 @@ const formItemLayout = {
   }
 };
 const dateFormat = "YYYY-MM-DD";
-@connect(({ formStepForm }) => ({
+@connect(({ formStepForm, price }) => ({
   data: formStepForm.step,
   mode: formStepForm.mode,
-  type: formStepForm.type
+  type: formStepForm.type,
+  priceList: price.list
 }))
 @Form.create()
 class Step1 extends React.PureComponent {
+  componentDidMount() {
+    const { dispatch, type } = this.props;
+    const isScenicFood = type === "scenicfood";
+    if (isScenicFood) {
+      dispatch({
+        type: "price/fetchPriceStrategyList"
+      });
+    }
+  }
+
   onSubmit = () => {
     const { dispatch, type } = this.props;
     const isScenicFood = type === "scenicfood";
@@ -51,9 +62,16 @@ class Step1 extends React.PureComponent {
   };
 
   render() {
-    const { form, dispatch, data, mode, type } = this.props;
+    const { form, dispatch, data, mode, type, priceList } = this.props;
     const { getFieldDecorator, validateFields } = form;
     const readonly = mode === "readonly";
+
+    let strategy_name = ''
+    if (data && data.price_strategy_id)
+    {
+      const result = priceList.find(item => item.id === data.price_strategy_id);
+      strategy_name = result ? result.strategy_name : ''
+    }
 
     const isScenicFood = type === "scenicfood";
     const isSouvenir = type === "souvenir";
@@ -68,9 +86,17 @@ class Step1 extends React.PureComponent {
         }
         validateFields((err, values) => {
           if (!err) {
+            const { address, ...others } = values;
+            const payload = {...others};
+            if (address) {
+              payload.target_place = address.address;
+              payload.target_latitude = address.location.latitude;
+              payload.target_longitude = address.location.longitude
+            }
+
             dispatch({
               type: "formStepForm/saveStepFormData",
-              payload: values
+              payload
             });
             this.onSubmit();
           }
@@ -138,12 +164,14 @@ class Step1 extends React.PureComponent {
                 <span>{isScenicFood ? "景点美食" : "伴手礼"}</span>
               ) : (
                 getFieldDecorator("scene", {
-                  initialValue: isScenicFood ? "SCENIC_FOOD" : "SOUVENIR",
+                  initialValue: isScenicFood
+                    ? "JINGDIAN_PRIVATE"
+                    : "BANSHOU_PRIVATE",
                   rules: [{ required: true, message: "请选择类型" }]
                 })(
                   <Select placeholder="请选择类型" disabled>
-                    <Option value="SCENIC_FOOD">景点美食</Option>
-                    <Option value="SOUVENIR">伴手礼</Option>
+                    <Option value="JINGDIAN_PRIVATE">景点美食</Option>
+                    <Option value="BANSHOU_PRIVATE">伴手礼</Option>
                   </Select>
                 )
               )}
@@ -171,15 +199,15 @@ class Step1 extends React.PureComponent {
           {isScenicFood && (
             <Form.Item {...formItemLayout} label="地图标注">
               {readonly ? (
-                <span>地图标注</span>
+                <span>{data.target_place}</span>
               ) : (
                 getFieldDecorator("address", {
                   initialValue: data.id
                     ? {
-                        address: data.detail,
+                        address: data.target_place,
                         location: {
-                          longitude: data.longitude,
-                          latitude: data.latitude
+                          longitude: data.target_longitude,
+                          latitude: data.target_latitude
                         }
                       }
                     : "",
@@ -225,6 +253,30 @@ class Step1 extends React.PureComponent {
                     addonAfter="天内"
                     style={{ textAlight: "right" }}
                   />
+                )
+              )}
+            </Form.Item>
+          )}
+          {isScenicFood && (
+            <Form.Item {...formItemLayout} label="价格策略">
+              {readonly ? (
+                <span>
+                  {
+                    strategy_name
+                  }
+                </span>
+              ) : (
+                getFieldDecorator("price_strategy_id", {
+                  initialValue: data.price_strategy_id || "",
+                  rules: [{ required: true, message: "请选择价格策略" }]
+                })(
+                  <Select placeholder="请选择价格策略">
+                    {priceList.map(price => (
+                      <Option key={price.id} value={price.id}>
+                        {price.strategy_name}
+                      </Option>
+                    ))}
+                  </Select>
                 )
               )}
             </Form.Item>

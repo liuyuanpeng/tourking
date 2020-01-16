@@ -451,7 +451,6 @@ class Account extends PureComponent {
   };
 
   onEdit = record => {
-    console.log("record:", record);
     let selectRole = {};
     const hasDriver = record.roles.find(
       item => item.role_type === "APPLICATION_USER_CUSTOM"

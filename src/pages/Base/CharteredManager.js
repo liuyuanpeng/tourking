@@ -31,8 +31,8 @@ const FormItem = Form.Item;
 const confirm = Modal.confirm;
 const { RangePicker } = DatePicker;
 
-// const INIT_SCENE = ["JIEJI", "SONGJI", "ORDER_SCENE"].toString();
-const INIT_SCENE = '';
+const INIT_SCENE = ["DAY_PRIVATE", "ROAD_PRIVATE"].toString();
+// const INIT_SCENE = '';
 
 @connect(({ chartered, loading }) => ({
   loading: loading.effects["chartered/fetchCharteredPage"],
@@ -207,6 +207,23 @@ export default class Charted extends PureComponent {
     router.push("stepform");
   };
 
+  handleRefresh = () => {
+    const { dispatch, page } = this.props;
+    dispatch({
+      type: "chartered/fetchCharteredPage",
+      payload: {
+        data: {
+          page,
+          size: 10
+        },
+        params: { ...this.searchKeys },
+        onFailure: msg => {
+          message.error(msg || "刷新失败!");
+        }
+      }
+    });
+  }
+
   handleDelete = record => {
     const { dispatch } = this.props;
     dispatch({
@@ -215,6 +232,7 @@ export default class Charted extends PureComponent {
         data: record.private_consume.id,
         onSuccess: () => {
           message.success("删除成功");
+          this.handleRefresh();
         },
         onFailure: msg => {
           message.error(msg || "删除失败");
@@ -237,7 +255,6 @@ export default class Charted extends PureComponent {
           this.searchKeys.value = value;
         }
         if (timeRange && timeRange.length === 2) {
-          console.log(timeRange, "timeRage");
           (this.searchKeys.start = moment(timeRange[0]).startOf("day")),
             valueOf();
           this.searchKeys.end = moment(timeRange[1].endOf("day").valueOf());
