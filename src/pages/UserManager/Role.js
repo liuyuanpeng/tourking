@@ -302,7 +302,7 @@ class Role extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) =>
-        false ? null : (
+        record.is_init ? null : (
         // false ? null : (
           <span className={styles.actionColumn}>
             <a
