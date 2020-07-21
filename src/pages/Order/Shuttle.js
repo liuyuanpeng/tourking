@@ -604,7 +604,7 @@ class Shuttle extends PureComponent {
       type: "consume/fetchConsumeList",
       payload: {
         onFailure: msg => {
-          message.error(msg || "获取车型分级列表失败");
+          message.error(msg || "获取用车服务列表失败");
         }
       }
     });

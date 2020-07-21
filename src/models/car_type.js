@@ -19,6 +19,7 @@ export default {
           type: "save",
           payload: response.data
         });
+        payload.onSuccess && payload.onSuccess(response.data)
       } else {
         payload.onFailure && payload.onFailure(response.message)
       }

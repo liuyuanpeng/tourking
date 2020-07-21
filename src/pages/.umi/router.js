@@ -326,12 +326,14 @@ models: () => [
         "path": "/base",
         "name": "base",
         "authority": [
-          "coversmanager",
+          "citymanager",
+          "hotsearch",
           "charteredmanager",
           "scenicfoodmanager",
           "souvenirmanager",
           "pricestrategy",
           "cartype",
+          "carsit",
           "carlevel",
           "carmanager",
           "dispatchstrategy",
@@ -341,9 +343,9 @@ models: () => [
         "icon": "setting",
         "routes": [
           {
-            "path": "/base/coversmanager",
-            "name": "coversmanager",
-            "authority": "coversmanager",
+            "path": "/base/citymanager",
+            "name": "citymanager",
+            "authority": "citymanager",
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
@@ -353,7 +355,25 @@ models: () => [
   import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}}),
   import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
 ],
-  component: () => import(/* webpackChunkName: "p__Base__CoversManager" */'../Base/CoversManager'),
+  component: () => import(/* webpackChunkName: "p__Base__CityManager" */'../Base/CityManager'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/base/hotsearch",
+            "name": "hotsearch",
+            "authority": "hotsearch",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__chartered.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/chartered.js').then(m => { return { namespace: 'chartered',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__covers.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/covers.js').then(m => { return { namespace: 'covers',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Base__HotSearch" */'../Base/HotSearch'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true
@@ -462,6 +482,24 @@ models: () => [
   import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__CarType" */'../Base/CarType'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/base/carsit",
+            "name": "carsit",
+            "authority": "carsit",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__chartered.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/chartered.js').then(m => { return { namespace: 'chartered',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__covers.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/covers.js').then(m => { return { namespace: 'covers',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Base__CarSit" */'../Base/CarSit'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true

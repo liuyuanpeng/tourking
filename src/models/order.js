@@ -253,7 +253,7 @@ export default {
           !consume.data[0].car_levels ||
           !consume.data[0].car_levels.length
         ) {
-          onFailure && onFailure("获取车型分级失败!");
+          onFailure && onFailure("获取用车服务失败!");
           return;
         }
 
@@ -261,7 +261,7 @@ export default {
           item => item.config_id === others.car_config_id
         );
         if (!carLevel) {
-          onFailure && onFailure("没有对应的车型分级!");
+          onFailure && onFailure("没有对应的用车服务!");
           return;
         }
 
@@ -347,12 +347,13 @@ export default {
         onSuccess,
         onFailure,
         scene,
-        car_config_id,
+        chexing_id,
+        city_id,
         kilo,
         time,
         start_time
       } = payload;
-      const consume = yield call(queryConsumeList, { scene });
+      const consume = yield call(queryConsumeList, { scene, city_id });
       if (
         consume.code !== "SUCCESS" ||
         !consume.data ||
@@ -360,15 +361,15 @@ export default {
         !consume.data[0].car_levels ||
         !consume.data[0].car_levels.length
       ) {
-        onFailure && onFailure("获取车型分级失败!");
+        onFailure && onFailure("获取用车服务失败!");
         return;
       }
 
       const carLevel = consume.data[0].car_levels.find(
-        item => item.config_id === car_config_id
+        item => item.chexing.id === chexing_id
       );
       if (!carLevel) {
-        onFailure && onFailure("没有对应的车型分级!");
+        onFailure && onFailure("没有对应的用车服务!");
         return;
       }
       const { price_strategy_id } = carLevel;
@@ -409,7 +410,7 @@ export default {
           !consume.data[0].car_levels ||
           !consume.data[0].car_levels.length
         ) {
-          onFailure && onFailure("获取车型分级失败!");
+          onFailure && onFailure("获取用车服务失败!");
           return;
         }
 
@@ -417,7 +418,7 @@ export default {
           item => item.config_id === others.car_config_id
         );
         if (!carLevel) {
-          onFailure && onFailure("没有对应的车型分级!");
+          onFailure && onFailure("没有对应的用车服务!");
           return;
         }
 

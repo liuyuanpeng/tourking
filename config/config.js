@@ -6,7 +6,8 @@ import defaultSettings from '../src/defaultSettings';
 import slash from 'slash2';
 
 const { pwa, primaryColor } = defaultSettings;
-const { APP_TYPE, TEST } = process.env;
+const { APP_TYPE, TEST, SERVER_ENV='pro' } = process.env;
+
 
 const plugins = [
   [
@@ -58,6 +59,11 @@ if (APP_TYPE === 'site') {
   ]);
 }
 
+const serveUrlMap = {
+  dev: 'http://tms.kingtrip.vip/v5/',
+  pro: 'https://apis.kingtrip.vip/v5/'
+};
+
 export default {
   // add for transfer to umi
   plugins,
@@ -77,7 +83,7 @@ export default {
   },
   proxy: {
     '/server/': {
-      target: 'https://apis.kingtrip.vip/v5/',
+      target: serveUrlMap[SERVER_ENV],
       changeOrigin: true,
       pathRewrite: { '^/server': '' },
     }

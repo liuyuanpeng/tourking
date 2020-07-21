@@ -40,7 +40,10 @@ const NewLevel = Form.create()(props => {
     handleAdd,
     handleModalVisible,
     type,
-    handleEdit
+    handleEdit,
+    city,
+    changeState,
+    isBAOCHE
   } = props;
 
   const { getFieldDecorator, getFieldValue } = form;
@@ -52,7 +55,7 @@ const NewLevel = Form.create()(props => {
       form.resetFields();
       const { car_levels } = fieldsValue;
       const car_type_ids = car_levels
-        .map(item => item.config_id)
+        .map(item => item.chexing_id)
         .filter(item => item);
       const car_type_ids_fixed = uniqArr(car_type_ids).filter(item => item);
 
@@ -113,10 +116,22 @@ const NewLevel = Form.create()(props => {
   };
 
   const checkSelection = (rule, value, callback) => {
-    if (value && value.config_id && value.price_strategy_id) {
-      callback();
+    if (value && value.chexing_id) {
+      if (isBAOCHE && value.price) {
+        callback();
+      } else if (value.price_strategy_id && value.price) {
+        callback();
+      } else {
+        callback("请输入完整数据或者删除此项");
+      }
     }
     callback("请输入完整数据或者删除此项");
+  };
+
+  const changeScene = scene => {
+    changeState({
+      isBAOCHE: scene === "DAY_PRIVATE"
+    });
   };
 
   let keyValues = [];
@@ -140,8 +155,11 @@ const NewLevel = Form.create()(props => {
         initialValue:
           formValues.car_levels.length && formValues.car_levels[k]
             ? {
-                config_id: formValues.car_levels[k].config_id,
-                price_strategy_id: formValues.car_levels[k].price_strategy_id
+                chexing_id: formValues.car_levels[k].chexing.id,
+                price_strategy_id:
+                  formValues.car_levels[k].price_strategy_id || "",
+                zuowei_id: formValues.car_levels[k].zuowei.id,
+                price: formValues.car_levels[k].price || ""
               }
             : {},
         rules: [
@@ -153,7 +171,7 @@ const NewLevel = Form.create()(props => {
             validator: checkSelection
           }
         ]
-      })(<CarStrategySelection />)}
+      })(<CarStrategySelection isBAOCHE={isBAOCHE} />)}
       {keys.length > 1 ? (
         <a
           href="javascript:void();"
@@ -184,23 +202,66 @@ const NewLevel = Form.create()(props => {
             <span>
               {formValues.consume.scene === "JIEJI"
                 ? "接机/站"
-                : formValues.consume.scene === "JIEJI"
+                : formValues.consume.scene === "SONGJI"
                 ? "送机/站"
-                : "单次用车"}
+                : "按天包车"}
             </span>
           ) : (
             form.getFieldDecorator("scene", {
               initialValue: formValues.consume.scene || "",
               rules: [{ required: true, message: "请输入用车场景" }]
             })(
-              <Select style={{ width: "100%" }}>
-                <Option key="JIEJI">接机/站</Option>
-                <Option key="SONGJI">送机/站</Option>
-                <Option key="ORDER_SCENE">单次用车</Option>
+              <Select style={{ width: "100%" }} onChange={changeScene}>
+                <Option value="JIEJI">接机/站</Option>
+                <Option value="SONGJI">送机/站</Option>
+                <Option value="DAY_PRIVATE">按天包车</Option>
               </Select>
             )
           )}
         </FormItem>
+        <FormItem {...labelLayout} label="所属城市">
+          {readonly ? (
+            <span>
+              {formValues.consume.city_id
+                ? city.find(item => item.id === formValues.consume.city_id).name
+                : ""}
+            </span>
+          ) : (
+            form.getFieldDecorator("city_id", {
+              initialValue: formValues.consume.city_id || "",
+              rules: [{ required: true, message: "请选择所属城市" }]
+            })(
+              <Select style={{ width: "100%" }}>
+                {city &&
+                  city.map(item => (
+                    <Option key={`${item.id}`} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+              </Select>
+            )
+          )}
+        </FormItem>
+        {isBAOCHE && <FormItem {...labelLayout} label="套餐选择">
+          {readonly ? (
+            <span>
+              {formValues.consume.taocan === "meal_1"
+                ? "套餐一(8小时100公里)"
+                : "套餐二(8小时200公里)"}
+            </span>
+          ) : (
+            form.getFieldDecorator("taocan", {
+              initialValue: formValues.consume.taocan || "",
+              rules: [{ required: true, message: "请选择套餐" }]
+            })(
+              <Select style={{ width: "100%" }}>
+                <Option value="meal_1">套餐一(8小时100公里)</Option>
+                <Option value="meal_2">套餐二(8小时200公里)</Option>
+              </Select>
+            )
+          )}
+        </FormItem>}
+
         {readonly ? (
           <FormItem {...labelLayout} label="分级收费">
             <List
@@ -208,11 +269,15 @@ const NewLevel = Form.create()(props => {
               itemLayout="horizontal"
               dataSource={formValues.car_levels}
               renderItem={item => (
-                <List.Item key={item.config_id}>
+                <List.Item key={item.chexing.id}>
                   {" "}
-                  {`${item.config_name}: ${
+                  {`${item.chexing.name}-${item.zuowei.name}- ${
                     item.price_strategy_name
-                  }(${item.plan_description || ""})`}
+                  }-[${
+                    isBAOCHE
+                      ? item.price + "元/天"
+                      : item.price + "起" + item.plan_description || ""
+                  }]`}
                 </List.Item>
               )}
             />
@@ -241,9 +306,10 @@ const NewLevel = Form.create()(props => {
   );
 });
 
-@connect(({ consume, loading }) => ({
+@connect(({ consume, loading, city }) => ({
   loading: loading.effects["consume/fetchConsumeList"],
-  data: consume.list
+  data: consume.list,
+  city: city.list
 }))
 @Form.create()
 export default class CarManager extends PureComponent {
@@ -255,12 +321,19 @@ export default class CarManager extends PureComponent {
       consume: {},
       car_levels: []
     },
-    type: "add"
+    type: "add",
+    isBAOCHE: false
   };
 
   componentDidMount() {
     this.props.dispatch({
       type: "car_type/fetchCarTypes"
+    });
+    this.props.dispatch({
+      type: "sit/fetchSitList"
+    });
+    this.props.dispatch({
+      type: "city/fetchCityList"
     });
     this.props.dispatch({
       type: "price/fetchPriceStrategyList"
@@ -269,7 +342,7 @@ export default class CarManager extends PureComponent {
       type: "consume/fetchConsumeList",
       payload: {
         onFailure: msg => {
-          message.error(msg || "获取车型分级列表失败");
+          message.error(msg || "获取用车服务列表失败");
         }
       }
     });
@@ -292,16 +365,18 @@ export default class CarManager extends PureComponent {
       item => item && item.consume.scene === fields.scene
     );
     if (result && result.length) {
-      message.error("该用车类型已有车型分级");
+      message.error("该用车类型已有用车服务");
       return;
     }
-    const { car_levels, scene, description } = fields;
+    const { car_levels, scene, description, city_id, taocan } = fields;
     const params = {
       car_levels,
       consume: {
         common_scene: "ORDER",
         description,
-        scene
+        scene,
+        city_id,
+        taocan: taocan || ''
       }
     };
     dispatch({
@@ -329,7 +404,17 @@ export default class CarManager extends PureComponent {
           ? "接机/站"
           : text === "SONGJI"
           ? "送机/站"
-          : "单次用车"
+          : "按天包车"
+    },
+    {
+      title: "所属城市",
+      dataIndex: "consume.city_id",
+      key: "consume.city_id",
+      render: text => {
+        const { city } = this.props;
+        const curCity = city.find(item => item.id === text);
+        return curCity ? curCity.name : "";
+      }
     },
     {
       title: "备注",
@@ -360,7 +445,7 @@ export default class CarManager extends PureComponent {
           </a>
           <Divider type="vertical" />
           <Popconfirm
-            title="确定删除该车型分级吗?"
+            title="确定删除该用车服务吗?"
             onConfirm={() => {
               this.handleDelete(record);
             }}
@@ -377,12 +462,20 @@ export default class CarManager extends PureComponent {
   handleEdit = info => {
     const { dispatch } = this.props;
     const { formValues } = this.state;
+    const { car_levels, taocan, ...others } = info;
+    const { consume } = formValues;
     dispatch({
       type: "consume/saveConsume",
       payload: {
         data: {
-          ...formValues,
-          ...info
+          car_levels,
+          consume: {
+            ...consume,
+            scene: others.scene,
+            city_id: others.city_id,
+            description: others.description,
+            taocan: taocan || ''
+          }
         },
         onSuccess: () => {
           message.success("操作成功");
@@ -403,7 +496,8 @@ export default class CarManager extends PureComponent {
     this.setState({
       formValues: { ...record },
       modalVisible: true,
-      type: "edit"
+      type: "edit",
+      isBAOCHE: record.consume.scene === "DAY_PRIVATE"
     });
   };
 
@@ -437,26 +531,35 @@ export default class CarManager extends PureComponent {
     });
   };
 
-  render() {
-    const { loading, data } = this.props;
+  changeState = newState => {
+    this.setState({
+      ...newState
+    });
+  };
 
-    const { modalVisible, type, formValues } = this.state;
+  render() {
+    const { loading, data, city } = this.props;
+
+    const { modalVisible, type, formValues, isBAOCHE } = this.state;
 
     const parentMethods = {
       handleAdd: this.handleAdd,
       handleModalVisible: this.handleModalVisible,
       type: type || "add",
       handleEdit: this.handleEdit,
-      formValues
+      formValues,
+      city,
+      changeState: this.changeState,
+      isBAOCHE
     };
     return (
-      <PageHeaderWrap title="车型分级配置">
+      <PageHeaderWrap title="用车服务配置">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>
               <div className={styles.tableListOperator}>
                 <Button icon="plus" type="primary" onClick={this.onAdd}>
-                  新增车型分级
+                  新增用车服务
                 </Button>
               </div>
               <Table

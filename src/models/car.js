@@ -25,13 +25,14 @@ export default {
         payload.onFailure && payload.onFailure(response.message)
       }
     },
-    *saveCar({ payload }, { call, put }) {
+    *saveCar({ payload }, { call, put, select }) {
       const response = yield call(saveCar, payload.data);
+      const page = yield select(state => state.car.page)
       if (response.code === "SUCCESS") {
         yield put({
           type: "fetchCarPage",
           payload: {
-            page: 0,
+            page,
             size: 10
           }
         });

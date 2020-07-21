@@ -37,7 +37,9 @@ const NewCar = Form.create()(props => {
     type,
     handleEdit,
     car_types,
-    drivers
+    drivers,
+    city,
+    sits
   } = props;
 
   const okHandle = () => {
@@ -83,10 +85,10 @@ const NewCar = Form.create()(props => {
       </FormItem>
       <FormItem {...labelLayout} label="车辆类型">
         {readonly ? (
-          <span>{formValues.travel_config.name}</span>
+          <span>{formValues.chexing.name}</span>
         ) : (
-          form.getFieldDecorator("config_id", {
-            initialValue: formValues.car.config_id || "",
+          form.getFieldDecorator("chexing_id", {
+            initialValue: formValues.car.chexing_id || "",
             rules: [{ required: true, message: "请选择车辆类型" }]
           })(
             <Select style={{ width: "100%" }}>
@@ -102,6 +104,53 @@ const NewCar = Form.create()(props => {
           )
         )}
       </FormItem>
+      <FormItem {...labelLayout} label="所属城市">
+        {readonly ? (
+          <span>{formValues.city.name}</span>
+        ) : (
+          form.getFieldDecorator("city_id", {
+            initialValue:
+              formValues.city && formValues.city.id ? formValues.city.id : "",
+            rules: [{ required: true, message: "请选择所属城市" }]
+          })(
+            <Select style={{ width: "100%" }}>
+              {city &&
+                city.map((item, index) => {
+                  return (
+                    <Option key={`${index}`} value={item.id}>
+                      {item.name}
+                    </Option>
+                  );
+                })}
+            </Select>
+          )
+        )}
+      </FormItem>
+      <FormItem {...labelLayout} label="座位类型">
+        {readonly ? (
+          <span>{formValues.zuowei.name}</span>
+        ) : (
+          form.getFieldDecorator("zuowei_id", {
+            initialValue:
+              formValues.zuowei && formValues.zuowei.id
+                ? formValues.zuowei.id
+                : "",
+            rules: [{ required: true, message: "请选择所属城市" }]
+          })(
+            <Select style={{ width: "100%" }}>
+              {sits &&
+                sits.map((item, index) => {
+                  return (
+                    <Option key={`${index}`} value={item.id}>
+                      {item.name}
+                    </Option>
+                  );
+                })}
+            </Select>
+          )
+        )}
+      </FormItem>
+
       <FormItem {...labelLayout} label="颜色">
         {readonly ? (
           <span>{formValues.car.color}</span>
@@ -128,13 +177,15 @@ const NewCar = Form.create()(props => {
   );
 });
 
-@connect(({ car_type, driver, car, loading }) => ({
+@connect(({ car_type, city, sit, driver, car, loading }) => ({
   loading: loading.effects["car/fetchCarPage"],
   data: car.list,
   page: car.page,
   total: car.total,
   car_types: car_type.list,
-  drivers: driver.list
+  drivers: driver.list,
+  city: city.list,
+  sits: sit.list
 }))
 @Form.create()
 export default class CarManager extends PureComponent {
@@ -145,22 +196,65 @@ export default class CarManager extends PureComponent {
     formValues: {
       car: {},
       driver: {},
-      user: {}
+      user: {},
+      city: {},
+      zuowei: {},
+      chexing: {}
     },
     type: "add"
   };
 
   componentDidMount() {
     this.props.dispatch({
-      type: "car_type/fetchCarTypes"
-    });
-    this.props.dispatch({
-      type: "car/fetchCarPage",
+      type: "city/fetchCityList",
       payload: {
-        page: 0,
-        size: 10,
+        onSuccess: city => {
+          console.log(city);
+          if (city && city.length) {
+            this.props.dispatch({
+              type: "sit/fetchSitList",
+              payload: {
+                onSuccess: sit => {
+                  if (sit && sit.length) {
+                    this.props.dispatch({
+                      type: "car_type/fetchCarTypes",
+                      payload: {
+                        onSuccess: types => {
+                          if (types && types.length) {
+                            this.props.dispatch({
+                              type: "car/fetchCarPage",
+                              payload: {
+                                page: 0,
+                                size: 10,
+                                onFailure: msg => {
+                                  message.error(msg || "获取车辆列表失败");
+                                }
+                              }
+                            });
+                          } else {
+                            message.error("请先配置车辆类型");
+                          }
+                        },
+                        onFailure: msg => {
+                          message.error(msg || "获取车型列表失败");
+                        }
+                      }
+                    });
+                  } else {
+                    message.error("请先配置座位类型");
+                  }
+                },
+                onFailure: msg => {
+                  message.error(msg || "获取座位类型列表失败");
+                }
+              }
+            });
+          } else {
+            message.error("请先配置城市列表");
+          }
+        },
         onFailure: msg => {
-          message.error(msg || "获取车辆列表失败");
+          message.error(msg || "获取城市列表失败");
         }
       }
     });
@@ -173,7 +267,10 @@ export default class CarManager extends PureComponent {
       formValues: {
         car: {},
         driver: {},
-        user: {}
+        user: {},
+        city: {},
+        zuowei: {},
+        chexing: {}
       }
     });
   };
@@ -207,9 +304,19 @@ export default class CarManager extends PureComponent {
       key: "user.name"
     },
     {
+      title: "所属城市",
+      dataIndex: "city.name",
+      key: "city.name"
+    },
+    {
       title: "车辆类型",
-      dataIndex: "travel_config.name",
-      key: "travel_config.name"
+      dataIndex: "chexing.name",
+      key: "chexing.name"
+    },
+    {
+      title: "座位类型",
+      dataIndex: "zuowei.name",
+      key: "zuowei.name"
     },
     {
       title: "颜色",
@@ -276,7 +383,10 @@ export default class CarManager extends PureComponent {
       formValues: {
         car: {},
         driver: {},
-        user: {}
+        user: {},
+        city: {},
+        zuowei: {},
+        chexing: {}
       },
       modalVisible: false,
       type: "add"
@@ -372,7 +482,7 @@ export default class CarManager extends PureComponent {
   };
 
   render() {
-    const { loading, data, drivers, car_types, page, total } = this.props;
+    const { loading, data, drivers, car_types, page, total, city, sits } = this.props;
 
     const { modalVisible, type, formValues } = this.state;
 
@@ -383,7 +493,9 @@ export default class CarManager extends PureComponent {
       handleEdit: this.handleEdit,
       formValues,
       drivers,
-      car_types
+      car_types,
+      city,
+      sits
     };
     return (
       <PageHeaderWrap title="车辆管理">

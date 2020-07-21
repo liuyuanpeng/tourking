@@ -399,8 +399,8 @@ class Account extends PureComponent {
               {getFieldDecorator("role_id")(
                 <Select allowClear>
                   {roleList &&
-                    roleList.map((item, index) => (
-                      <Option key={index} value={item.id}>
+                    roleList.map((item) => (
+                      <Option key={item.id} value={item.id}>
                         {item.name}
                       </Option>
                     ))}

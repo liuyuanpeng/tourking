@@ -174,8 +174,12 @@ const PermissionSetting = Form.create()(props => {
       key: "base",
       children: [
         {
-          title: "首页大图",
-          key: "coversmanager"
+          title: "城市管理",
+          key: "citymanager"
+        },
+        {
+          title: "热门搜索",
+          key: "hotsearch"
         },
         {
           title: "包车管理",
@@ -194,15 +198,15 @@ const PermissionSetting = Form.create()(props => {
           key: "pricestrategy"
         },
         {
-          title: "价格策略",
-          key: "pricestrategy"
-        },
-        {
           title: "车辆分类",
           key: "cartype"
         },
         {
-          title: "车型分级",
+          title: "座位分类",
+          key: "carsit"
+        },
+        {
+          title: "用车服务",
           key: "carlevel"
         },
         {
@@ -298,7 +302,7 @@ class Role extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) =>
-        record.is_init ? null : (
+        false ? null : (
         // false ? null : (
           <span className={styles.actionColumn}>
             <a

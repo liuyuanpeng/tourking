@@ -35,7 +35,8 @@ const NewAddress = Form.create()(props => {
     handleAdd,
     handleModalVisible,
     type,
-    handleEdit
+    handleEdit,
+    city
   } = props;
 
   const okHandle = () => {
@@ -47,7 +48,9 @@ const NewAddress = Form.create()(props => {
         name: fieldsValue.name,
         detail: fieldsValue.address.address,
         longitude: fieldsValue.address.location.longitude,
-        latitude: fieldsValue.address.location.latitude
+        latitude: fieldsValue.address.location.latitude,
+        city_id: fieldsValue.city_id,
+        type: parseInt(fieldsValue.type, 10)
       };
       if (type === "add") {
         handleAdd(data);
@@ -75,16 +78,55 @@ const NewAddress = Form.create()(props => {
         handleModalVisible();
       }}
     >
-      <FormItem {...labelLayout} label="目的地">
+      <FormItem {...labelLayout} label="常用地址名称">
         {readonly ? (
           <span>{formValues.name}</span>
         ) : (
           form.getFieldDecorator("name", {
             initialValue: formValues.name || "",
-            rules: [{ required: true, message: "请输入目的地" }]
+            rules: [{ required: true, message: "请输入常用地址名称" }]
           })(<Input style={{ width: "100%" }} />)
         )}
       </FormItem>
+      <FormItem {...labelLayout} label="所属城市">
+        {readonly ? (
+          <span>
+            {city && city.find(item => item.id === formValues.city_id).name}
+          </span>
+        ) : (
+          form.getFieldDecorator("city_id", {
+            initialValue: formValues.city_id || "",
+            rules: [{ required: true, message: "请选择所属城市" }]
+          })(
+            <Select style={{ width: "100%" }}>
+              {city &&
+                city.map(item => {
+                  return (
+                    <Option key={`${item.id}`} value={item.id}>
+                      {item.name}
+                    </Option>
+                  );
+                })}
+            </Select>
+          )
+        )}
+      </FormItem>
+      <FormItem {...labelLayout} label="地址类型">
+        {readonly ? (
+          <span>{formValues.type ? "火车站" : "机场"}</span>
+        ) : (
+          form.getFieldDecorator("type", {
+            initialValue: formValues.type ? formValues.type.toString() : "",
+            rules: [{ required: true, message: "请选择地址类型" }]
+          })(
+            <Select style={{ width: "100%" }}>
+              <Option value="0">机场</Option>
+              <Option value="1">火车站</Option>
+            </Select>
+          )
+        )}
+      </FormItem>
+
       <FormItem {...labelLayout} label="详细地址">
         {form.getFieldDecorator("address", {
           initialValue: formValues.id
@@ -108,11 +150,12 @@ const NewAddress = Form.create()(props => {
   );
 });
 
-@connect(({ address, loading }) => ({
+@connect(({ address, loading, city }) => ({
   loading: loading.effects["address/fetchAddressPage"],
   data: address.list,
   page: address.page,
-  total: address.total
+  total: address.total,
+  city: city.list
 }))
 @Form.create()
 class Address extends PureComponent {
@@ -129,6 +172,22 @@ class Address extends PureComponent {
       title: "常用地点",
       dataIndex: "name",
       key: "name"
+    },
+    {
+      title: "所属城市",
+      dataIndex: "city_id",
+      key: "city_id",
+      render: text => {
+        const {city} = this.props
+        const currentCity = city.find(item=>item.id === text)
+        return currentCity ? currentCity.name : ''
+      }
+    },
+    {
+      title: "地址类型",
+      dataIndex: "type",
+      key: "type",
+      render: text => (text ? '火车站' : '机场')
     },
     {
       title: "详细地址",
@@ -171,6 +230,9 @@ class Address extends PureComponent {
   ];
 
   componentDidMount() {
+    this.props.dispatch({
+      type: "city/fetchCityList"
+    })
     this.props.dispatch({
       type: "address/fetchAddressPage",
       payload: {
@@ -323,7 +385,7 @@ class Address extends PureComponent {
   };
 
   render() {
-    const { loading, data, page, total } = this.props;
+    const { loading, data, page, total, city } = this.props;
 
     const { modalVisible, type, formValues } = this.state;
 
@@ -332,7 +394,8 @@ class Address extends PureComponent {
       handleModalVisible: this.handleModalVisible,
       type: type || "add",
       handleEdit: this.handleEdit,
-      formValues
+      formValues,
+      city
     };
     return (
       <PageHeaderWrap title="常用地址配置">

@@ -140,12 +140,14 @@ export default [
         path: "/base",
         name: "base",
         authority: [
-          "coversmanager",
+          "citymanager",
+          "hotsearch",
           "charteredmanager",
           "scenicfoodmanager",
           "souvenirmanager",
           "pricestrategy",
           "cartype",
+          "carsit",
           "carlevel",
           "carmanager",
           "dispatchstrategy",
@@ -155,10 +157,16 @@ export default [
         icon: "setting",
         routes: [
           {
-            path: "/base/coversmanager",
-            name: "coversmanager",
-            authority: "coversmanager",
-            component: "./Base/CoversManager"
+            path: "/base/citymanager",
+            name: "citymanager",
+            authority: "citymanager",
+            component: "./Base/CityManager"
+          },
+          {
+            path: "/base/hotsearch",
+            name: "hotsearch",
+            authority: "hotsearch",
+            component: "./Base/HotSearch"
           },
           {
             path: "/base/charteredmanager",
@@ -195,6 +203,12 @@ export default [
             name: "cartype",
             authority: "cartype",
             component: "./Base/CarType"
+          },
+          {
+            path: "/base/carsit",
+            name: "carsit",
+            authority: "carsit",
+            component: "./Base/CarSit"
           },
           {
             path: "/base/carlevel",

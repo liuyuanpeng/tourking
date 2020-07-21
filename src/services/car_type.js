@@ -1,25 +1,21 @@
 import request from "@/utils/request";
 
-const CAR_TYPE_CODE = "CODE_CAR_TYPE";
-
 export async function queryCarTypes() {
-  return request(`/server/travel/config/list?code=${CAR_TYPE_CODE}`, {
+  return request('/server/travel/chexing/list', {
     method: "POST",
-    data: []
+    data: {}
   });
 }
 
-export async function saveCarType(params) {
-  return request("/server/travel/config/save", {
-    method: "POST",
-    data: {
-      ...params,
-      code: CAR_TYPE_CODE
-    }
+export async function deleteCarType(id) {
+  return request(`/server/travel/chexing/${id}/delete`,{
+    method: "POST"
   });
 }
-export async function deleteCarType(id) {
-  return request(`/server/travel/config/delete?config_id=${id}`, {
-    method: "DELETE"
+
+export async function saveCarType(payload) {
+  return request('/server/travel/chexing/save', {
+    method: "POST",
+    data: payload
   });
 }

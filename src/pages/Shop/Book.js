@@ -40,11 +40,13 @@ const NewOrder = Form.create()(props => {
     form,
     handleModalVisible,
     formValues,
-    updateFormValue
+    updateFormValue,
+    city
   } = props;
 
   let origin = null;
   let destination = null;
+  let zuowei_id = "";
   if (formValues.start_longitude && formValues.start_latitude) {
     origin = {
       longitude: formValues.start_longitude,
@@ -64,15 +66,36 @@ const NewOrder = Form.create()(props => {
 
   const readonly = type === "readonly";
 
+  let consumeArr = [];
+  if (formValues.scene && formValues.city_id) {
+    const consume = consumeList.find(
+      item =>
+        item.consume.scene === formValues.scene &&
+        item.consume.city_id === formValues.city_id
+    );
+    if (consume) {
+      consumeArr = consume.car_levels ? consume.car_levels : [];
+    }
+  }
+
   const okHandle = () => {
     if (readonly) return handleModalVisible();
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      let zuowei_id = ''
+      if (fieldsValue.chexing_id) {
+        const selectConsume = consumeArr.find(
+          item => item.chexing.id === fieldsValue.chexing_id
+        );
+        if (selectConsume) {
+          zuowei_id = selectConsume.zuowei.id;
+        }
+      }
       form.resetFields();
       if (type === "edit") {
-        handleEdit(fieldsValue);
+        handleEdit({ ...fieldsValue, zuowei_id });
       } else {
-        handleAddOrder(fieldsValue);
+        handleAddOrder({ ...fieldsValue, zuowei_id });
       }
     });
     return null;
@@ -118,32 +141,34 @@ const NewOrder = Form.create()(props => {
   const changeScene = value => {
     updateFormValue({
       scene: value,
-      car_config_id: undefined
+      chexing_id: undefined
     });
     form.setFieldsValue({
-      car_config_id: undefined
-    })
+      chexing_id: undefined
+    });
   };
 
-  const changeCarConfigId = value => {
+  const changeCity = value => {
     updateFormValue({
-      car_config_id: value
+      city_id: value,
+      chexing_id: undefined
+    });
+    form.setFieldsValue({
+      chexing_id: undefined
+    });
+  };
+
+  const changeChexing = value => {
+    updateFormValue({
+      chexing_id: value
     });
   };
 
   const changeStartTime = value => {
     updateFormValue({
-      start_time: value ? value.valueOf() : ''
-    })
-  }
-
-  let consumeArr = []
-  if (formValues.scene) {
-    const consume = consumeList.find(item=>item.consume.scene === formValues.scene);
-    if (consume) {
-      consumeArr = consume.car_levels ? consume.car_levels : []
-    }
-  }
+      start_time: value ? value.valueOf() : ""
+    });
+  };
 
   return (
     <Modal
@@ -175,7 +200,30 @@ const NewOrder = Form.create()(props => {
                 <Select style={{ width: "100%" }} onChange={changeScene}>
                   <Option value="JIEJI">接机/站</Option>
                   <Option value="SONGJI">送机/站</Option>
-                  <Option value="ORDER_SCENE">单次用车</Option>
+                </Select>
+              )
+            )}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="所属城市">
+            {readonly ? (
+              <span>
+                {formValues.city_id
+                  ? city.find(item => item.id === formValues.city_id).name
+                  : ""}
+              </span>
+            ) : (
+              form.getFieldDecorator("city_id", {
+                rules: [{ required: true, message: "请选择城市" }],
+                initialValue: formValues.city_id || ""
+              })(
+                <Select style={{ width: "100%" }} onChange={changeCity}>
+                  {city.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
                 </Select>
               )
             )}
@@ -185,20 +233,20 @@ const NewOrder = Form.create()(props => {
           <FormItem {...labelLayout} label="车型">
             {readonly ? (
               <span>
-                {formValues.car_config_id
-                  ? carTypes.find(item => item.id === formValues.car_config_id)
+                {formValues.chexing_id && formValues.city_id
+                  ? carTypes.find(item => item.id === formValues.chexing_id)
                       .name
                   : ""}
               </span>
             ) : (
-              form.getFieldDecorator("car_config_id", {
+              form.getFieldDecorator("chexing_id", {
                 rules: [{ required: true, message: "请选择车型" }],
-                initialValue: formValues.car_config_id || ""
+                initialValue: formValues.chexing_id || ""
               })(
-                <Select style={{ width: "100%" }} onChange={changeCarConfigId}>
+                <Select style={{ width: "100%" }} onChange={changeChexing}>
                   {consumeArr.map(item => (
-                    <Option key={item.config_id} value={item.config_id}>
-                      {item.config_name}
+                    <Option key={item.chexing.id} value={item.chexing.id}>
+                      {item.chexing.name}
                     </Option>
                   ))}
                 </Select>
@@ -292,7 +340,13 @@ const NewOrder = Form.create()(props => {
                         }
                       }
                     : undefined
-              })(<LocationInput isShop origin={origin} onChange={destinationChange} />)
+              })(
+                <LocationInput
+                  isShop
+                  origin={origin}
+                  onChange={destinationChange}
+                />
+              )
             )}
           </FormItem>
         </Col>
@@ -396,7 +450,7 @@ const NewOrder = Form.create()(props => {
   );
 });
 
-@connect(({ consume, order, user, car_type, loading }) => ({
+@connect(({ consume, order, user, car_type, loading, city }) => ({
   loading: loading.effects["order/fetchOrderPage"],
   data: order.list,
   page: order.page,
@@ -407,7 +461,8 @@ const NewOrder = Form.create()(props => {
   config: order.config,
   historyLoading: loading.effects["order/fetchOrderHistory"],
   orderHistory: order.history,
-  consumeList: consume.list
+  consumeList: consume.list,
+  city: city.list
 }))
 @Form.create()
 class Book extends PureComponent {
@@ -603,13 +658,16 @@ class Book extends PureComponent {
     const { dispatch, shop_id } = this.props;
     this.searchKeys = { shop_id };
     dispatch({
+      type: "city/fetchCityList"
+    });
+    dispatch({
       type: "order/fetchRefundConfig"
     });
     dispatch({
       type: "consume/fetchConsumeList",
       payload: {
         onFailure: msg => {
-          message.error(msg || "获取车型分级列表失败");
+          message.error(msg || "获取用车服务列表失败");
         }
       }
     });
@@ -688,24 +746,24 @@ class Book extends PureComponent {
   };
 
   showHistory = record => {
-    const {dispatch} = this.props;
-    const {id} = record;
+    const { dispatch } = this.props;
+    const { id } = record;
     dispatch({
-      type: 'order/fetchOrderHistory',
+      type: "order/fetchOrderHistory",
       payload: {
         orderId: id,
         onSuccess: data => {
           if (!data || data.length <= 0) {
-            message.info('暂无该订单的历史记录!');
+            message.info("暂无该订单的历史记录!");
           } else {
             this.handleHistoryVisible(true);
           }
         },
         onFailure: msg => {
-          message.error(msg || '获取订单历史失败!')
+          message.error(msg || "获取订单历史失败!");
         }
       }
-    })
+    });
   };
 
   onEdit = record => {
@@ -972,7 +1030,7 @@ class Book extends PureComponent {
     const { formValues } = this.state;
     const {
       start_time,
-      car_config_id,
+      chexing_id,
       start_location,
       end_location,
       route,
@@ -981,7 +1039,7 @@ class Book extends PureComponent {
 
     const params = {
       start_time: start_time.valueOf(),
-      car_config_id,
+      chexing_id,
       start_place: start_location.address,
       start_longitude: start_location.location.longitude,
       start_latitude: start_location.location.latitude,
@@ -998,7 +1056,7 @@ class Book extends PureComponent {
     }
 
     if (
-      car_config_id !== formValues.car_config_id ||
+      chexing_id !== formValues.chexing_id ||
       others.scene !== formValues.scene
     ) {
       if (!params.priceParams) {
@@ -1069,13 +1127,21 @@ class Book extends PureComponent {
       }
     });
     const { dispatch } = this.props;
-    const { scene, car_config_id, kilo, time, start_time } = newFormValues;
-    if (scene && car_config_id && kilo && time) {
+    const {
+      scene,
+      chexing_id,
+      kilo,
+      time,
+      start_time,
+      city_id
+    } = newFormValues;
+    if (scene && chexing_id && kilo && time && city_id) {
       dispatch({
         type: "order/getPrice",
         payload: {
           scene,
-          car_config_id,
+          chexing_id,
+          city_id,
           kilo,
           time,
           start_time,
@@ -1192,14 +1258,31 @@ class Book extends PureComponent {
   }
 
   render() {
-    const { loading, data, page, total, carTypes, orderHistory, historyLoading, consumeList } = this.props;
-    const { modalVisible, historyVisible, formValues, type, selectedRowKeys } = this.state;
+    const {
+      loading,
+      data,
+      page,
+      total,
+      carTypes,
+      orderHistory,
+      historyLoading,
+      consumeList,
+      city
+    } = this.props;
+    const {
+      modalVisible,
+      historyVisible,
+      formValues,
+      type,
+      selectedRowKeys
+    } = this.state;
 
     const parentMethods = {
       type,
       carTypes,
       consumeList,
       formValues,
+      city,
       handleModalVisible: this.handleModalVisible,
       handleEdit: this.handleEdit,
       updateFormValue: this.updateFormValue,

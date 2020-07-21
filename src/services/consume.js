@@ -1,9 +1,10 @@
 import request from "@/utils/request";
+import qs from 'querystring'
 
 export async function queryConsumeList(params) {
   return request(
     `/server/travel/consume/list${
-      params && params.scene ? `?scene=${params.scene}` : ""
+      params ? `?${qs.stringify(params)}` : ""
     }`,
     {
       method: "POST",
