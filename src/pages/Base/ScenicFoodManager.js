@@ -25,19 +25,21 @@ import moment from "moment";
 import { router } from "umi";
 import CHARTERED from "./CHARTERED";
 import { formatMessage } from "umi-plugin-react/locale";
+import SCENE from "@/constants/scene";
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
 const { RangePicker } = DatePicker;
 
-const INIT_SCENE =  'JINGDIAN_PRIVATE';
+const INIT_SCENE = ["JINGDIAN_PRIVATE", "MEISHI_PRIVATE"].toString();
 
-@connect(({ chartered, loading }) => ({
+@connect(({ chartered, loading, city }) => ({
   loading: loading.effects["chartered/fetchCharteredPage"],
   data: chartered.list,
   page: chartered.page,
-  total: chartered.total
+  total: chartered.total,
+  city: city.list
 }))
 @Form.create()
 export default class ScenicFoodManager extends PureComponent {
@@ -49,7 +51,10 @@ export default class ScenicFoodManager extends PureComponent {
   };
 
   componentDidMount() {
-    this.searchKeys = {scene: INIT_SCENE};
+    this.searchKeys = { scene: INIT_SCENE };
+    this.props.dispatch({
+      type: 'city/fetchCityList'
+    })
     this.props.dispatch({
       type: "chartered/fetchCharteredPage",
       payload: {
@@ -80,12 +85,29 @@ export default class ScenicFoodManager extends PureComponent {
       key: "private_consume.id"
     },
     {
-      title: "路线标题",
+      title: "类型",
+      dataIndex: "private_consume.scene",
+      key: "private_consume.scene",
+      width: 90,
+      render: text=>SCENE[text]
+    },
+    {
+      title: "所属城市",
+      dataIndex: "private_consume.city_id",
+      key: "private_consume.city_id",
+      render: text => {
+        const {city} = this.props
+        const currentCity = city ? city.find(item=>item.id === text) : null
+        return currentCity ? currentCity.name : ''
+      }
+    },
+    {
+      title: "标题",
       dataIndex: "private_consume.name",
       key: "private_consume.name"
     },
     {
-      title: "线路标签",
+      title: "标签",
       dataIndex: "private_consume.tag",
       key: "private_consume.tag"
     },
@@ -153,14 +175,12 @@ export default class ScenicFoodManager extends PureComponent {
     this.handleModalVisible();
   };
 
-
-
   onAdd = () => {
     this.props.dispatch({
       type: "formStepForm/resetFormData",
       payload: {
         mode: "add",
-        type: 'scenicfood',
+        type: "scenicfood",
         current: "basic_info",
         step: {}
       }
@@ -173,11 +193,11 @@ export default class ScenicFoodManager extends PureComponent {
       type: "formStepForm/resetFormData",
       payload: {
         mode: "edit",
-        type: 'scenicfood',
+        type: "scenicfood",
         current: "basic_info",
         step: {
           ...record.private_consume,
-          roads:record.roads.concat()
+          roads: record.roads.concat()
         }
       }
     });
@@ -189,11 +209,11 @@ export default class ScenicFoodManager extends PureComponent {
       type: "formStepForm/resetFormData",
       payload: {
         mode: "readonly",
-        type: 'scenicfood',
+        type: "scenicfood",
         current: "basic_info",
         step: {
           ...record.private_consume,
-          roads:record.roads.concat()
+          roads: record.roads.concat()
         }
       }
     });
@@ -215,7 +235,7 @@ export default class ScenicFoodManager extends PureComponent {
         }
       }
     });
-  }
+  };
 
   handleDelete = record => {
     const { dispatch } = this.props;
@@ -240,7 +260,7 @@ export default class ScenicFoodManager extends PureComponent {
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         const { scene, value, timeRange } = values;
-        this.searchKeys = {scene: INIT_SCENE};
+        this.searchKeys = { scene: INIT_SCENE };
         if (scene) {
           this.searchKeys.scene = scene;
         }
@@ -277,6 +297,18 @@ export default class ScenicFoodManager extends PureComponent {
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
+          <Col span={8}>
+            <FormItem label="类型">
+              {getFieldDecorator("scene")(
+                <Select allowClear placeholder="请选择类型">
+                  <Option value="JINGDIAN_PRIVATE">
+                    {SCENE.JINGDIAN_PRIVATE}
+                  </Option>
+                  <Option value="MEISHI_PRIVATE">{SCENE.MEISHI_PRIVATE}</Option>
+                </Select>
+              )}
+            </FormItem>
+          </Col>
           <Col>
             <FormItem label="创建时间">
               {getFieldDecorator("timeRange")(
@@ -311,7 +343,7 @@ export default class ScenicFoodManager extends PureComponent {
   handleReset = () => {
     const { dispatch, form } = this.props;
     form.resetFields();
-    this.searchKeys = {scene: INIT_SCENE};
+    this.searchKeys = { scene: INIT_SCENE };
     dispatch({
       type: "chartered/fetchCharteredPage",
       payload: {
@@ -359,11 +391,7 @@ export default class ScenicFoodManager extends PureComponent {
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListForm}>
               <div className={styles.tableListOperator}>
-                <Button
-                  icon="plus"
-                  type="primary"
-                  onClick={() => this.onAdd()}
-                >
+                <Button icon="plus" type="primary" onClick={() => this.onAdd()}>
                   新增景点美食
                 </Button>
               </div>

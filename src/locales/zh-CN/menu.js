@@ -22,7 +22,7 @@ export default {
   "menu.base.coversmanager": "首页大图",
   "menu.base.citymanager": "城市管理",
   "menu.base.hotsearch": "热门搜索",
-  "menu.base.charteredmanager": "包车管理",
+  "menu.base.charteredmanager": "线路管理",
   "menu.base.stepform": "线路管理",
   "menu.base.scenicfoodmanager": "景点美食管理",
   "menu.base.souvenirmanager": "伴手礼管理",

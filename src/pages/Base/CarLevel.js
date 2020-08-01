@@ -25,6 +25,7 @@ import styles from "../index.less";
 import moment from "moment";
 import CarStrategySelection from "./CarStrategySelection";
 import { uniqArr } from "@/utils/utils";
+import SCENE from "../../constants/scene";
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -215,6 +216,8 @@ const NewLevel = Form.create()(props => {
                 <Option value="JIEJI">接机/站</Option>
                 <Option value="SONGJI">送机/站</Option>
                 <Option value="DAY_PRIVATE">按天包车</Option>
+                <Option value="JINGDIAN_PRIVATE">景点包车</Option>
+                <Option value="MEISHI_PRIVATE">美食包车</Option>
               </Select>
             )
           )}
@@ -242,25 +245,27 @@ const NewLevel = Form.create()(props => {
             )
           )}
         </FormItem>
-        {isBAOCHE && <FormItem {...labelLayout} label="套餐选择">
-          {readonly ? (
-            <span>
-              {formValues.consume.taocan === "meal_1"
-                ? "套餐一(8小时100公里)"
-                : "套餐二(8小时200公里)"}
-            </span>
-          ) : (
-            form.getFieldDecorator("taocan", {
-              initialValue: formValues.consume.taocan || "",
-              rules: [{ required: true, message: "请选择套餐" }]
-            })(
-              <Select style={{ width: "100%" }}>
-                <Option value="meal_1">套餐一(8小时100公里)</Option>
-                <Option value="meal_2">套餐二(8小时200公里)</Option>
-              </Select>
-            )
-          )}
-        </FormItem>}
+        {isBAOCHE && (
+          <FormItem {...labelLayout} label="套餐选择">
+            {readonly ? (
+              <span>
+                {formValues.consume.taocan === "meal_1"
+                  ? "套餐一(8小时100公里)"
+                  : "套餐二(8小时200公里)"}
+              </span>
+            ) : (
+              form.getFieldDecorator("taocan", {
+                initialValue: formValues.consume.taocan || "",
+                rules: [{ required: true, message: "请选择套餐" }]
+              })(
+                <Select style={{ width: "100%" }}>
+                  <Option value="meal_1">套餐一(8小时100公里)</Option>
+                  <Option value="meal_2">套餐二(8小时200公里)</Option>
+                </Select>
+              )
+            )}
+          </FormItem>
+        )}
 
         {readonly ? (
           <FormItem {...labelLayout} label="分级收费">
@@ -376,7 +381,7 @@ export default class CarManager extends PureComponent {
         description,
         scene,
         city_id,
-        taocan: taocan || ''
+        taocan: taocan || ""
       }
     };
     dispatch({
@@ -399,12 +404,7 @@ export default class CarManager extends PureComponent {
       title: "用车场景",
       dataIndex: "consume.scene",
       key: "consume.scene",
-      render: text =>
-        text === "JIEJI"
-          ? "接机/站"
-          : text === "SONGJI"
-          ? "送机/站"
-          : "按天包车"
+      render: text => SCENE[text]
     },
     {
       title: "所属城市",
@@ -474,7 +474,7 @@ export default class CarManager extends PureComponent {
             scene: others.scene,
             city_id: others.city_id,
             description: others.description,
-            taocan: taocan || ''
+            taocan: taocan || ""
           }
         },
         onSuccess: () => {

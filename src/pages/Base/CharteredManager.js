@@ -25,20 +25,23 @@ import moment from "moment";
 import { router } from "umi";
 import CHARTERED from "./CHARTERED";
 import { formatMessage } from "umi-plugin-react/locale";
+import SCENE from '../../constants/scene'
+import city from '@/models/city';
 
 const Option = Select.Option;
 const FormItem = Form.Item;
 const confirm = Modal.confirm;
 const { RangePicker } = DatePicker;
 
-const INIT_SCENE = ["DAY_PRIVATE", "ROAD_PRIVATE"].toString();
+const INIT_SCENE = ["ROAD_PRIVATE"].toString();
 // const INIT_SCENE = '';
 
-@connect(({ chartered, loading }) => ({
+@connect(({ chartered, loading, city }) => ({
   loading: loading.effects["chartered/fetchCharteredPage"],
   data: chartered.list,
   page: chartered.page,
-  total: chartered.total
+  total: chartered.total,
+  city: city.list
 }))
 @Form.create()
 export default class Charted extends PureComponent {
@@ -51,6 +54,9 @@ export default class Charted extends PureComponent {
 
   componentDidMount() {
     this.searchKeys = {scene: INIT_SCENE};
+    this.props.dispatch({
+      type: 'city/fetchCityList'
+    })
     this.props.dispatch({
       type: "chartered/fetchCharteredPage",
       payload: {
@@ -81,6 +87,16 @@ export default class Charted extends PureComponent {
       key: "private_consume.id"
     },
     {
+      title: "所属城市",
+      dataIndex: "private_consume.city_id",
+      key: "private_consume.city_id",
+      render: text => {
+        const {city} = this.props
+        const currentCity = city ? city.find(item=>item.id === text) : null
+        return currentCity ? currentCity.name : ''
+      }
+    },
+    {
       title: "路线标题",
       dataIndex: "private_consume.name",
       key: "private_consume.name"
@@ -94,7 +110,7 @@ export default class Charted extends PureComponent {
       title: "包车类型",
       dataIndex: "private_consume.scene",
       key: "private_consume.scene",
-      render: text => (text === "DAY_PRIVATE" ? "按天包车" : "路线包车")
+      render: text => (SCENE[text])
     },
     {
       title: "优先级",
@@ -284,23 +300,6 @@ export default class Charted extends PureComponent {
     return (
       <Form onSubmit={this.handleSearch} layout="inline">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
-          <Col span={8}>
-            <FormItem label="包车分类">
-              {getFieldDecorator("scene")(
-                <Select
-                  placeholder="请选择"
-                  allowClear
-                  style={{ width: "100%" }}
-                >
-                  {CHARTERED.map(item => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              )}
-            </FormItem>
-          </Col>
           <Col>
             <FormItem label="创建时间">
               {getFieldDecorator("timeRange")(
@@ -344,7 +343,7 @@ export default class Charted extends PureComponent {
           size: 10
         },
         onFailure: msg => {
-          message.error(msg || "获取包车模板失败!");
+          message.error(msg || "获取线路列表失败!");
         },
         params: {
           ...this.searchKeys
@@ -365,7 +364,7 @@ export default class Charted extends PureComponent {
           ...this.searchKeys
         },
         onFailure: msg => {
-          message.error(msg || "获取包车模板失败!");
+          message.error(msg || "获取线路列表失败!");
         }
       }
     });
@@ -377,7 +376,7 @@ export default class Charted extends PureComponent {
     const { modalVisible, type, formValues } = this.state;
 
     return (
-      <PageHeaderWrap title="包车管理">
+      <PageHeaderWrap title="线路管理">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>

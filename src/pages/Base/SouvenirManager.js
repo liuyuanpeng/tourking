@@ -33,11 +33,12 @@ const { RangePicker } = DatePicker;
 
 const INIT_SCENE = "BANSHOU_PRIVATE";
 
-@connect(({ chartered, loading }) => ({
+@connect(({ chartered, loading, city }) => ({
   loading: loading.effects["chartered/fetchCharteredPage"],
   data: chartered.list,
   page: chartered.page,
-  total: chartered.total
+  total: chartered.total,
+  city: city.list
 }))
 @Form.create()
 export default class SouvenirManager extends PureComponent {
@@ -49,7 +50,10 @@ export default class SouvenirManager extends PureComponent {
   };
 
   componentDidMount() {
-    this.searchKeys = {scene: INIT_SCENE};
+    this.searchKeys = { scene: INIT_SCENE };
+    this.props.dispatch({
+      type: "city/fetchCityList"
+    });
     this.props.dispatch({
       type: "chartered/fetchCharteredPage",
       payload: {
@@ -80,12 +84,22 @@ export default class SouvenirManager extends PureComponent {
       key: "private_consume.id"
     },
     {
-      title: "路线标题",
+      title: "所属城市",
+      dataIndex: "private_consume.city_id",
+      key: "private_consume.city_id",
+      render: text => {
+        const {city} = this.props
+        const currentCity = city ? city.find(item=>item.id === text) : null
+        return currentCity ? currentCity.name : ''
+      }
+    },
+    {
+      title: "标题",
       dataIndex: "private_consume.name",
       key: "private_consume.name"
     },
     {
-      title: "线路标签",
+      title: "标签",
       dataIndex: "private_consume.tag",
       key: "private_consume.tag"
     },
@@ -153,14 +167,12 @@ export default class SouvenirManager extends PureComponent {
     this.handleModalVisible();
   };
 
-
-
   onAdd = () => {
     this.props.dispatch({
       type: "formStepForm/resetFormData",
       payload: {
         mode: "add",
-        type: 'souvenir',
+        type: "souvenir",
         current: "basic_info",
         step: {}
       }
@@ -173,11 +185,11 @@ export default class SouvenirManager extends PureComponent {
       type: "formStepForm/resetFormData",
       payload: {
         mode: "edit",
-        type: 'souvenir',
+        type: "souvenir",
         current: "basic_info",
         step: {
           ...record.private_consume,
-          roads:record.roads.concat()
+          roads: record.roads.concat()
         }
       }
     });
@@ -189,11 +201,11 @@ export default class SouvenirManager extends PureComponent {
       type: "formStepForm/resetFormData",
       payload: {
         mode: "readonly",
-        type: 'souvenir',
+        type: "souvenir",
         current: "basic_info",
         step: {
           ...record.private_consume,
-          roads:record.roads.concat()
+          roads: record.roads.concat()
         }
       }
     });
@@ -215,7 +227,7 @@ export default class SouvenirManager extends PureComponent {
         }
       }
     });
-  }
+  };
   handleDelete = record => {
     const { dispatch } = this.props;
     dispatch({
@@ -239,7 +251,7 @@ export default class SouvenirManager extends PureComponent {
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
         const { scene, value, timeRange } = values;
-        this.searchKeys = {scene: INIT_SCENE};
+        this.searchKeys = { scene: INIT_SCENE };
         if (scene) {
           this.searchKeys.scene = scene;
         }
@@ -310,7 +322,7 @@ export default class SouvenirManager extends PureComponent {
   handleReset = () => {
     const { dispatch, form } = this.props;
     form.resetFields();
-    this.searchKeys = {scene: INIT_SCENE};
+    this.searchKeys = { scene: INIT_SCENE };
     dispatch({
       type: "chartered/fetchCharteredPage",
       payload: {
@@ -358,11 +370,7 @@ export default class SouvenirManager extends PureComponent {
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListForm}>
               <div className={styles.tableListOperator}>
-                <Button
-                  icon="plus"
-                  type="primary"
-                  onClick={() => this.onAdd()}
-                >
+                <Button icon="plus" type="primary" onClick={() => this.onAdd()}>
                   新增伴手礼
                 </Button>
               </div>

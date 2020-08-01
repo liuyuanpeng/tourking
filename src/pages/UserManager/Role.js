@@ -182,7 +182,7 @@ const PermissionSetting = Form.create()(props => {
           key: "hotsearch"
         },
         {
-          title: "包车管理",
+          title: "线路管理",
           key: "charteredmanager"
         },
         {

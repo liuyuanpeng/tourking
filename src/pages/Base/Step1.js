@@ -7,6 +7,7 @@ import LocationInput from "@/components/LocationInput";
 import { router } from "umi";
 import moment from "moment";
 import styles from "./style.less";
+import SCENE from "../../constants/scene";
 
 const { Option } = Select;
 
@@ -23,22 +24,19 @@ const formItemLayout = {
   }
 };
 const dateFormat = "YYYY-MM-DD";
-@connect(({ formStepForm, price }) => ({
+@connect(({ formStepForm, city }) => ({
   data: formStepForm.step,
   mode: formStepForm.mode,
   type: formStepForm.type,
-  priceList: price.list
+  city: city.list
 }))
 @Form.create()
 class Step1 extends React.PureComponent {
   componentDidMount() {
-    const { dispatch, type } = this.props;
-    const isScenicFood = type === "scenicfood";
-    if (isScenicFood) {
-      dispatch({
-        type: "price/fetchPriceStrategyList"
-      });
-    }
+    const { dispatch } = this.props;
+    dispatch({
+      type: "city/fetchCityList"
+    });
   }
 
   onSubmit = () => {
@@ -62,16 +60,9 @@ class Step1 extends React.PureComponent {
   };
 
   render() {
-    const { form, dispatch, data, mode, type, priceList } = this.props;
+    const { form, dispatch, data, mode, type, city } = this.props;
     const { getFieldDecorator, validateFields } = form;
     const readonly = mode === "readonly";
-
-    let strategy_name = ''
-    if (data && data.price_strategy_id)
-    {
-      const result = priceList.find(item => item.id === data.price_strategy_id);
-      strategy_name = result ? result.strategy_name : ''
-    }
 
     const isScenicFood = type === "scenicfood";
     const isSouvenir = type === "souvenir";
@@ -87,11 +78,11 @@ class Step1 extends React.PureComponent {
         validateFields((err, values) => {
           if (!err) {
             const { address, ...others } = values;
-            const payload = {...others};
+            const payload = { ...others };
             if (address) {
               payload.target_place = address.address;
               payload.target_latitude = address.location.latitude;
-              payload.target_longitude = address.location.longitude
+              payload.target_longitude = address.location.longitude;
             }
 
             dispatch({
@@ -141,19 +132,16 @@ class Step1 extends React.PureComponent {
       <Fragment>
         <Form layout="horizontal" className={styles.stepForm}>
           {isChartered ? (
-            <Form.Item {...formItemLayout} label="包车类型">
+            <Form.Item {...formItemLayout} label="类型">
               {readonly ? (
-                <span>
-                  {data.scene === "DAY_PRIVATE" ? "按天包车" : "线路包车"}
-                </span>
+                <span>{SCENE[data.scene]}</span>
               ) : (
                 getFieldDecorator("scene", {
-                  initialValue: data.scene || "",
-                  rules: [{ required: true, message: "请选择包车类型" }]
+                  initialValue: "ROAD_PRIVATE",
+                  rules: [{ required: true, message: "请选择线路类型" }]
                 })(
-                  <Select placeholder="请选择包车类型">
-                    <Option value="DAY_PRIVATE">按天包车</Option>
-                    <Option value="ROAD_PRIVATE">线路包车</Option>
+                  <Select placeholder="请选择线路类型" disabled>
+                    <Option value="ROAD_PRIVATE">{SCENE.ROAD_PRIVATE}</Option>
                   </Select>
                 )
               )}
@@ -161,33 +149,67 @@ class Step1 extends React.PureComponent {
           ) : (
             <Form.Item {...formItemLayout} label="类型" visible={false}>
               {readonly ? (
-                <span>{isScenicFood ? "景点美食" : "伴手礼"}</span>
+                <span>{SCENE[data.scene]}</span>
               ) : (
                 getFieldDecorator("scene", {
-                  initialValue: isScenicFood
-                    ? "JINGDIAN_PRIVATE"
-                    : "BANSHOU_PRIVATE",
+                  initialValue: isSouvenir ? "BANSHOU_PRIVATE" : (data.scene || ''),
                   rules: [{ required: true, message: "请选择类型" }]
                 })(
-                  <Select placeholder="请选择类型" disabled>
-                    <Option value="JINGDIAN_PRIVATE">景点美食</Option>
-                    <Option value="BANSHOU_PRIVATE">伴手礼</Option>
+                  <Select placeholder="请选择类型" disabled={isSouvenir}>
+                    {!isSouvenir && (
+                      <Option value="JINGDIAN_PRIVATE">
+                        {SCENE.JINGDIAN_PRIVATE}
+                      </Option>
+                    )}
+                    {!isSouvenir && (
+                      <Option value="MEISHI_PRIVATE">
+                        {SCENE.MEISHI_PRIVATE}
+                      </Option>
+                    )}
+                    {isSouvenir && (
+                      <Option value="BANSHOU_PRIVATE">
+                        {SCENE.BANSHOU_PRIVATE}
+                      </Option>
+                    )}
                   </Select>
                 )
               )}
             </Form.Item>
           )}
-          <Form.Item {...formItemLayout} label="线路名称">
+          <Form.Item {...formItemLayout} label="所属城市">
+            {readonly ? (
+              <span>
+                {data.city_id
+                  ? city.find(item => item.id === data.city_id).name
+                  : ""}
+              </span>
+            ) : (
+              form.getFieldDecorator("city_id", {
+                rules: [{ required: true, message: "请选择城市" }],
+                initialValue: data.city_id || ""
+              })(
+                <Select style={{ width: "100%" }}>
+                  {city.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              )
+            )}
+          </Form.Item>
+
+          <Form.Item {...formItemLayout} label="名称">
             {readonly ? (
               <span>{data.name}</span>
             ) : (
               getFieldDecorator("name", {
                 initialValue: data.name || "",
-                rules: [{ required: true, message: "请输入线路名称" }]
-              })(<Input placeholder="请输入线路名称" />)
+                rules: [{ required: true, message: "请输入名称" }]
+              })(<Input placeholder="请输入名称" />)
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="线路标签">
+          <Form.Item {...formItemLayout} label="标签">
             {readonly ? (
               <span>{data.tag}</span>
             ) : (
@@ -257,30 +279,6 @@ class Step1 extends React.PureComponent {
               )}
             </Form.Item>
           )}
-          {isScenicFood && (
-            <Form.Item {...formItemLayout} label="价格策略">
-              {readonly ? (
-                <span>
-                  {
-                    strategy_name
-                  }
-                </span>
-              ) : (
-                getFieldDecorator("price_strategy_id", {
-                  initialValue: data.price_strategy_id || "",
-                  rules: [{ required: true, message: "请选择价格策略" }]
-                })(
-                  <Select placeholder="请选择价格策略">
-                    {priceList.map(price => (
-                      <Option key={price.id} value={price.id}>
-                        {price.strategy_name}
-                      </Option>
-                    ))}
-                  </Select>
-                )
-              )}
-            </Form.Item>
-          )}
           <Form.Item {...formItemLayout} label="权重">
             {readonly ? (
               <span>{data.weight}</span>
@@ -300,7 +298,7 @@ class Step1 extends React.PureComponent {
               })(<TextArea />)
             )}
           </Form.Item>
-          <Form.Item {...formItemLayout} label="线路图片">
+          <Form.Item {...formItemLayout} label="图片">
             {getFieldDecorator("images", {
               initialValue: data.images || ""
             })(<ImageInput readonly={readonly} />)}
