@@ -48,7 +48,8 @@ const STRATEGY_PLANS = [
   {
     name: "方案4",
     plan_type: "FOUR",
-    plan_description: "总费用=(基础费+(公里数-起步公里数)×里程费)*(1+夜间服务费)"
+    plan_description:
+      "总费用=(基础费+(公里数-起步公里数)×里程费)*(1+夜间服务费)"
   },
   {
     name: "方案5",
@@ -102,7 +103,10 @@ const NewStrategy = Form.create()(props => {
     });
   };
   const okHandle = () => {
-    if (type === "readonly") handleModalVisible();
+    if (type === "readonly") {
+      handleModalVisible();
+      return;
+    }
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
@@ -148,7 +152,7 @@ const NewStrategy = Form.create()(props => {
       console.log("parse error: ", error);
     }
   }
-  if (type === "edit" ) {
+  if (type === "edit") {
     Object.keys(distanceObj).forEach((item, index) => {
       keyValues.push(index);
     });
@@ -165,7 +169,7 @@ const NewStrategy = Form.create()(props => {
       key={k}
     >
       {form.getFieldDecorator(`distance[${k}]`, {
-        initialValue: type === 'edit' ? distanceArr[k] : {},
+        initialValue: type === "edit" ? distanceArr[k] : {},
         rules: [
           {
             required: true,
@@ -397,13 +401,14 @@ export default class PriceStrategy extends PureComponent {
   handleAdd = fields => {
     const { dispatch } = this.props;
     let distance = {};
-    fields.distance && fields.distance.forEach((item) => {
-      distance[item.distance] = item.price;
-    })
+    fields.distance &&
+      fields.distance.forEach(item => {
+        distance[item.distance] = item.price;
+      });
     delete fields.keys;
     if (Object.keys(distance).length) {
       fields.distance = JSON.stringify(distance);
-    } else if (fields.distance){
+    } else if (fields.distance) {
       delete fields.distance;
     }
     dispatch({
@@ -490,13 +495,14 @@ export default class PriceStrategy extends PureComponent {
     const { dispatch } = this.props;
     const { formValues } = this.state;
     let distance = {};
-    info.distance && info.distance.forEach((item) => {
-      distance[item.distance] = item.price;
-    })
+    info.distance &&
+      info.distance.forEach(item => {
+        distance[item.distance] = item.price;
+      });
     delete info.keys;
     if (Object.keys(distance).length) {
       info.distance = JSON.stringify(distance);
-    } else if (info.distance){
+    } else if (info.distance) {
       delete info.distance;
     }
     dispatch({

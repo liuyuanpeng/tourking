@@ -40,7 +40,10 @@ const NewAddress = Form.create()(props => {
   } = props;
 
   const okHandle = () => {
-    if (type === "readonly") handleModalVisible();
+    if (type === "readonly") {
+      handleModalVisible();
+      return;
+    }
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
@@ -178,16 +181,16 @@ class Address extends PureComponent {
       dataIndex: "city_id",
       key: "city_id",
       render: text => {
-        const {city} = this.props
-        const currentCity = city.find(item=>item.id === text)
-        return currentCity ? currentCity.name : ''
+        const { city } = this.props;
+        const currentCity = city.find(item => item.id === text);
+        return currentCity ? currentCity.name : "";
       }
     },
     {
       title: "地址类型",
       dataIndex: "type",
       key: "type",
-      render: text => (text ? '火车站' : '机场')
+      render: text => (text ? "火车站" : "机场")
     },
     {
       title: "详细地址",
@@ -232,7 +235,7 @@ class Address extends PureComponent {
   componentDidMount() {
     this.props.dispatch({
       type: "city/fetchCityList"
-    })
+    });
     this.props.dispatch({
       type: "address/fetchAddressPage",
       payload: {

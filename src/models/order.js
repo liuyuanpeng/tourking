@@ -20,7 +20,8 @@ import {
   exportOrder,
   exportSettled,
   exportWarning,
-  changeOrderStatus
+  changeOrderStatus,
+  changeExpressNumber
 } from "@/services/order";
 
 import { getPrice } from "@/services/price";
@@ -43,6 +44,15 @@ export default {
     *changeOrderStatus({payload}, {call}) {
       const { onSuccess, onFailure, ...others } = payload;
       const response = yield call(changeOrderStatus, others)
+      if (response.code === "SUCCESS") {
+        onSuccess && onSuccess();
+      } else {
+        onFailure && onFailure(response.message);
+      }
+    },
+    *changeExpressNumber({payload}, {call}) {
+      const { onSuccess, onFailure, ...others } = payload;
+      const response = yield call(changeExpressNumber, others)
       if (response.code === "SUCCESS") {
         onSuccess && onSuccess();
       } else {

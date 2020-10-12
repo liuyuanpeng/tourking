@@ -61,7 +61,10 @@ const NewCarType = Form.create()(props => {
   } = props;
 
   const okHandle = () => {
-    if (type === "readonly") handleModalVisible();
+    if (type === "readonly") {
+      handleModalVisible();
+      return;
+    }
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       if (!formValues.cover_image) {
@@ -90,7 +93,10 @@ const NewCarType = Form.create()(props => {
       return;
     }
     if (info.file.status === "done") {
-      const cover_image = process.env.NODE_ENV === 'development' ? info.file.response.data.path.replace('www', 'tms') : info.file.response.data.path
+      const cover_image =
+        process.env.NODE_ENV === "development"
+          ? info.file.response.data.path.replace("www", "tms")
+          : info.file.response.data.path;
       changeState({
         formValues: {
           ...formValues,

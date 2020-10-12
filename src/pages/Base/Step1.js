@@ -294,10 +294,22 @@ class Step1 extends React.PureComponent {
               <span>{data.reason}</span>
             ) : (
               getFieldDecorator("reason", {
-                initialValue: data.reason || ""
+                initialValue: data.reason || "",
+                rules: [{ required: true, message: "请输入推荐理由" }]
               })(<TextArea />)
             )}
           </Form.Item>
+          <Form.Item {...formItemLayout} label="介绍">
+            {readonly ? (
+              <span>{data.description || ''}</span>
+            ) : (
+              getFieldDecorator("description", {
+                initialValue: data.description || "",
+                rules: [{ required: true, message: "请输入介绍" }]
+              })(<TextArea />)
+            )}
+          </Form.Item>
+          
           <Form.Item {...formItemLayout} label="图片">
             {getFieldDecorator("images", {
               initialValue: data.images || ""

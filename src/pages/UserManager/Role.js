@@ -198,6 +198,10 @@ const PermissionSetting = Form.create()(props => {
           key: "pricestrategy"
         },
         {
+          title: "优惠券",
+          key: "coupon"
+        },
+        {
           title: "车辆分类",
           key: "cartype"
         },
@@ -224,6 +228,10 @@ const PermissionSetting = Form.create()(props => {
         {
           title: "司机评价",
           key: "driver"
+        },
+        {
+          title: "产品评价",
+          key: "product"
         }
       ]
     },
@@ -302,8 +310,8 @@ class Role extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) =>
-        record.is_init ? null : (
-        // false ? null : (
+        // record.is_init ? null : (
+        false ? null : (
           <span className={styles.actionColumn}>
             <a
               href="javascript:;"

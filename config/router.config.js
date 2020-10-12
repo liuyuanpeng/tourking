@@ -146,13 +146,15 @@ export default [
           "scenicfoodmanager",
           "souvenirmanager",
           "pricestrategy",
+          "coupon",
           "cartype",
           "carsit",
           "carlevel",
           "carmanager",
           "dispatchstrategy",
           "address",
-          "dirver"
+          "dirver",
+          "product"
         ],
         icon: "setting",
         routes: [
@@ -199,6 +201,12 @@ export default [
             component: "./Base/PriceStrategy"
           },
           {
+            path: "/base/coupon",
+            name: "coupon",
+            authority: "coupon",
+            component: "./Base/Coupon"
+          },
+          {
             path: "/base/cartype",
             name: "cartype",
             authority: "cartype",
@@ -239,6 +247,12 @@ export default [
             name: "driver",
             authority: "driver",
             component: "./Base/Driver"
+          },
+          {
+            path: "/base/product",
+            name: "product",
+            authority: "product",
+            component: "./Base/Product"
           }
         ]
       },

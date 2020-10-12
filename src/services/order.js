@@ -244,3 +244,11 @@ export async function changeOrderStatus(params) {
     method: "POST"
   })
 }
+
+// 改变订单状态
+export async function changeExpressNumber(params) {
+  return request(`/server/travel/order/change_express_number?${queryString.stringify(params)}`,
+  {
+    method: "POST"
+  })
+}

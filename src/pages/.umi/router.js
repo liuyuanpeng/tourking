@@ -332,13 +332,15 @@ models: () => [
           "scenicfoodmanager",
           "souvenirmanager",
           "pricestrategy",
+          "coupon",
           "cartype",
           "carsit",
           "carlevel",
           "carmanager",
           "dispatchstrategy",
           "address",
-          "dirver"
+          "dirver",
+          "product"
         ],
         "icon": "setting",
         "routes": [
@@ -469,6 +471,24 @@ models: () => [
             "exact": true
           },
           {
+            "path": "/base/coupon",
+            "name": "coupon",
+            "authority": "coupon",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__chartered.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/chartered.js').then(m => { return { namespace: 'chartered',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__covers.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/covers.js').then(m => { return { namespace: 'covers',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Base__Coupon" */'../Base/Coupon'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
             "path": "/base/cartype",
             "name": "cartype",
             "authority": "cartype",
@@ -590,6 +610,24 @@ models: () => [
   import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Base__Driver" */'../Base/Driver'),
+  LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/base/product",
+            "name": "product",
+            "authority": "product",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Base__models__chartered.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/chartered.js').then(m => { return { namespace: 'chartered',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__comments.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/comments.js').then(m => { return { namespace: 'comments',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__covers.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/covers.js').then(m => { return { namespace: 'covers',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__dispatchStrategy.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/dispatchStrategy.js').then(m => { return { namespace: 'dispatchStrategy',...m.default}}),
+  import(/* webpackChunkName: 'p__Base__models__formStepForm.js' */'/Users/liuyuanpeng/Documents/tourking/src/pages/Base/models/formStepForm.js').then(m => { return { namespace: 'formStepForm',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Base__Product" */'../Base/Product'),
   LoadingComponent: require('/Users/liuyuanpeng/Documents/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true

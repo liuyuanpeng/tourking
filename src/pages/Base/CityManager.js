@@ -38,7 +38,10 @@ const NewCity = Form.create()(props => {
   } = props;
 
   const okHandle = () => {
-    if (type === "readonly") handleModalVisible();
+    if (type === "readonly") {
+      handleModalVisible();
+      return;
+    }
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
@@ -117,7 +120,7 @@ export default class CityManager extends PureComponent {
 
   handleAdd = fields => {
     const { dispatch } = this.props;
-    console.log('fileds', fields)
+    console.log("fileds", fields);
     dispatch({
       type: "city/saveCity",
       payload: {

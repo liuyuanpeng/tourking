@@ -40,7 +40,10 @@ const NewCarType = Form.create()(props => {
   } = props;
 
   const okHandle = () => {
-    if (type === "readonly") handleModalVisible();
+    if (type === "readonly") {
+      handleModalVisible();
+      return;
+    }
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
@@ -82,15 +85,16 @@ const NewCarType = Form.create()(props => {
       </FormItem>
       <FormItem {...labelLayout} label="详细地址">
         {form.getFieldDecorator("address", {
-          initialValue: formValues.id && formValues.address
-            ? {
-                address: formValues.address.address,
-                location: {
-                  longitude: formValues.address.location.longitude,
-                  latitude: formValues.address.location.latitude
+          initialValue:
+            formValues.id && formValues.address
+              ? {
+                  address: formValues.address.address,
+                  location: {
+                    longitude: formValues.address.location.longitude,
+                    latitude: formValues.address.location.latitude
+                  }
                 }
-              }
-            : "",
+              : "",
           rules: [
             {
               required: true,
@@ -147,7 +151,6 @@ export default class CarType extends PureComponent {
       });
     }
   }
-  
 
   handleModalVisible = (flag, type) => {
     this.setState({
@@ -238,10 +241,10 @@ export default class CarType extends PureComponent {
     const data = {
       ...formValues,
       ...info
-    }
+    };
 
-    const {name, address, ...others} =  data
-    const newName = JSON.stringify({name, address})
+    const { name, address, ...others } = data;
+    const newName = JSON.stringify({ name, address });
     dispatch({
       type: "shopAddress/saveShopAddress",
       payload: {

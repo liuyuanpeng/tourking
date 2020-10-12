@@ -38,8 +38,7 @@ const NewOrder = Form.create()(props => {
     modalVisible,
     form,
     handleModalVisible,
-    formValues,
-    updateFormValue
+    formValues
   } = props;
 
   const labelLayout = {
@@ -50,19 +49,14 @@ const NewOrder = Form.create()(props => {
   const readonly = type === "readonly";
 
   const okHandle = () => {
-    if (readonly) return handleModalVisible();
+    if (readonly) {
+      handleModalVisible();
+      return;
+    }
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
       handleEdit(fieldsValue);
-    });
-  };
-
-  const originChange = value => {
-    updateFormValue({
-      start_longitude: value.location.longitude,
-      start_latitude: value.location.latitude,
-      start_place: value.address
     });
   };
 
@@ -80,114 +74,102 @@ const NewOrder = Form.create()(props => {
       <Row>
         <Col>
           <FormItem {...labelLayout} label="类型">
+            <span>伴手礼</span>
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="下单时间">
             <span>
-              {formValues.scene === "DAY_PRIVATE" ? "按天包车" : "线路包车"}
+              {formValues.create_time
+                ? moment(formValues.create_time).format("YYYY-MM-DD HH:mm")
+                : ""}
             </span>
           </FormItem>
         </Col>
         <Col>
-          <FormItem {...labelLayout} label="上车时间">
-            {readonly ? (
-              <span>
-                {formValues.start_time
-                  ? moment(formValues.start_time).format("YYYY-MM-DD HH:mm")
-                  : ""}
-              </span>
-            ) : (
-              form.getFieldDecorator("start_time", {
-                rules: [
-                  {
-                    required: true,
-                    message: "请选择上车时间"
-                  }
-                ],
-                initialValue: formValues.start_time
-                  ? moment(formValues.start_time)
-                  : null
-              })(
-                <DatePicker
-                  format="YYYY-MM-DD"
-                  // showTime={{ format: "HH:mm" }}
-                  placeholder="上车时间"
-                  style={{ width: "100%" }}
-                  getPopupContainer={trigger => trigger.parentNode}
-                />
-              )
-            )}
+          <FormItem {...labelLayout} label="收货人">
+            <span>{formValues.receive_name || formValues.username}</span>
           </FormItem>
         </Col>
         <Col>
-          <FormItem {...labelLayout} label="上车地点">
-            {readonly ? (
-              <span>{formValues.start_place}</span>
-            ) : (
-              form.getFieldDecorator("start_location", {
-                rules: [
-                  {
-                    required: true,
-                    message: "请选择上车地点"
-                  }
-                ],
-                initialValue:
-                  type === "edit"
-                    ? {
-                        address: formValues.start_place,
-                        location: {
-                          longitude: formValues.start_longitude,
-                          latitude: formValues.start_latitude
-                        }
-                      }
-                    : undefined
-              })(<LocationInput onChange={originChange} />)
-            )}
+          <FormItem {...labelLayout} label="手机号">
+            <span>{formValues.receive_mobile || formValues.mobile}</span>
           </FormItem>
         </Col>
-        {formValues.price && (
-          <Col>
-            <FormItem {...labelLayout} label="价格">
-              <span>{formValues.price || ""}</span>
-            </FormItem>
-          </Col>
-        )}
         <Col>
-          <FormItem {...labelLayout} label="乘客姓名">
+          <FormItem {...labelLayout} label="数量">
+            <span>{formValues.count || 1}</span>
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="快递单号">
             {readonly ? (
-              <span>{formValues.username || ""}</span>
+              <span>{formValues.express_number || ""}</span>
             ) : (
-              form.getFieldDecorator("username", {
+              form.getFieldDecorator("express_number", {
                 rules: [
                   {
                     required: true,
-                    message: "请输入乘客姓名"
+                    message: "请输入快递单号"
                   }
                 ],
-                initialValue: formValues.username || ""
+                initialValue: formValues.express_number || ""
               })(<Input />)
             )}
           </FormItem>
         </Col>
         <Col>
-          <FormItem {...labelLayout} label="联系电话">
-            {readonly ? (
-              <span>{formValues.mobile || ""}</span>
-            ) : (
-              form.getFieldDecorator("mobile", {
-                rules: [
-                  {
-                    required: true,
-                    message: "请输入联系电话"
-                  },
-                  {
-                    len: 11,
-                    message: "请输入正确的手机号码"
-                  }
-                ],
-                initialValue: formValues.mobile || ""
-              })(<NumberInput numberType="positive integer" />)
-            )}
+          <FormItem {...labelLayout} label="总价">
+            <span>￥{formValues.price || 0}</span>
           </FormItem>
         </Col>
       </Row>
+    </Modal>
+  );
+});
+
+const ExpressSetting = Form.create()(props => {
+  const {
+    modalVisible,
+    form,
+    handleModalVisible,
+    formValues,
+    handleExpress
+  } = props;
+
+  const okHandle = () => {
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      form.resetFields();
+      console.log(formValues, fieldsValue);
+      handleExpress({ ...formValues, ...fieldsValue });
+    });
+  };
+
+  const labelLayout = {
+    labelCol: { span: 6 },
+    wrapperCol: { span: 15 }
+  };
+
+  return (
+    <Modal
+      destroyOnClose
+      width={window.MODAL_WIDTH}
+      title="快递单号设置"
+      visible={modalVisible}
+      onOk={okHandle}
+      onCancel={() => {
+        handleModalVisible();
+      }}
+    >
+      <Form>
+        <FormItem {...labelLayout} label="快递单号">
+          {form.getFieldDecorator("express_number", {
+            initialValue: formValues.express_number || "",
+            rules: [{ required: true, message: "请输入快递单号" }]
+          })(<Input style={{ width: "100%" }} />)}
+        </FormItem>
+      </Form>
     </Modal>
   );
 });
@@ -206,6 +188,7 @@ class Souvenir extends PureComponent {
 
   state = {
     modalVisible: false,
+    expressVisible: false,
     historyVisible: false,
     formValues: {},
     type: "readonly"
@@ -223,13 +206,13 @@ class Souvenir extends PureComponent {
     },
     {
       title: "收货人姓名",
-      dataIndex: "username",
-      key: "username"
+      dataIndex: "receive_name",
+      key: "receive_name"
     },
     {
       title: "电话",
-      dataIndex: "mobile",
-      key: "mobile"
+      dataIndex: "receive_mobile",
+      key: "receive_mobile"
     },
     {
       title: "收货地址",
@@ -275,7 +258,7 @@ class Souvenir extends PureComponent {
           item => item.name === record.order_status
         );
         const statusName = status ? status.desc : "";
-        
+
         return (
           <span className={styles.actionColumn}>
             <a href="javascript:;" onClick={() => this.onReadonly(record)}>
@@ -307,6 +290,12 @@ class Souvenir extends PureComponent {
               >
                 <a href="javascript:;">完成订单</a>
               </Popconfirm>
+            )}
+            {statusName === "已发货" && <Divider type="vertical" />}
+            {statusName === "已发货" && (
+              <a href="javascript:;" onClick={() => this.onEdit(record)}>
+                编辑快递单号
+              </a>
             )}
           </span>
         );
@@ -368,6 +357,12 @@ class Souvenir extends PureComponent {
   handleModalVisible = flag => {
     this.setState({
       modalVisible: !!flag
+    });
+  };
+
+  handleExpressVisible = flag => {
+    this.setState({
+      expressVisible: !!flag
     });
   };
 
@@ -501,70 +496,25 @@ class Souvenir extends PureComponent {
   handleEdit = info => {
     const { dispatch, page } = this.props;
     const { formValues } = this.state;
-    const {
-      start_time,
-      car_config_id,
-      start_location,
-      end_location,
-      route,
-      ...others
-    } = info;
 
-    const params = {
-      start_time: start_time.valueOf(),
-      start_place: start_location.address,
-      start_longitude: start_location.location.longitude,
-      start_latitude: start_location.location.latitude,
-      target_place: end_location.address,
-      target_longitude: end_location.location.longitude,
-      target_latitude: end_location.location.latitude
-    };
-
-    if (route && route.time && route.kilo) {
-      params.priceParams = {
-        kilo: route.kilo,
-        time: route.time
-      };
-    }
-
-    if (
-      car_config_id !== formValues.car_config_id ||
-      others.scene !== formValues.scene
-    ) {
-      if (!params.priceParams) {
-        if (formValues.kilo && formValues.time) {
-          params.priceParams = {
-            kilo: formValues.kilo,
-            time: formValues.time
-          };
-        } else {
-          message.error("上车地点或者目的地数据有误，请重新编辑!");
-          return;
-        }
-      }
+    if (!info.express_number) {
+      return;
     }
 
     dispatch({
-      type: "order/updateOrder",
+      type: 'order/changeExpressNumber',
       payload: {
-        data: {
-          ...formValues,
-          ...others,
-          ...params,
-          searchParams: {
-            ...this.searchKeys,
-            page,
-            size: 10
-          }
-        },
+        order_id: formValues.id,
+        express_number: info.express_number,
         onSuccess: () => {
-          message.success("操作成功");
+          this.handleRefresh();
+          message.info("操作成功");
         },
         onFailure: msg => {
-          message.error(msg || "操作失败");
+          message.info(msg || "操作失败");
         }
       }
-    });
+    })
     this.setState({
       formValues: {},
       modalVisible: false
@@ -648,13 +598,21 @@ class Souvenir extends PureComponent {
   };
 
   handleDispatch = record => {
-    const { dispatch } = this.props;
-    const { id } = record;
+    this.setState({
+      formValues: { ...record },
+      expressVisible: true
+    });
+  };
+
+  handleExpress = record => {
+    const { dispatch, page } = this.props;
+    const { id, express_number } = record;
     dispatch({
       type: "order/changeOrderStatus",
       payload: {
         order_id: id,
         order_status: "ON_THE_WAY",
+        express_number,
         onSuccess: () => {
           this.handleRefresh();
           message.info("操作成功");
@@ -663,6 +621,11 @@ class Souvenir extends PureComponent {
           message.info(msg || "操作失败");
         }
       }
+    });
+
+    this.setState({
+      formValues: {},
+      expressVisible: false
     });
   };
 
@@ -753,7 +716,13 @@ class Souvenir extends PureComponent {
       total,
       orderHistory
     } = this.props;
-    const { modalVisible, formValues, type, historyVisible } = this.state;
+    const {
+      modalVisible,
+      expressVisible,
+      formValues,
+      type,
+      historyVisible
+    } = this.state;
 
     const parentMethods = {
       type,
@@ -761,6 +730,12 @@ class Souvenir extends PureComponent {
       handleModalVisible: this.handleModalVisible,
       handleEdit: this.handleEdit,
       updateFormValue: this.updateFormValue
+    };
+
+    const expressMethods = {
+      formValues,
+      handleModalVisible: this.handleExpressVisible,
+      handleExpress: this.handleExpress
     };
 
     const historyMethod = {
@@ -802,6 +777,7 @@ class Souvenir extends PureComponent {
           </div>
         </Card>
         <NewOrder {...parentMethods} modalVisible={modalVisible} />
+        <ExpressSetting {...expressMethods} modalVisible={expressVisible} />
         <OrderHistory {...historyMethod} isSouvenir />
       </PageHeaderWrap>
     );

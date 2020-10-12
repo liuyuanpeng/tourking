@@ -19,6 +19,7 @@ app.model({ namespace: 'car_type', ...(require('/Users/liuyuanpeng/Documents/tou
 app.model({ namespace: 'car', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/car.js').default) });
 app.model({ namespace: 'city', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/city.js').default) });
 app.model({ namespace: 'consume', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/consume.js').default) });
+app.model({ namespace: 'coupon', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/coupon.js').default) });
 app.model({ namespace: 'driver', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/driver.js').default) });
 app.model({ namespace: 'employee', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/employee.js').default) });
 app.model({ namespace: 'global', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/global.js').default) });
@@ -28,6 +29,7 @@ app.model({ namespace: 'login', ...(require('/Users/liuyuanpeng/Documents/tourki
 app.model({ namespace: 'menu', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/menu.js').default) });
 app.model({ namespace: 'order', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/order.js').default) });
 app.model({ namespace: 'price', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/price.js').default) });
+app.model({ namespace: 'product', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/product.js').default) });
 app.model({ namespace: 'project', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/project.js').default) });
 app.model({ namespace: 'role', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/role.js').default) });
 app.model({ namespace: 'setting', ...(require('/Users/liuyuanpeng/Documents/tourking/src/models/setting.js').default) });
