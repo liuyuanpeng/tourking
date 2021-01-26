@@ -42,11 +42,13 @@ const NewOrder = Form.create()(props => {
     form,
     handleModalVisible,
     formValues,
-    updateFormValue
+    updateFormValue,
+    city
   } = props;
 
   let origin = null;
   let destination = null;
+  let zuowei_id = "";
   if (formValues.start_longitude && formValues.start_latitude) {
     origin = {
       longitude: formValues.start_longitude,
@@ -66,12 +68,33 @@ const NewOrder = Form.create()(props => {
 
   const readonly = type === "readonly";
 
+  let consumeArr = [];
+  if (formValues.scene && formValues.city_id) {
+    const consume = consumeList.find(
+      item =>
+        item.consume.scene === formValues.scene &&
+        item.consume.city_id === formValues.city_id
+    );
+    if (consume) {
+      consumeArr = consume.car_levels ? consume.car_levels : [];
+    }
+  }
+
   const okHandle = () => {
     if (readonly) return handleModalVisible();
     form.validateFields((err, fieldsValue) => {
       if (err) return;
+      let zuowei_id = "";
+      if (fieldsValue.chexing_id) {
+        const selectConsume = consumeArr.find(
+          item => item.chexing.id === fieldsValue.chexing_id
+        );
+        if (selectConsume) {
+          zuowei_id = selectConsume.zuowei.id;
+        }
+      }
       form.resetFields();
-      handleEdit(fieldsValue);
+      handleEdit({ ...fieldsValue, zuowei_id });
     });
   };
 
@@ -112,19 +135,23 @@ const NewOrder = Form.create()(props => {
     updateRoute(value);
   };
 
-  const changeCarConfigId = value => {
-    updateFormValue({
-      car_config_id: value
-    });
-  };
-
   const changeScene = value => {
     updateFormValue({
       scene: value,
-      car_config_id: undefined
+      chexing_id: undefined
     });
     form.setFieldsValue({
-      car_config_id: undefined
+      chexing_id: undefined
+    });
+  };
+
+  const changeCity = value => {
+    updateFormValue({
+      city_id: value,
+      chexing_id: undefined
+    });
+    form.setFieldsValue({
+      chexing_id: undefined
     });
   };
 
@@ -133,16 +160,6 @@ const NewOrder = Form.create()(props => {
       start_time: value ? value.valueOf() : ""
     });
   };
-
-  let consumeArr = [];
-  if (formValues.scene) {
-    const consume = consumeList.find(
-      item => item.consume.scene === formValues.scene
-    );
-    if (consume) {
-      consumeArr = consume.car_levels ? consume.car_levels : [];
-    }
-  }
 
   return (
     <Modal
@@ -174,7 +191,30 @@ const NewOrder = Form.create()(props => {
                 <Select style={{ width: "100%" }} onChange={changeScene}>
                   <Option value="JIEJI">接机/站</Option>
                   <Option value="SONGJI">送机/站</Option>
-                  <Option value="ORDER_SCENE">单次用车</Option>
+                </Select>
+              )
+            )}
+          </FormItem>
+        </Col>
+        <Col>
+          <FormItem {...labelLayout} label="所属城市">
+            {readonly ? (
+              <span>
+                {formValues.city_id
+                  ? city.find(item => item.id === formValues.city_id).name
+                  : ""}
+              </span>
+            ) : (
+              form.getFieldDecorator("city_id", {
+                rules: [{ required: true, message: "请选择城市" }],
+                initialValue: formValues.city_id || ""
+              })(
+                <Select style={{ width: "100%" }} onChange={changeCity}>
+                  {city.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
                 </Select>
               )
             )}
@@ -184,20 +224,20 @@ const NewOrder = Form.create()(props => {
           <FormItem {...labelLayout} label="车型">
             {readonly ? (
               <span>
-                {formValues.car_config_id
-                  ? carTypes.find(item => item.id === formValues.car_config_id)
+                {formValues.chexing_id && formValues.city_id
+                  ? carTypes.find(item => item.id === formValues.chexing_id)
                       .name
                   : ""}
               </span>
             ) : (
-              form.getFieldDecorator("car_config_id", {
+              form.getFieldDecorator("chexing_id", {
                 rules: [{ required: true, message: "请选择车型" }],
-                initialValue: formValues.car_config_id || ""
+                initialValue: formValues.chexing_id || ""
               })(
-                <Select style={{ width: "100%" }} onChange={changeCarConfigId}>
+                <Select style={{ width: "100%" }} onChange={changeChexing}>
                   {consumeArr.map(item => (
-                    <Option key={item.config_id} value={item.config_id}>
-                      {item.config_name}
+                    <Option key={item.chexing.id} value={item.chexing.id}>
+                      {item.chexing.name}
                     </Option>
                   ))}
                 </Select>
@@ -205,6 +245,7 @@ const NewOrder = Form.create()(props => {
             )}
           </FormItem>
         </Col>
+
         <Col>
           <FormItem {...labelLayout} label="上车时间">
             {readonly ? (
@@ -393,7 +434,7 @@ const NewOrder = Form.create()(props => {
   );
 });
 
-@connect(({ consume, order, car_type, loading }) => ({
+@connect(({ consume, order, car_type, loading, city }) => ({
   loading: loading.effects["order/fetchOrderPage"],
   historyLoading: loading.effects["order/fetchOrderHistory"],
   data: order.list,
@@ -401,7 +442,8 @@ const NewOrder = Form.create()(props => {
   total: order.total,
   carTypes: car_type.list,
   orderHistory: order.history,
-  consumeList: consume.list
+  consumeList: consume.list,
+  city: city.list
 }))
 @Form.create()
 class Shuttle extends PureComponent {
@@ -575,14 +617,6 @@ class Shuttle extends PureComponent {
           <a href="javascript:;" onClick={() => this.showHistory(record)}>
             历史
           </a>
-          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
-            <Divider type="vertical" />
-          )}
-          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
-            <a href="javascript:;" onClick={() => this.onEdit(record)}>
-              编辑
-            </a>
-          )}
         </span>
       )
     }
@@ -591,6 +625,9 @@ class Shuttle extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     this.searchKeys = { scene: INIT_SCENE };
+    dispatch({
+      type: "city/fetchCityList"
+    });
     dispatch({
       type: "car_type/fetchCarTypes",
       payload: {
@@ -804,7 +841,7 @@ class Shuttle extends PureComponent {
     const { formValues } = this.state;
     const {
       start_time,
-      car_config_id,
+      chexing_id,
       start_location,
       end_location,
       route,
@@ -813,6 +850,7 @@ class Shuttle extends PureComponent {
 
     const params = {
       start_time: start_time.valueOf(),
+      chexing_id,
       start_place: start_location.address,
       start_longitude: start_location.location.longitude,
       start_latitude: start_location.location.latitude,
@@ -829,7 +867,7 @@ class Shuttle extends PureComponent {
     }
 
     if (
-      car_config_id !== formValues.car_config_id ||
+      chexing_id !== formValues.chexing_id ||
       others.scene !== formValues.scene
     ) {
       if (!params.priceParams) {
@@ -901,13 +939,13 @@ class Shuttle extends PureComponent {
     });
 
     const { dispatch } = this.props;
-    const { scene, car_config_id, kilo, time, start_time } = newFormValues;
-    if (scene && car_config_id && kilo && time) {
+    const { scene, chexing_id, kilo, time, start_time, city_id } = newFormValues;
+    if (scene && chexing_id && kilo && time && city_id) {
       dispatch({
         type: "order/getPrice",
         payload: {
           scene,
-          car_config_id,
+          chexing_id,
           kilo,
           time,
           start_time,
@@ -1036,7 +1074,9 @@ class Shuttle extends PureComponent {
           </Col>
           <Col span={8}>
             <FormItem label="扫码司机">
-              {getFieldDecorator("source_driver_user_id")(<DriverInput allowClear />)}
+              {getFieldDecorator("source_driver_user_id")(
+                <DriverInput allowClear />
+              )}
             </FormItem>
           </Col>
           <Col>
@@ -1068,7 +1108,8 @@ class Shuttle extends PureComponent {
       total,
       carTypes,
       orderHistory,
-      consumeList
+      consumeList,
+      city
     } = this.props;
     const { modalVisible, formValues, type, historyVisible } = this.state;
 
@@ -1077,6 +1118,7 @@ class Shuttle extends PureComponent {
       carTypes,
       consumeList,
       formValues,
+      city,
       handleModalVisible: this.handleModalVisible,
       handleEdit: this.handleEdit,
       updateFormValue: this.updateFormValue

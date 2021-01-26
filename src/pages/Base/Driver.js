@@ -210,11 +210,11 @@ export default class Driver extends PureComponent {
     },
     {
       title: "乘客",
-      dataIndex: "order_user.name",
-      key: "order_user.name",
-      render: text => (
+      dataIndex: "order_user.nick_name",
+      key: "order_user.nick_name",
+      render: (text, record) => (
         <Tooltip title={text}>
-          <span>{text}</span>
+          <span>{text || record.name}</span>
         </Tooltip>
       )
     },

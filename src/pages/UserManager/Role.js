@@ -131,7 +131,7 @@ const PermissionSetting = Form.create()(props => {
         },
         {
           title: "包车订单",
-          key: 'chartered'
+          key: "chartered"
         },
         {
           title: "景点美食订单",
@@ -146,6 +146,10 @@ const PermissionSetting = Form.create()(props => {
           key: "dispatch"
         }
       ]
+    },
+    {
+      title: "发票管理",
+      key: "billmanager"
     },
     {
       title: "用户管理",
@@ -242,6 +246,20 @@ const PermissionSetting = Form.create()(props => {
     {
       title: "退款管理",
       key: "refund"
+    },
+    {
+      title: "发现管理",
+      key: "discovery",
+      children: [
+        {
+          title: "投稿管理",
+          key: "discoveryapprove"
+        },
+        {
+          title: "评论管理",
+          key: "commentapprove"
+        }
+      ]
     }
   ];
 
@@ -310,8 +328,8 @@ class Role extends PureComponent {
       title: "操作",
       key: "action",
       render: (text, record) =>
-        // record.is_init ? null : (
-        false ? null : (
+        record.is_init ? null : (
+        // false ? null : (
           <span className={styles.actionColumn}>
             <a
               href="javascript:;"

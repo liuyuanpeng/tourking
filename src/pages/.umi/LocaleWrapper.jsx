@@ -26,7 +26,7 @@ defaultAntd = defaultAntd.default || defaultAntd;
 const localeInfo = {
   'zh-CN': {
     messages: {
-      ...require('/Users/liuyuanpeng/Documents/tourking/src/locales/zh-CN.js').default,
+      ...require('/Volumes/Storage_T5/tourking/src/locales/zh-CN.js').default,
     },
     locale: 'zh-CN',
     antd: require('antd/lib/locale-provider/zh_CN'),

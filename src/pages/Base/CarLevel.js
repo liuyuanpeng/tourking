@@ -266,7 +266,25 @@ const NewLevel = Form.create()(props => {
             )}
           </FormItem>
         )}
-
+{isBAOCHE && (
+          <FormItem {...labelLayout} label="套餐价格">
+            {readonly ? (
+              <span>
+                {formValues.consume.taocan === "meal_1"
+                  ? "套餐一(8小时100公里)"
+                  : "套餐二(8小时200公里)"}
+              </span>
+            ) : (
+              form.getFieldDecorator("show_price", {
+                initialValue: formValues.consume.show_price || "",
+                rules: [{ required: true, message: "套件价格" }]
+              })(
+                <NumberInput value={formValues.consume.show_price}  prefix="￥" suffix="/起" numberType="integer" />
+            
+              )
+            )}
+          </FormItem>
+        )}
         {readonly ? (
           <FormItem {...labelLayout} label="分级收费">
             <List
@@ -373,7 +391,7 @@ export default class CarManager extends PureComponent {
       message.error("该用车类型已有用车服务");
       return;
     }
-    const { car_levels, scene, description, city_id, taocan } = fields;
+    const { car_levels, scene, description, city_id, taocan, show_price } = fields;
     const params = {
       car_levels,
       consume: {
@@ -381,7 +399,8 @@ export default class CarManager extends PureComponent {
         description,
         scene,
         city_id,
-        taocan: taocan || ""
+        taocan: taocan || "",
+        show_price: show_price || ""
       }
     };
     dispatch({
@@ -462,7 +481,7 @@ export default class CarManager extends PureComponent {
   handleEdit = info => {
     const { dispatch } = this.props;
     const { formValues } = this.state;
-    const { car_levels, taocan, ...others } = info;
+    const { car_levels, taocan, show_price = 0, ...others } = info;
     const { consume } = formValues;
     dispatch({
       type: "consume/saveConsume",
@@ -474,7 +493,8 @@ export default class CarManager extends PureComponent {
             scene: others.scene,
             city_id: others.city_id,
             description: others.description,
-            taocan: taocan || ""
+            taocan: taocan || "",
+            show_price
           }
         },
         onSuccess: () => {

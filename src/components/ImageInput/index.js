@@ -90,7 +90,7 @@ class ImageInput extends Component {
     return (
       <div className="clearfix">
         <Upload
-          action="/server/file/local/upload?file_type=IMAGE_FILE"
+          action="/server/file/local/qiniu_upload?file_type=IMAGE_FILE"
           listType="picture-card"
           fileList={fileList}
           headers={{

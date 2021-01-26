@@ -138,7 +138,7 @@ const NewCharted = Form.create()(props => {
             listType="picture-card"
             className={styles.avatarUploader}
             showUploadList={false}
-            action="/server/file/local/upload?file_type=IMAGE_FILE"
+            action="/server/file/local/qiniu_upload?file_type=IMAGE_FILE"
             headers={{
               token: localStorage.getItem("token")
             }}

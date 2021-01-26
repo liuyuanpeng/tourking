@@ -41,12 +41,11 @@ const NewOrder = Form.create()(props => {
     handleModalVisible,
     formValues,
     updateFormValue,
-    city
+    city,
   } = props;
 
   let origin = null;
   let destination = null;
-  let zuowei_id = "";
   if (formValues.start_longitude && formValues.start_latitude) {
     origin = {
       longitude: formValues.start_longitude,

@@ -502,7 +502,7 @@ class Souvenir extends PureComponent {
     }
 
     dispatch({
-      type: 'order/changeExpressNumber',
+      type: "order/changeExpressNumber",
       payload: {
         order_id: formValues.id,
         express_number: info.express_number,
@@ -514,7 +514,7 @@ class Souvenir extends PureComponent {
           message.info(msg || "操作失败");
         }
       }
-    })
+    });
     this.setState({
       formValues: {},
       modalVisible: false

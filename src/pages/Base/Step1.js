@@ -24,18 +24,53 @@ const formItemLayout = {
   }
 };
 const dateFormat = "YYYY-MM-DD";
-@connect(({ formStepForm, city }) => ({
+@connect(({ formStepForm, city, car_type, sit }) => ({
   data: formStepForm.step,
   mode: formStepForm.mode,
   type: formStepForm.type,
-  city: city.list
+  city: city.list,
+  car_types: car_type.list,
+  sits: sit.list
 }))
 @Form.create()
 class Step1 extends React.PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     dispatch({
-      type: "city/fetchCityList"
+      type: "city/fetchCityList",
+      payload: {
+        onSuccess: city => {
+          if (city && city.length) {
+            dispatch({
+              type: "sit/fetchSitList",
+              payload: {
+                onSuccess: sit => {
+                  if (sit && sit.length) {
+                    dispatch({
+                      type: "car_type/fetchCarTypes",
+                      payload: {
+                        onFailure: msg => {
+                          message.error(msg || "获取车型列表失败");
+                        }
+                      }
+                    });
+                  } else {
+                    message.error("请先配置座位类型");
+                  }
+                },
+                onFailure: msg => {
+                  message.error(msg || "获取座位类型列表失败");
+                }
+              }
+            });
+          } else {
+            message.error("请先配置城市列表");
+          }
+        },
+        onFailure: msg => {
+          message.error(msg || "获取城市列表失败");
+        }
+      }
     });
   }
 
@@ -60,7 +95,19 @@ class Step1 extends React.PureComponent {
   };
 
   render() {
-    const { form, dispatch, data, mode, type, city } = this.props;
+    const {
+      form,
+      dispatch,
+      data,
+      mode,
+      type,
+      city,
+      car_types,
+      sits
+    } = this.props;
+    const { car_levels } = data;
+    console.log(data)
+    const carLevel = car_levels ? car_levels[0] || {} : {};
     const { getFieldDecorator, validateFields } = form;
     const readonly = mode === "readonly";
 
@@ -152,7 +199,9 @@ class Step1 extends React.PureComponent {
                 <span>{SCENE[data.scene]}</span>
               ) : (
                 getFieldDecorator("scene", {
-                  initialValue: isSouvenir ? "BANSHOU_PRIVATE" : (data.scene || ''),
+                  initialValue: isSouvenir
+                    ? "BANSHOU_PRIVATE"
+                    : data.scene || "",
                   rules: [{ required: true, message: "请选择类型" }]
                 })(
                   <Select placeholder="请选择类型" disabled={isSouvenir}>
@@ -198,7 +247,55 @@ class Step1 extends React.PureComponent {
               )
             )}
           </Form.Item>
-
+          {isChartered && (
+            <Form.Item {...formItemLayout} label="车辆类型">
+              {readonly ? (
+                <span>{carLevel.chexing ? carLevel.chexing.name : ""}</span>
+              ) : (
+                form.getFieldDecorator("chexing_id", {
+                  initialValue: carLevel.chexing ? carLevel.chexing.id : "",
+                  rules: [{ required: true, message: "请选择车辆类型" }]
+                })(
+                  <Select style={{ width: "100%" }}>
+                    {car_types &&
+                      car_types.map(item => {
+                        return (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        );
+                      })}
+                  </Select>
+                )
+              )}
+            </Form.Item>
+          )}
+          {isChartered && (
+            <Form.Item {...formItemLayout} label="座位类型">
+              {readonly ? (
+                <span>{carLevel.zuowei ? carLevel.zuowei.name : ""}</span>
+              ) : (
+                form.getFieldDecorator("zuowei_id", {
+                  initialValue:
+                    carLevel.zuowei && carLevel.zuowei.id
+                      ? carLevel.zuowei.id
+                      : "",
+                  rules: [{ required: true, message: "请选择所属城市" }]
+                })(
+                  <Select style={{ width: "100%" }}>
+                    {sits &&
+                      sits.map(item => {
+                        return (
+                          <Option key={item.id} value={item.id}>
+                            {item.name}
+                          </Option>
+                        );
+                      })}
+                  </Select>
+                )
+              )}
+            </Form.Item>
+          )}
           <Form.Item {...formItemLayout} label="名称">
             {readonly ? (
               <span>{data.name}</span>
@@ -301,7 +398,7 @@ class Step1 extends React.PureComponent {
           </Form.Item>
           <Form.Item {...formItemLayout} label="介绍">
             {readonly ? (
-              <span>{data.description || ''}</span>
+              <span>{data.description || ""}</span>
             ) : (
               getFieldDecorator("description", {
                 initialValue: data.description || "",
@@ -309,7 +406,7 @@ class Step1 extends React.PureComponent {
               })(<TextArea />)
             )}
           </Form.Item>
-          
+
           <Form.Item {...formItemLayout} label="图片">
             {getFieldDecorator("images", {
               initialValue: data.images || ""

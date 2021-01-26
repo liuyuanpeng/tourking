@@ -80,7 +80,13 @@ const NewCoupon = Form.create()(props => {
     >
       <FormItem {...labelLayout} label="类型">
         {readonly ? (
-          <span>{formValues.coupon_category}</span>
+          <span>
+            {formValues.coupon_category === "MANJIAN"
+              ? "满减"
+              : formValues.coupon_category === "XINYONGHU"
+              ? "新用户"
+              : "返利"}
+          </span>
         ) : (
           form.getFieldDecorator("coupon_category", {
             initialValue: formValues.coupon_category || "MANJIAN",
@@ -122,7 +128,7 @@ const NewCoupon = Form.create()(props => {
       </FormItem>
       <FormItem {...labelLayout} label="库存">
         {readonly ? (
-          <span>{formValues.total || '无限制'}</span>
+          <span>{formValues.total || "无限制"}</span>
         ) : (
           form.getFieldDecorator("total", {
             initialValue: formValues.total || ""
@@ -262,7 +268,7 @@ export default class Coupon extends PureComponent {
       type: "coupon/fetchCouponList",
       payload: {
         onFailure: msg => {
-          message.error(msg || "获取优惠券池失败");
+          message.error(msg || "获取活动优惠失败");
         }
       }
     });
@@ -277,20 +283,29 @@ export default class Coupon extends PureComponent {
   };
 
   handleAdd = fields => {
-    const { dispatch } = this.props;
+    const { dispatch, data } = this.props;
     console.log("fileds", fields);
     const { start_time, end_time, ...others } = fields;
-    const data = { ...others };
+    const { coupon_category } = fields;
+    if (coupon_category === "FANLI" || coupon_category === "XINYONGHU") {
+      if (data && data.find(item => item.coupon_category === coupon_category)) {
+        message.info("只能有一个返利或者新用户类型的活动优惠");
+        this.handleModalVisible();
+        return;
+      }
+    }
+
+    const params = { ...others };
     if (start_time) {
-      data.start_time = moment(start_time).valueOf();
+      params.start_time = moment(start_time).valueOf();
     }
     if (end_time) {
-      data.end_time = moment(end_time).valueOf();
+      params.end_time = moment(end_time).valueOf();
     }
     dispatch({
       type: "coupon/saveCoupon",
       payload: {
-        data,
+        data: params,
         onSuccess: () => {
           message.success("新增成功!");
         },
@@ -319,6 +334,11 @@ export default class Coupon extends PureComponent {
       title: "满减金额",
       dataIndex: "limit_price",
       key: "limit_price"
+    },
+    {
+      title: "优惠金额",
+      dataIndex: "price",
+      key: "price"
     },
     {
       title: "有效天数",
@@ -437,7 +457,7 @@ export default class Coupon extends PureComponent {
   handleDelete = record => {
     const { dispatch } = this.props;
     dispatch({
-      type: "coupon/saveCoupon",
+      type: "coupon/deleteCoupon",
       payload: {
         data: record.id,
         onSuccess: () => {
@@ -460,7 +480,7 @@ export default class Coupon extends PureComponent {
           payload: {
             ...values,
             onFailure: msg => {
-              message.error(msg || "获取优惠券池失败");
+              message.error(msg || "获取活动优惠失败");
             }
           }
         });
@@ -489,7 +509,7 @@ export default class Coupon extends PureComponent {
       updateCouponCategory: this.updateCouponCategory
     };
     return (
-      <PageHeaderWrap title="优惠券池">
+      <PageHeaderWrap title="活动优惠">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>

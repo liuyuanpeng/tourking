@@ -102,6 +102,14 @@ export default [
           }
         ]
       },
+      //bill
+      {
+        path: "/billmanager",
+        name: 'billmanager',
+        authority: 'billmanager',
+        icon: 'account-book',
+        component: "./BillManager/BillManager"
+      },
       // user
       {
         path: "/usermanager",
@@ -271,6 +279,27 @@ export default [
         authority: "refund",
         icon: "pay-circle",
         component: "./Refund"
+      },
+      // discovery
+      {
+        path: "/discovery",
+        name: "discovery",
+        icon: "picture",
+        authority: ["discoveryapprove", "commentapprove"],
+        routes: [
+          {
+            path: "/discovery/discoveryapprove",
+            name: "discoveryapprove",
+            authority: "discoveryapprove",
+            component: "./Discovery/DiscoveryApprove"
+          },
+          {
+            path: "/discovery/commentapprove",
+            name: "commentapprove",
+            authority: "commentapprove",
+            component: "./Discovery/CommentApprove"
+          }
+        ]
       },
       {
         component: "404"

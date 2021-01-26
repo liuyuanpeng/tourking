@@ -40,7 +40,10 @@ const NewOrder = Form.create()(props => {
     form,
     handleModalVisible,
     formValues,
-    updateFormValue
+    updateFormValue,
+    city,
+    carTypes,
+    consumeList
   } = props;
 
   const labelLayout = {
@@ -67,6 +70,18 @@ const NewOrder = Form.create()(props => {
     });
   };
 
+  let consumeArr = [];
+  if (formValues.scene && formValues.city_id) {
+    const consume = consumeList.find(
+      item =>
+        item.consume.scene === formValues.scene &&
+        item.consume.city_id === formValues.city_id
+    );
+    if (consume) {
+      consumeArr = consume.car_levels ? consume.car_levels : [];
+    }
+  }
+
   return (
     <Modal
       destroyOnClose
@@ -86,6 +101,57 @@ const NewOrder = Form.create()(props => {
             </span>
           </FormItem>
         </Col>
+        <Col>
+          <FormItem {...labelLayout} label="所属城市">
+            {readonly ? (
+              <span>
+                {formValues.city_id
+                  ? city.find(item => item.id === formValues.city_id).name
+                  : ""}
+              </span>
+            ) : (
+              form.getFieldDecorator("city_id", {
+                rules: [{ required: true, message: "请选择城市" }],
+                initialValue: formValues.city_id || ""
+              })(
+                <Select style={{ width: "100%" }}>
+                  {city.map(item => (
+                    <Option key={item.id} value={item.id}>
+                      {item.name}
+                    </Option>
+                  ))}
+                </Select>
+              )
+            )}
+          </FormItem>
+        </Col>
+        {formValues.scene !== "ROAD_PRIVATE" && (
+          <Col>
+            <FormItem {...labelLayout} label="车型">
+              {readonly ? (
+                <span>
+                  {formValues.chexing_id && formValues.city_id
+                    ? carTypes.find(item => item.id === formValues.chexing_id)
+                        .name
+                    : ""}
+                </span>
+              ) : (
+                form.getFieldDecorator("chexing_id", {
+                  rules: [{ required: true, message: "请选择车型" }],
+                  initialValue: formValues.chexing_id || ""
+                })(
+                  <Select style={{ width: "100%" }}>
+                    {consumeArr.map(item => (
+                      <Option key={item.chexing.id} value={item.chexing.id}>
+                        {item.chexing.name}
+                      </Option>
+                    ))}
+                  </Select>
+                )
+              )}
+            </FormItem>
+          </Col>
+        )}
         <Col>
           <FormItem {...labelLayout} label="上车时间">
             {readonly ? (
@@ -193,13 +259,16 @@ const NewOrder = Form.create()(props => {
   );
 });
 
-@connect(({ order, loading }) => ({
+@connect(({ order, loading, car_type, consume, city }) => ({
   loading: loading.effects["order/fetchOrderPage"],
   historyLoading: loading.effects["order/fetchOrderHistory"],
   data: order.list,
   page: order.page,
   total: order.total,
-  orderHistory: order.history
+  orderHistory: order.history,
+  carTypes: car_type.list,
+  consumeList: consume.list,
+  city: city.list
 }))
 @Form.create()
 class Shuttle extends PureComponent {
@@ -347,6 +416,25 @@ class Shuttle extends PureComponent {
   componentDidMount() {
     const { dispatch } = this.props;
     this.searchKeys = { scene: INIT_SCENE };
+    dispatch({
+      type: "city/fetchCityList"
+    });
+    dispatch({
+      type: "consume/fetchConsumeList",
+      payload: {
+        onFailure: msg => {
+          message.error(msg || "获取用车服务列表失败");
+        }
+      }
+    });
+    dispatch({
+      type: "car_type/fetchCarTypes",
+      payload: {
+        onFailure: msg => {
+          message.error(msg || "获取车辆分类列表失败");
+        }
+      }
+    });
     dispatch({
       type: "order/fetchOrderPage",
       payload: {
@@ -766,7 +854,9 @@ class Shuttle extends PureComponent {
           </Col>
           <Col span={8}>
             <FormItem label="扫码司机">
-              {getFieldDecorator("source_driver_user_id")(<DriverInput allowClear />)}
+              {getFieldDecorator("source_driver_user_id")(
+                <DriverInput allowClear />
+              )}
             </FormItem>
           </Col>
           <Col>
@@ -796,13 +886,19 @@ class Shuttle extends PureComponent {
       data,
       page,
       total,
-      orderHistory
+      orderHistory,
+      carTypes,
+      consumeList,
+      city
     } = this.props;
     const { modalVisible, formValues, type, historyVisible } = this.state;
 
     const parentMethods = {
       type,
       formValues,
+      carTypes,
+      consumeList,
+      city,
       handleModalVisible: this.handleModalVisible,
       handleEdit: this.handleEdit,
       updateFormValue: this.updateFormValue

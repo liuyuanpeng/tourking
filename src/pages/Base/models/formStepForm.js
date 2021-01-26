@@ -14,7 +14,7 @@ export default {
   effects: {
     *submitStepForm({ payload }, { call, select }) {
       const data = yield select(state => state.formStepForm.step);
-      const {roads, ...private_consume} = data;
+      const {roads, chexing_id, zuowei_id, ...private_consume} = data;
       
       const {onSuccess, onFailure} = payload;
       const response = yield call(saveChartered, {
@@ -22,7 +22,8 @@ export default {
           ...private_consume,
           common_scene: "ORDER"
         },
-        roads
+        roads,
+        car_levels: chexing_id && zuowei_id ? [{chexing_id, zuowei_id}] : []
       });
       if (response.code === "SUCCESS") {
         onSuccess && onSuccess();

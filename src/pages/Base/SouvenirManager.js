@@ -79,7 +79,7 @@ export default class SouvenirManager extends PureComponent {
 
   columns = [
     {
-      title: "路线id",
+      title: "伴手礼",
       dataIndex: "private_consume.id",
       key: "private_consume.id"
     },
@@ -111,6 +111,7 @@ export default class SouvenirManager extends PureComponent {
     {
       title: "操作",
       key: "action",
+      width: 200,
       render: (text, record) => (
         <span className={styles.actionColumn}>
           <a

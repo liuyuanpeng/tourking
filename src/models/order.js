@@ -288,6 +288,7 @@ export default {
           return;
         }
         priceChangeParam.price = priceRes.data;
+        priceChangeParam.total_price = priceRes.data;
       }
       const response = yield call(createOrder, {
         ...others,

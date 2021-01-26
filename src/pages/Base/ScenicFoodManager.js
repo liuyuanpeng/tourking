@@ -80,7 +80,7 @@ export default class ScenicFoodManager extends PureComponent {
 
   columns = [
     {
-      title: "路线id",
+      title: "景点/美食id",
       dataIndex: "private_consume.id",
       key: "private_consume.id"
     },

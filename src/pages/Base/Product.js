@@ -25,6 +25,7 @@ import NumberInput from "@/components/NumberInput";
 import { connect } from "dva";
 import styles from "../index.less";
 import moment from "moment";
+import SCENE from '../../constants/scene'
 
 const Option = Select.Option;
 const FormItem = Form.Item;
@@ -62,9 +63,45 @@ export default class Product extends PureComponent {
 
   columns = [
     {
-      title: "产品ID",
-      dataIndex: "private_consume_id",
-      key: "private_consume_id"
+      title: "用户",
+      key: "avatar",
+      width: 100,
+      render: (text, record) => {
+        return (
+          <div style={{width: '100px'}}>
+            {record.user.avatar ? (
+              <img
+                src={record.user.avatar}
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  borderRadius: "10px",
+                  marginRight: "5px"
+                }}
+              />
+            ) : (
+              <Icon type="user" style={{
+                width: "20px",
+                  height: "20px",
+                  borderRadius: "10px",
+                  marginRight: "5px"
+              }} />
+            )}
+            {record.user.nick_name || record.user.name || record.user.id}
+          </div>
+        );
+      }
+    },
+    {
+      title: "订单ID",
+      dataIndex: "order.id",
+      key: "order.id"
+    },
+    {
+      title: "订单类型",
+      dataIndex: "order.scene",
+      key: "order.scene",
+      render: text => (SCENE[text])
     },
     {
       title: "评分",
@@ -82,24 +119,10 @@ export default class Product extends PureComponent {
       )
     },
     {
-      title: "乘客ID",
-      dataIndex: "user_id",
-      key: "user_id",
-      render: text => (
-        <Tooltip title={text}>
-          <span>{text}</span>
-        </Tooltip>
-      )
-    },
-    {
-      title: "订单ID",
-      dataIndex: "order_id",
-      key: "order_id"
-    },
-    {
       title: "图片",
       dataIndex: "image",
       key: "image",
+      width: 200,
       render: text =>
         text ? (
           <img
@@ -116,45 +139,49 @@ export default class Product extends PureComponent {
     {
       title: "操作",
       key: "action",
-      render: (text, record) => record.status === 0 ? (
-        <span className={styles.actionColumn}>
-          <Popconfirm
-            title="确认审核通过?"
-            onConfirm={() => {
-              this.handleApproval(record.id, 1);
-            }}
-            okText="是"
-            cancelText="否"
-          >
-            <a href="javascript:;">审核通过</a>
-          </Popconfirm>
-          <Divider />
-          <Popconfirm
-            title="确认审核不通过?"
-            onConfirm={() => {
-              this.handleApproval(record.id, 2);
-            }}
-            okText="是"
-            cancelText="否"
-          >
-            <a href="javascript:;">审核不通过</a>
-          </Popconfirm>
-        </span>
-      ) : ''
+      fixed: "right",
+      render: (text, record) =>
+        record.status === 0 ? (
+          <span className={styles.actionColumn}>
+            <Popconfirm
+              title="确认审核通过?"
+              onConfirm={() => {
+                this.handleApproval(record.id, 1);
+              }}
+              okText="是"
+              cancelText="否"
+            >
+              <a href="javascript:;">审核通过</a>
+            </Popconfirm>
+            <Divider />
+            <Popconfirm
+              title="确认审核不通过?"
+              onConfirm={() => {
+                this.handleApproval(record.id, 2);
+              }}
+              okText="是"
+              cancelText="否"
+            >
+              <a href="javascript:;">审核不通过</a>
+            </Popconfirm>
+          </span>
+        ) : (
+          ""
+        )
     }
   ];
 
   handleApproval(id, status) {
-    const {dispatch, page, size} = this.props
+    const { dispatch, page, size } = this.props;
     dispatch({
-      type: 'product/changeEvaluateState',
+      type: "product/changeEvaluateState",
       payload: {
         id,
         status,
         page,
         size
       }
-    })
+    });
   }
 
   handlePageChange = (page, size) => {
@@ -192,6 +219,7 @@ export default class Product extends PureComponent {
                   }
                 }}
                 columns={this.columns}
+                scroll={{ x: 1000 }}
               />
             </div>
           </div>

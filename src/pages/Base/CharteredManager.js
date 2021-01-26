@@ -200,7 +200,8 @@ export default class Charted extends PureComponent {
         current: "basic_info",
         step: {
           ...record.private_consume,
-          roads:record.roads.concat()
+          roads:record.roads.concat(),
+          car_levels: record.car_levels.concat()
         }
       }
     });
@@ -216,7 +217,8 @@ export default class Charted extends PureComponent {
         current: "basic_info",
         step: {
           ...record.private_consume,
-          roads:record.roads.concat()
+          roads:record.roads.concat(),
+          car_levels: record.car_levels.concat()
         }
       }
     });
