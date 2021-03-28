@@ -393,7 +393,7 @@ const NewOrder = Form.create()(props => {
                 rules: [
                   {
                     required: true,
-                    message: "接受短信通知的电话号码"
+                    message: "请输入乘客电话"
                   },
                   {
                     len: 11,
@@ -401,7 +401,7 @@ const NewOrder = Form.create()(props => {
                   }
                 ],
                 initialValue: formValues.mobile || ""
-              })(<NumberInput numberType="positive integer" />)
+              })(<NumberInput placeholder="这里填写接收短信的手机号" numberType="positive integer" />)
             )}
           </FormItem>
         </Col>
