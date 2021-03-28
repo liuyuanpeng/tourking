@@ -39,12 +39,13 @@ export async function queryUserList(params) {
   });
 }
 
-export async function searchUser(username) {
+export async function searchUser(params) {
+  const {username, page, size} = params
   return request(`/server/console/user/page?username=${username}`, {
     method: "POST",
     data: {
-      page: 0,
-      size: 10,
+      page,
+      size,
       sort_data_list: [
         {
           direction: "DESC",

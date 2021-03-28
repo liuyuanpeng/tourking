@@ -157,7 +157,7 @@ export default class CommentApprove extends PureComponent {
         <Tooltip title={text}>
           <span className={styles.twoLine} style={{
             width: '200px',
-            "-webkit-box-orient": 'vertical'
+            WebkitBoxOrient: 'vertical'
           }}>{text}</span>
         </Tooltip>
       )
@@ -247,7 +247,13 @@ export default class CommentApprove extends PureComponent {
       payload: {
         id,
         page,
-        size
+        size,
+        onSuccess: () => {
+          message.info("删除成功")
+        },
+        onFailure: msg => {
+          message.error(msg || '删除失败')
+        }
       }
     });
   }

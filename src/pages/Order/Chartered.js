@@ -284,6 +284,25 @@ class Shuttle extends PureComponent {
 
   columns = [
     {
+      title: "订单状态",
+      dataIndex: "order_status",
+      key: "order_status",
+      render: text => {
+        const status = ORDER_STATUS.find(item => item.name === text);
+        return text && status ? status.desc : "";
+      }
+    },
+    {
+      title: "司机电话",
+      dataIndex: "driver_mobile",
+      key: "driver_mobile"
+    },
+    {
+      title: "车牌号",
+      dataIndex: "driver_car_no",
+      key: "driver_car_no"
+    },
+    {
       title: "来源",
       dataIndex: "source",
       key: "source",
@@ -300,15 +319,7 @@ class Shuttle extends PureComponent {
       dataIndex: "source_driver_user_name",
       key: "source_driver_user_name"
     },
-    {
-      title: "订单状态",
-      dataIndex: "order_status",
-      key: "order_status",
-      render: text => {
-        const status = ORDER_STATUS.find(item => item.name === text);
-        return text && status ? status.desc : "";
-      }
-    },
+
     {
       title: "类型",
       dataIndex: "scene",
@@ -360,16 +371,7 @@ class Shuttle extends PureComponent {
       key: "create_time",
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
-    {
-      title: "司机电话",
-      dataIndex: "driver_mobile",
-      key: "driver_mobile"
-    },
-    {
-      title: "车牌号",
-      dataIndex: "driver_car_no",
-      key: "driver_car_no"
-    },
+
     {
       title: "价格",
       dataIndex: "price",

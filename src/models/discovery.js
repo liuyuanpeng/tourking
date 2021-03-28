@@ -57,12 +57,12 @@ export default {
       }
     },
     *deleteDiscovery({payload}, {call, put}) {
-      const {data, onSuccess, onFailure} = payload
-      const response = yield call(queryDiscoverValid, data.id)
+      const {id, onSuccess, onFailure, ...others} = payload
+      const response = yield call(deleteDiscovery, id)
       if (response.code === 'SUCCESS') {
         yield put({
           type: 'fetchDiscoveryPage',
-          payload: data
+          payload: others
         })
         onSuccess && onSuccess()
       } else {

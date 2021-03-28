@@ -49,7 +49,7 @@ class DriverInput extends Component {
   };
 
   render() {
-    const { loading, data, drivers } = this.props;
+    const { loading, data, drivers, style } = this.props;
     const { value } = this.state;
     let sourceData = data;
     if (data && data.length <= 0 && drivers) {
@@ -65,7 +65,7 @@ class DriverInput extends Component {
         filterOption={false}
         onSearch={this.fetchDrivers}
         onChange={this.handleChange}
-        style={{ width: "100%" }}
+        style={style || { width: "100%" }}
       >
         {sourceData.map(d => (
           <Option key={d.id}>

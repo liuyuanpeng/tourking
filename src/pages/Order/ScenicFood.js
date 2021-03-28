@@ -280,13 +280,6 @@ class ScenicFood extends PureComponent {
 
   columns = [
     {
-      title: "来源",
-      dataIndex: "source",
-      key: "source",
-      textWrap: "word-break",
-      render: (text, record) => record.shop_name || record.mobile
-    },
-    {
       title: "订单状态",
       dataIndex: "order_status",
       key: "order_status",
@@ -294,6 +287,23 @@ class ScenicFood extends PureComponent {
         const status = ORDER_STATUS.find(item => item.name === text);
         return text && status ? status.desc : "";
       }
+    },
+    {
+      title: "司机电话",
+      dataIndex: "driver_mobile",
+      key: "driver_mobile"
+    },
+    {
+      title: "车牌号",
+      dataIndex: "driver_car_no",
+      key: "driver_car_no"
+    },
+    {
+      title: "来源",
+      dataIndex: "source",
+      key: "source",
+      textWrap: "word-break",
+      render: (text, record) => record.shop_name || record.mobile
     },
     {
       title: "乘车人姓名",
@@ -339,16 +349,6 @@ class ScenicFood extends PureComponent {
       dataIndex: "create_time",
       key: "create_time",
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
-    },
-    {
-      title: "司机电话",
-      dataIndex: "driver_mobile",
-      key: "driver_mobile"
-    },
-    {
-      title: "车牌号",
-      dataIndex: "driver_car_no",
-      key: "driver_car_no"
     },
     {
       title: "价格",

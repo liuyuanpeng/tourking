@@ -274,7 +274,9 @@ class ShopManager extends PureComponent {
               type: "user/searchUser",
               payload: {
                 keyword: values.username,
-                role: this.driverRoleId
+                role: this.driverRoleId,
+                page: 0,
+                size: 10
               }
             })
           : dispatch({
@@ -458,16 +460,30 @@ class ShopManager extends PureComponent {
   };
 
   handlePageChange = (page, size) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: "user/fetchUserList",
-      payload: {
-        role: this.driverRoleId,
-        page,
-        size,
-        onFailure: msg => {
-          message.error(msg || "获取账号列表失败");
-        }
+    const { dispatch, form } = this.props;
+    form.validateFieldsAndScroll((err, values) => {
+      if (!err) {
+        values.username
+          ? dispatch({
+              type: "user/searchUser",
+              payload: {
+                keyword: values.username,
+                role: this.driverRoleId,
+                page,
+                size
+              }
+            })
+          : dispatch({
+              type: "user/fetchUserList",
+              payload: {
+                role: this.driverRoleId,
+                page,
+                size,
+                onFailure: msg => {
+                  message.error(msg || "获取账号列表失败");
+                }
+              }
+            });
       }
     });
   };

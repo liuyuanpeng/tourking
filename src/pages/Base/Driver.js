@@ -392,11 +392,11 @@ export default class Driver extends PureComponent {
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
             <div className={styles.tableListForm}>
-              <div className={styles.tableListOperator}>
+              {/* <div className={styles.tableListOperator}>
                 <Button icon="setting" type="primary" onClick={this.onEdit}>
                   管理评价项
                 </Button>
-              </div>
+              </div> */}
               <Table
                 rowKey={record => record.driver_evaluate.id}
                 loading={loading}

@@ -459,6 +459,25 @@ class Shuttle extends PureComponent {
 
   columns = [
     {
+      title: "订单状态",
+      dataIndex: "order_status",
+      key: "order_status",
+      render: text => {
+        const status = ORDER_STATUS.find(item => item.name === text);
+        return text && status ? status.desc : "";
+      }
+    },
+    {
+      title: "司机电话",
+      dataIndex: "driver_mobile",
+      key: "driver_mobile"
+    },
+    {
+      title: "车牌号",
+      dataIndex: "driver_car_no",
+      key: "driver_car_no"
+    },
+    {
       title: "来源",
       dataIndex: "source",
       key: "source",
@@ -474,15 +493,6 @@ class Shuttle extends PureComponent {
       title: "扫码司机",
       dataIndex: "source_driver_user_name",
       key: "source_driver_user_name"
-    },
-    {
-      title: "订单状态",
-      dataIndex: "order_status",
-      key: "order_status",
-      render: text => {
-        const status = ORDER_STATUS.find(item => item.name === text);
-        return text && status ? status.desc : "";
-      }
     },
     {
       title: "类型",
@@ -568,16 +578,6 @@ class Shuttle extends PureComponent {
       dataIndex: "create_time",
       key: "create_time",
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
-    },
-    {
-      title: "司机电话",
-      dataIndex: "driver_mobile",
-      key: "driver_mobile"
-    },
-    {
-      title: "车牌号",
-      dataIndex: "driver_car_no",
-      key: "driver_car_no"
     },
     {
       title: "价格",
@@ -993,16 +993,21 @@ class Shuttle extends PureComponent {
 
     const { timeType } = this.state;
 
+    const labelLayout = {
+      labelCol: { span: 6 },
+      wrapperCol: { span: 15 }
+    };
+
     return (
-      <Form onSubmit={this.handleSearch} layout="inline">
+      <Form onSubmit={this.handleSearch} layout="flex">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
-          <Col span={8}>
-            <FormItem label="订单状态">
+          <Col>
+            <FormItem {...labelLayout} label="订单状态">
               {getFieldDecorator("order_status")(
                 <Select
                   placeholder="请选择"
                   allowClear
-                  style={{ width: "100%" }}
+                  style={{ width: "200px" }}
                 >
                   {ORDER_STATUS.map(item => (
                     <Option key={item.name} value={item.name}>
@@ -1013,14 +1018,14 @@ class Shuttle extends PureComponent {
               )}
             </FormItem>
           </Col>
-          <Col span={8}>
+          <Col>
             <FormItem label="时间类型">
               {getFieldDecorator("type")(
                 <Select
                   placeholder="请选择"
                   allowClear
                   onChange={this.onTypeChange}
-                  style={{ width: "100%" }}
+                  style={{ width: "200px" }}
                 >
                   <Option value="1">下单时间</Option>
                   <Option value="2">上车时间</Option>
@@ -1041,7 +1046,7 @@ class Shuttle extends PureComponent {
                 })(
                   <RangePicker
                     disabledDate={this.disabledDate}
-                    style={{ width: "100%" }}
+                    style={{ width: "200px" }}
                     placeholder={[
                       formatMessage({ id: "form.date.placeholder.start" }),
                       formatMessage({ id: "form.date.placeholder.end" })
@@ -1051,10 +1056,11 @@ class Shuttle extends PureComponent {
               </FormItem>
             </Col>
           )}
-          <Col span={8}>
+          <Col>
             <FormItem label="订单类型">
               {getFieldDecorator("scene")(
-                <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
+                <Select placeholder="请选择订单类型" 
+                style={{ width: "200px" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
                   <Option key="ORDER_SCENE">单次用车</Option>
@@ -1062,20 +1068,23 @@ class Shuttle extends PureComponent {
               )}
             </FormItem>
           </Col>
-          <Col span={8}>
+          <Col>
             <FormItem label="商家来源">
-              {getFieldDecorator("shop_id")(<ShopInput allowClear />)}
+              {getFieldDecorator("shop_id")(<ShopInput 
+                    style={{ width: "200px" }} allowClear />)}
             </FormItem>
           </Col>
-          <Col span={8}>
+          <Col>
             <FormItem label="扫码商家">
-              {getFieldDecorator("source_shop_id")(<ShopInput allowClear />)}
+              {getFieldDecorator("source_shop_id")(<ShopInput 
+                    style={{ width: "200px" }} allowClear />)}
             </FormItem>
           </Col>
-          <Col span={8}>
+          <Col>
             <FormItem label="扫码司机">
               {getFieldDecorator("source_driver_user_id")(
-                <DriverInput allowClear />
+                <DriverInput 
+                style={{ width: "200px" }} allowClear />
               )}
             </FormItem>
           </Col>

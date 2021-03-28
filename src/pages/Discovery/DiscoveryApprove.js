@@ -190,7 +190,7 @@ export default class DiscoveryApprove extends PureComponent {
         <Tooltip title={text}>
           <span className={styles.twoLine} style={{
             width: '200px',
-            "-webkit-box-orient": 'vertical'
+            WebkitBoxOrient: 'vertical'
           }}>{text}</span>
         </Tooltip>
       )
@@ -285,6 +285,7 @@ export default class DiscoveryApprove extends PureComponent {
       type: "discovery/validDiscovery",
       payload: {
         id,
+        valid,
         page,
         size
       }

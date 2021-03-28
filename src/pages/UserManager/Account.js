@@ -498,17 +498,33 @@ class Account extends PureComponent {
   };
 
   handlePageChange = (page, size) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: "user/fetchUserList",
-      payload: {
-        page,
-        size,
-        onFailure: msg => {
-          message.error(msg || "获取账号列表失败");
-        }
+    const { dispatch, form } = this.props;
+    form.validateFieldsAndScroll((err, values) => {
+      if (!err) {
+        values.username
+          ? dispatch({
+              type: "user/searchUser",
+              payload: {
+                keyword: values.username,
+                role: values.role_id,
+                page,
+                size
+              }
+            })
+          : dispatch({
+              type: "user/fetchUserList",
+              payload: {
+                role: values.role_id,
+                page,
+                size,
+                onFailure: msg => {
+                  message.error(msg || "获取账号列表失败");
+                }
+              }
+            });
       }
     });
+    
   };
 
   onAdd = () => {

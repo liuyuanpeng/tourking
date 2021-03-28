@@ -110,15 +110,19 @@ export default {
       }
     },
     *searchUser({ payload }, { call, put }) {
-      const response = yield call(searchUser, payload.keyword);
+      const response = yield call(searchUser, {
+        username: payload.keyword,
+        page: payload.page || 0,
+        size: payload.size || 10
+      });
       if (response.code === "SUCCESS") {
         yield put({
           type: "saveList",
           payload: {
             filter: payload.role,
             ...response.data,
-            page: 0,
-            size: 10
+            page: payload.page || 0,
+            size: payload.size || 10
           }
         });
       }
@@ -318,7 +322,6 @@ export default {
               if (item.roles[i].id === filter) {
                 return true;
               }
-              return false;
             }
           }
           return false;

@@ -385,7 +385,7 @@ const NewOrder = Form.create()(props => {
           </FormItem>
         </Col>
         <Col>
-          <FormItem {...labelLayout} label="联系电话">
+          <FormItem {...labelLayout} label="乘客电话">
             {readonly ? (
               <span>{formValues.mobile || ""}</span>
             ) : (
@@ -393,7 +393,7 @@ const NewOrder = Form.create()(props => {
                 rules: [
                   {
                     required: true,
-                    message: "请输入联系电话"
+                    message: "接受短信通知的电话号码"
                   },
                   {
                     len: 11,
@@ -478,6 +478,30 @@ class Book extends PureComponent {
 
   columns = [
     {
+      title: "订单状态",
+      dataIndex: "order_status",
+      key: "order_status",
+      render: text => {
+        const status = ORDER_STATUS.find(item => item.name === text);
+        return text && status ? status.desc : "";
+      }
+    },
+    {
+      title: "司机电话",
+      dataIndex: "driver_mobile",
+      key: "driver_mobile"
+    },
+    {
+      title: "司机",
+      dataIndex: "driver_user_name",
+      key: "driver_user_name"
+    },
+    {
+      title: "车牌号",
+      dataIndex: "driver_car_no",
+      key: "driver_car_no"
+    },
+    {
       title: "乘车人姓名",
       dataIndex: "username",
       key: "username"
@@ -541,7 +565,7 @@ class Book extends PureComponent {
       key: "air_no"
     },
     {
-      title: "联系电话",
+      title: "乘客电话",
       dataIndex: "mobile",
       key: "mobile"
     },
@@ -562,16 +586,6 @@ class Book extends PureComponent {
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
-      title: "司机电话",
-      dataIndex: "driver_mobile",
-      key: "driver_mobile"
-    },
-    {
-      title: "车牌号",
-      dataIndex: "driver_car_no",
-      key: "driver_car_no"
-    },
-    {
       title: "手续费",
       dataIndex: "refund_fee",
       key: "refund_fee"
@@ -580,15 +594,6 @@ class Book extends PureComponent {
       title: "订单ID",
       dataIndex: "id",
       key: "id"
-    },
-    {
-      title: "订单状态",
-      dataIndex: "order_status",
-      key: "order_status",
-      render: text => {
-        const status = ORDER_STATUS.find(item => item.name === text);
-        return text && status ? status.desc : "";
-      }
     },
     {
       title: "操作",
