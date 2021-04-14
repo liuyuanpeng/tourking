@@ -108,7 +108,9 @@ models: () => [
         "authority": [
           "book",
           "shopaccount",
-          "shopaddress"
+          "shopaddress",
+          "visitorders",
+          "visitusers"
         ],
         "routes": [
           {
@@ -118,9 +120,40 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}})
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}}),
+  import(/* webpackChunkName: 'p__Shop__models__visitusers.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/visitusers.js').then(m => { return { namespace: 'visitusers',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Shop__Book" */'../Shop/Book'),
+  LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/shop/visitorders",
+            "name": "visitorders",
+            "authority": "visitorders",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}}),
+  import(/* webpackChunkName: 'p__Shop__models__visitusers.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/visitusers.js').then(m => { return { namespace: 'visitusers',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Shop__VisitOrders" */'../Shop/VisitOrders'),
+  LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/shop/visitusers",
+            "name": "visitusers",
+            "authority": "visitusers",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}}),
+  import(/* webpackChunkName: 'p__Shop__models__visitusers.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/visitusers.js').then(m => { return { namespace: 'visitusers',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Shop__VisitUsers" */'../Shop/VisitUsers'),
   LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true
@@ -132,7 +165,8 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}})
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}}),
+  import(/* webpackChunkName: 'p__Shop__models__visitusers.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/visitusers.js').then(m => { return { namespace: 'visitusers',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Shop__Account" */'../Shop/Account'),
   LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,
@@ -146,7 +180,8 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
-  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}})
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}}),
+  import(/* webpackChunkName: 'p__Shop__models__visitusers.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/visitusers.js').then(m => { return { namespace: 'visitusers',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Shop__ShopAddress" */'../Shop/ShopAddress'),
   LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,

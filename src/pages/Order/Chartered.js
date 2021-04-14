@@ -786,7 +786,7 @@ class Shuttle extends PureComponent {
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
           <Col span={8}>
             <FormItem label="订单状态">
-              {getFieldDecorator("order_status")(
+              {getFieldDecorator("order_status_list")(
                 <Select
                   placeholder="请选择"
                   allowClear

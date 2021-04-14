@@ -49,8 +49,15 @@ export async function updateOrder(params) {
 // 获取订单分页
 export async function queryOrderPage(params) {
   const { page, size, onSuccess, onFailure, ...others } = params;
+  const {order_status_list, ...otherParams} = others
+  const querys = otherParams
+  if (order_status_list === 'WAIT_APPROVAL_OR_PAY') {
+    querys.has_pay = false
+  } else if (order_status_list) {
+    querys.order_status_list = order_status_list
+  }
   return request(
-    `/server/travel/order/order_page?${queryString.stringify(others)}`,
+    `/server/travel/order/order_page?${queryString.stringify(querys)}`,
     {
       method: "POST",
       data: {

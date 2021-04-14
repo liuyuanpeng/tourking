@@ -112,6 +112,14 @@ const PermissionSetting = Form.create()(props => {
           key: "book"
         },
         {
+          title: "扫码用户",
+          key: 'visitusers'
+        },
+        {
+          title: "扫码订单",
+          key: 'visitorders'
+        },
+        {
           title: "账户管理",
           key: "shopaccount"
         },

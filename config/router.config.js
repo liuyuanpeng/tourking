@@ -42,13 +42,25 @@ export default [
         path: "/shop",
         name: "shop",
         icon: "shop",
-        authority: ["book", "shopaccount", "shopaddress"],
+        authority: ["book", "shopaccount", "shopaddress", "visitorders", "visitusers"],
         routes: [
           {
             path: "/shop/book",
             name: "book",
             authority: "book",
             component: "./Shop/Book"
+          },
+          {
+            path: "/shop/visitorders",
+            name: "visitorders",
+            authority: "visitorders",
+            component: "./Shop/VisitOrders"
+          },
+          {
+            path: "/shop/visitusers",
+            name: "visitusers",
+            authority: "visitusers",
+            component: "./Shop/VisitUsers"
           },
           {
             path: "/shop/account",

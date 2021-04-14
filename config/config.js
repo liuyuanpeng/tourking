@@ -61,6 +61,7 @@ if (APP_TYPE === 'site') {
 
 const serveUrlMap = {
   dev: 'http://apis.kingtrip.vip/v5/',
+  // dev: 'http://tms.kingtrip.vip/v5',
   pro: 'https://apis.kingtrip.vip/v5/'
   // pro: 'http://tms.kingtrip.vip/v5/'
 };

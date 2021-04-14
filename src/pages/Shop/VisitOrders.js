@@ -20,7 +20,7 @@ import { connect } from "dva";
 import LocationInput from "@/components/LocationInput";
 import moment from "moment";
 import NumberInput from "@/components/NumberInput";
-import ORDER_STATUS from "./orderStatus";
+import ORDER_STATUS from "../Order/orderStatus";
 import styles from "../index.less";
 import ShopInput from "../Settlement/shopInput";
 import DriverInput from "../Base/DriverInput";
@@ -434,7 +434,7 @@ const NewOrder = Form.create()(props => {
   );
 });
 
-@connect(({ consume, order, car_type, loading, city }) => ({
+@connect(({ consume, order, car_type, loading, city, user }) => ({
   loading: loading.effects["order/fetchOrderPage"],
   historyLoading: loading.effects["order/fetchOrderHistory"],
   data: order.list,
@@ -443,10 +443,11 @@ const NewOrder = Form.create()(props => {
   carTypes: car_type.list,
   orderHistory: order.history,
   consumeList: consume.list,
-  city: city.list
+  city: city.list,
+  shop_id: user.shopId
 }))
 @Form.create()
-class Shuttle extends PureComponent {
+class VisitOrders extends PureComponent {
   static propTypes = {};
 
   state = {
@@ -623,7 +624,7 @@ class Shuttle extends PureComponent {
   ];
 
   componentDidMount() {
-    const { dispatch } = this.props;
+    const { dispatch, shop_id } = this.props;
     this.searchKeys = { scene: INIT_SCENE };
     dispatch({
       type: "city/fetchCityList"
@@ -651,6 +652,7 @@ class Shuttle extends PureComponent {
         page: 0,
         size: 10,
         ...this.searchKeys,
+        source_shop_id: shop_id,
         onFailure: msg => {
           message.error(msg || "获取订单列表失败");
         }
@@ -754,7 +756,7 @@ class Shuttle extends PureComponent {
   };
 
   handleSearch = e => {
-    const { dispatch, form } = this.props;
+    const { dispatch, form, shop_id } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
@@ -784,6 +786,7 @@ class Shuttle extends PureComponent {
           page: 0,
           size: 10,
           ...this.searchKeys,
+          source_shop_id: shop_id,
           onFailure: msg => {
             message.error(msg || "获取订单列表失败!");
           }
@@ -793,7 +796,7 @@ class Shuttle extends PureComponent {
   };
 
   handleReset = () => {
-    const { dispatch, form } = this.props;
+    const { dispatch, form, shop_id } = this.props;
     form.resetFields();
     this.searchKeys = { scene: INIT_SCENE };
     dispatch({
@@ -802,6 +805,7 @@ class Shuttle extends PureComponent {
         page: 0,
         size: 10,
         ...this.searchKeys,
+        source_shop_id: shop_id,
         onFailure: msg => {
           message.error(msg || "获取订单列表失败!");
         }
@@ -810,13 +814,14 @@ class Shuttle extends PureComponent {
   };
 
   handleRefresh = () => {
-    const { dispatch, page } = this.props;
+    const { dispatch, page, shop_id } = this.props;
     dispatch({
       type: "order/fetchOrderPage",
       payload: {
         page,
         size: 10,
         ...this.searchKeys,
+        source_shop_id: shop_id,
         onFailure: msg => {
           message.error(msg || "获取订单列表失败!");
         }
@@ -911,13 +916,14 @@ class Shuttle extends PureComponent {
   };
 
   handlePageChange = (page, size) => {
-    const { dispatch } = this.props;
+    const { dispatch, shop_id } = this.props;
     dispatch({
       type: "order/fetchOrderPage",
       payload: {
         page,
         size,
         ...this.searchKeys,
+        source_shop_id: shop_id,
         onFailure: msg => {
           message.error(msg || "获取订单列表失败");
         }
@@ -1069,26 +1075,6 @@ class Shuttle extends PureComponent {
             </FormItem>
           </Col>
           <Col>
-            <FormItem label="商家来源">
-              {getFieldDecorator("shop_id")(<ShopInput 
-                    style={{ width: "200px" }} allowClear />)}
-            </FormItem>
-          </Col>
-          <Col>
-            <FormItem label="扫码商家">
-              {getFieldDecorator("source_shop_id")(<ShopInput 
-                    style={{ width: "200px" }} allowClear />)}
-            </FormItem>
-          </Col>
-          <Col>
-            <FormItem label="扫码司机">
-              {getFieldDecorator("source_driver_user_id")(
-                <DriverInput 
-                style={{ width: "200px" }} allowClear />
-              )}
-            </FormItem>
-          </Col>
-          <Col>
             <FormItem label="输入查找">
               {getFieldDecorator("value")(
                 <Input placeholder="姓名/手机号/订单ID" />
@@ -1140,7 +1126,7 @@ class Shuttle extends PureComponent {
     };
 
     return (
-      <PageHeaderWrap title="接送机/站管理">
+      <PageHeaderWrap title="扫码用户订单">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -1177,4 +1163,4 @@ class Shuttle extends PureComponent {
     );
   }
 }
-export default Shuttle;
+export default VisitOrders;

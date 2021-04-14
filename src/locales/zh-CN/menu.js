@@ -5,6 +5,8 @@ export default {
   "menu.register.result": "注册结果",
   "menu.shop": "合作商家",
   "menu.shop.book": "预约订单",
+  "menu.shop.visitusers": "扫码用户",
+  "menu.shop.visitorders": "扫码用户下单",
   "menu.shop.account": "账户管理",
   "menu.shop.shopaddress": "常用地址",
   "menu.order": "订单管理",
