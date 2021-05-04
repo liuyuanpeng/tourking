@@ -306,7 +306,7 @@ export default class CarType extends PureComponent {
           >
             编辑
           </a>
-          <Divider type="vertical" />
+          {/* <Divider type="vertical" />
           <Popconfirm
             title="确定删除该车辆分类吗?"
             onConfirm={() => {
@@ -316,7 +316,7 @@ export default class CarType extends PureComponent {
             cancelText="否"
           >
             <a href="javascript:;">删除</a>
-          </Popconfirm>
+          </Popconfirm> */}
         </span>
       )
     }

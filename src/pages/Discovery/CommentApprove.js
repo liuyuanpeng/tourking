@@ -163,6 +163,12 @@ export default class CommentApprove extends PureComponent {
       )
     },
     {
+      title: '时间',
+      key: 'create_time',
+      dataIndex: 'create_time',
+      render: text => text ? moment(text).format('YYYY-MM-DD HH:mm:ss') : ''
+    },
+    {
       title: "操作",
       key: "action",
       render: (text, record) => (

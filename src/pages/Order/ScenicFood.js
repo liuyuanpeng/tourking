@@ -28,7 +28,7 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const INIT_SCENE = "JINGDIAN_PRIVATE";
+const INIT_SCENE = ["JINGDIAN_PRIVATE", "MEISHI_PRIVATE"].toString();
 
 const NewOrder = Form.create()(props => {
   const {

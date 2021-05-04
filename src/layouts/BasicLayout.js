@@ -68,7 +68,6 @@ class BasicLayout extends React.Component {
       type: "user/fetchUser",
       payload: {
         isAdmin: () => {
-          return
           document.onclick = tryPlay;
           localStorage.setItem("WARNING_COUNT", 0);
           window.GLOBAL_INTERVAL = setInterval(() => {
@@ -118,7 +117,7 @@ class BasicLayout extends React.Component {
                 }
               }
             });
-          }, 5000);
+          }, 10000);
         }
       }
     });

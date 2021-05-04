@@ -284,7 +284,6 @@ export default class Coupon extends PureComponent {
 
   handleAdd = fields => {
     const { dispatch, data } = this.props;
-    console.log("fileds", fields);
     const { start_time, end_time, ...others } = fields;
     const { coupon_category } = fields;
     if (coupon_category === "FANLI" || coupon_category === "XINYONGHU") {

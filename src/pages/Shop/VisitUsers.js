@@ -49,9 +49,25 @@ class VisitUsers extends PureComponent {
     }
   ];
 
+  componentWillReceiveProps(nextProps) {
+    const { shop_id, dispatch } = this.props;
+    if (shop_id !== nextProps.shop_id) {
+      dispatch({
+        type: "visitusers/fetchVisitUsers",
+        payload: {
+          source_shop_id: nextProps.shop_id,
+          page: 0,
+          size: 10,
+          onFailure: msg => {
+            message.error(msg || "获取扫码用户列表失败");
+          }
+        }
+      });
+    }
+  }
+
   componentDidMount() {
     const { dispatch, shopId } = this.props;
-    console.log(shopId);
     shopId &&
       dispatch({
         type: "visitusers/fetchVisitUsers",

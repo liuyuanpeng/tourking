@@ -209,7 +209,6 @@ export default class CarManager extends PureComponent {
       type: "city/fetchCityList",
       payload: {
         onSuccess: city => {
-          console.log(city);
           if (city && city.length) {
             this.props.dispatch({
               type: "sit/fetchSitList",

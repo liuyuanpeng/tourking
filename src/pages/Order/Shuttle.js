@@ -1063,7 +1063,7 @@ class Shuttle extends PureComponent {
                 style={{ width: "200px" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
-                  <Option key="ORDER_SCENE">单次用车</Option>
+                  {/* <Option key="ORDER_SCENE">单次用车</Option> */}
                 </Select>
               )}
             </FormItem>

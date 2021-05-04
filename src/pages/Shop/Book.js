@@ -41,7 +41,7 @@ const NewOrder = Form.create()(props => {
     handleModalVisible,
     formValues,
     updateFormValue,
-    city,
+    city
   } = props;
 
   let origin = null;
@@ -81,7 +81,7 @@ const NewOrder = Form.create()(props => {
     if (readonly) return handleModalVisible();
     form.validateFields((err, fieldsValue) => {
       if (err) return;
-      let zuowei_id = ''
+      let zuowei_id = "";
       if (fieldsValue.chexing_id) {
         const selectConsume = consumeArr.find(
           item => item.chexing.id === fieldsValue.chexing_id
@@ -401,7 +401,12 @@ const NewOrder = Form.create()(props => {
                   }
                 ],
                 initialValue: formValues.mobile || ""
-              })(<NumberInput placeholder="这里填写接收短信的手机号" numberType="positive integer" />)
+              })(
+                <NumberInput
+                  placeholder="这里填写接收短信的手机号"
+                  numberType="positive integer"
+                />
+              )
             )}
           </FormItem>
         </Col>
@@ -609,10 +614,12 @@ class Book extends PureComponent {
           <a href="javascript:;" onClick={() => this.showHistory(record)}>
             历史
           </a>
-          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
-            <Divider type="vertical" />
-          )}
-          {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
+          {(record.order_status === "WAIT_APPROVAL_OR_PAY" ||
+            record.order_status === "AUTO" ||
+            record.order_status === "ACCEPTED") && <Divider type="vertical" />}
+          {(record.order_status === "WAIT_APPROVAL_OR_PAY" ||
+            record.order_status === "AUTO" ||
+            record.order_status === "ACCEPTED") && (
             <a href="javascript:;" onClick={() => this.onEdit(record)}>
               编辑
             </a>
@@ -1236,7 +1243,7 @@ class Book extends PureComponent {
                 <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
-                  <Option key="ORDER_SCENE">单次用车</Option>
+                  {/* <Option key="ORDER_SCENE">单次用车</Option> */}
                 </Select>
               )}
             </FormItem>

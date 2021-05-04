@@ -623,6 +623,25 @@ class VisitOrders extends PureComponent {
     }
   ];
 
+  componentWillReceiveProps(nextProps) {
+    const { shop_id, dispatch } = this.props;
+    if (shop_id !== nextProps.shop_id) {
+      this.searchKeys = { ...this.searchKeys };
+      nextProps.shop_id && dispatch({
+        type: "order/fetchOrderPage",
+        payload: {
+          page: 0,
+          size: 10,
+          ...this.searchKeys,
+          source_shop_id: nextProps.shop_id,
+          onFailure: msg => {
+            message.error(msg || "获取订单列表失败");
+          }
+        }
+      });
+    }
+  }
+
   componentDidMount() {
     const { dispatch, shop_id } = this.props;
     this.searchKeys = { scene: INIT_SCENE };
@@ -646,7 +665,7 @@ class VisitOrders extends PureComponent {
         }
       }
     });
-    dispatch({
+    shop_id && dispatch({
       type: "order/fetchOrderPage",
       payload: {
         page: 0,
@@ -1069,7 +1088,7 @@ class VisitOrders extends PureComponent {
                 style={{ width: "200px" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
-                  <Option key="ORDER_SCENE">单次用车</Option>
+                  {/* <Option key="ORDER_SCENE">单次用车</Option> */}
                 </Select>
               )}
             </FormItem>

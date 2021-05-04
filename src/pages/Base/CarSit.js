@@ -120,7 +120,6 @@ export default class CarSit extends PureComponent {
 
   handleAdd = fields => {
     const { dispatch } = this.props;
-    console.log("fileds", fields);
     dispatch({
       type: "sit/saveSit",
       payload: {
@@ -155,7 +154,7 @@ export default class CarSit extends PureComponent {
           >
             编辑
           </a>
-          <Divider type="vertical" />
+          {/* <Divider type="vertical" />
           <Popconfirm
             title="确定删除该座位分类吗?"
             onConfirm={() => {
@@ -165,7 +164,7 @@ export default class CarSit extends PureComponent {
             cancelText="否"
           >
             <a href="javascript:;">删除</a>
-          </Popconfirm>
+          </Popconfirm> */}
         </span>
       )
     }

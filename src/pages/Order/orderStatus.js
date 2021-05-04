@@ -18,7 +18,7 @@ const ORDER_STATUS = [
   },
   {
     name: "DONE",
-    desc: "待结算"
+    desc: "已完成"
   },
   {
     name: "SETTLED",

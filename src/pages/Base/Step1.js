@@ -106,7 +106,6 @@ class Step1 extends React.PureComponent {
       sits
     } = this.props;
     const { car_levels } = data;
-    console.log(data)
     const carLevel = car_levels ? car_levels[0] || {} : {};
     const { getFieldDecorator, validateFields } = form;
     const readonly = mode === "readonly";

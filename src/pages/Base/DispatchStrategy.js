@@ -392,7 +392,7 @@ export default class PriceStrategy extends PureComponent {
           >
             编辑
           </a>
-          <Divider type="vertical" />
+          {/* <Divider type="vertical" />
           <Popconfirm
             title="确定删除该派单策略吗?"
             onConfirm={() => {
@@ -402,7 +402,7 @@ export default class PriceStrategy extends PureComponent {
             cancelText="否"
           >
             <a href="javascript:;">删除</a>
-          </Popconfirm>
+          </Popconfirm> */}
         </span>
       )
     }
@@ -483,7 +483,7 @@ export default class PriceStrategy extends PureComponent {
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>
-              <div className={styles.tableListOperator}>
+              {/* <div className={styles.tableListOperator}>
                 <Button
                   icon="plus"
                   type="primary"
@@ -491,7 +491,7 @@ export default class PriceStrategy extends PureComponent {
                 >
                   新增派单策略
                 </Button>
-              </div>
+              </div> */}
               <Table
                 rowKey={record => record.id}
                 loading={loading}

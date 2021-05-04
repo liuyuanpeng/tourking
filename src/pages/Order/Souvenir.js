@@ -141,7 +141,6 @@ const ExpressSetting = Form.create()(props => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
-      console.log(formValues, fieldsValue);
       handleExpress({ ...formValues, ...fieldsValue });
     });
   };

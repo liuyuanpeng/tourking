@@ -475,7 +475,7 @@ export default class PriceStrategy extends PureComponent {
           >
             编辑
           </a>
-          <Divider type="vertical" />
+          {/* <Divider type="vertical" />
           <Popconfirm
             title="确定删除该价格策略吗?"
             onConfirm={() => {
@@ -485,7 +485,7 @@ export default class PriceStrategy extends PureComponent {
             cancelText="否"
           >
             <a href="javascript:;">删除</a>
-          </Popconfirm>
+          </Popconfirm> */}
         </span>
       )
     }
@@ -594,6 +594,7 @@ export default class PriceStrategy extends PureComponent {
                 loading={loading}
                 dataSource={data}
                 columns={this.columns}
+                scroll={{ x: 2080 }}
               />
             </div>
           </div>
