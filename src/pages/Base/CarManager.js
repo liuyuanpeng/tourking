@@ -429,13 +429,20 @@ export default class CarManager extends PureComponent {
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        this.searchKey = values.car_no || "";
+        const {car_no, driver_user_id} = values
+        this.searchKeys = {}
+        if (car_no) {
+          this.searchKeys.car_no = car_no
+        }
+        if (driver_user_id) {
+          this.searchKeys.driver_user_id = driver_user_id
+        }
         dispatch({
           type: "car/fetchCarPage",
           payload: {
             page: 0,
             size: 10,
-            car_no: this.searchKey || "",
+            ...this.searchKeys,
             onFailure: msg => {
               message.error(msg || "获取车辆列表失败");
             }
@@ -458,6 +465,11 @@ export default class CarManager extends PureComponent {
               {getFieldDecorator("car_no")(<Input placeholder="车牌号" />)}
             </FormItem>
           </Col>
+          <Col span={9}>
+            <FormItem label="司机">
+              {getFieldDecorator("driver_user_id")(<DriverInput placeholder="司机" />)}
+            </FormItem>
+          </Col>
           <Col span={5}>
             <Button onClick={this.handleSearch}>查询</Button>
           </Col>
@@ -472,7 +484,7 @@ export default class CarManager extends PureComponent {
       payload: {
         page,
         size,
-        car_no: this.searchKey || "",
+        ...this.searchKeys,
         onFailure: msg => {
           message.error(msg || "获取车辆列表失败");
         }

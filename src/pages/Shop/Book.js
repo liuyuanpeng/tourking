@@ -67,13 +67,26 @@ const NewOrder = Form.create()(props => {
 
   let consumeArr = [];
   if (formValues.scene && formValues.city_id) {
-    const consume = consumeList.find(
-      item =>
-        item.consume.scene === formValues.scene &&
-        item.consume.city_id === formValues.city_id
-    );
-    if (consume) {
-      consumeArr = consume.car_levels ? consume.car_levels : [];
+    let consume;
+    if (formValues.scene === "DAY_PRIVATE" && formValues.taocan) {
+      consume = consumeList.filter(
+        item =>
+          item.consume.scene === formValues.scene &&
+          item.consume.city_id === formValues.city_id &&
+          item.consume.taocan === formValues.taocan
+      );
+      if (consume && consume.length === 1) {
+        consumeArr = consume[0].car_levels ? consume[0].car_levels : [];
+      }
+    } else if (formValues.scene !== "DAY_PRIVATE") {
+      consume = consumeList.find(
+        item =>
+          item.consume.scene === formValues.scene &&
+          item.consume.city_id === formValues.city_id
+      );
+      if (consume) {
+        consumeArr = consume.car_levels ? consume.car_levels : [];
+      }
     }
   }
 
@@ -82,19 +95,26 @@ const NewOrder = Form.create()(props => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       let zuowei_id = "";
+      let price = 0;
       if (fieldsValue.chexing_id) {
         const selectConsume = consumeArr.find(
           item => item.chexing.id === fieldsValue.chexing_id
         );
         if (selectConsume) {
           zuowei_id = selectConsume.zuowei.id;
+          price = selectConsume.price * fieldsValue.days;
         }
       }
       form.resetFields();
       if (type === "edit") {
-        handleEdit({ ...fieldsValue, zuowei_id });
+        handleEdit({ ...fieldsValue, zuowei_id, price, total_price: price });
       } else {
-        handleAddOrder({ ...fieldsValue, zuowei_id });
+        handleAddOrder({
+          ...fieldsValue,
+          zuowei_id,
+          price,
+          total_price: price
+        });
       }
     });
     return null;
@@ -140,6 +160,18 @@ const NewOrder = Form.create()(props => {
   const changeScene = value => {
     updateFormValue({
       scene: value,
+      chexing_id: undefined,
+      taocan: undefined
+    });
+    form.setFieldsValue({
+      chexing_id: undefined,
+      taocan: undefined
+    });
+  };
+
+  const changeTaocan = value => {
+    updateFormValue({
+      taocan: value,
       chexing_id: undefined
     });
     form.setFieldsValue({
@@ -150,17 +182,35 @@ const NewOrder = Form.create()(props => {
   const changeCity = value => {
     updateFormValue({
       city_id: value,
-      chexing_id: undefined
+      chexing_id: undefined,
+      taocan: undefined
     });
     form.setFieldsValue({
-      chexing_id: undefined
+      chexing_id: undefined,
+      taocan: undefined
     });
   };
 
   const changeChexing = value => {
-    updateFormValue({
-      chexing_id: value
-    });
+    const carLevel = consumeArr.find(item => item.chexing.id === value);
+    updateFormValue(
+      {
+        chexing_id: value
+      },
+      carLevel ? carLevel.price : 0
+    );
+  };
+
+  const changeDays = value => {
+    const carLevel = consumeArr.find(
+      item => item.chexing.id === formValues.chexing_id
+    );
+    updateFormValue(
+      {
+        days: value
+      },
+      carLevel ? carLevel.price : 0
+    );
   };
 
   const changeStartTime = value => {
@@ -168,6 +218,8 @@ const NewOrder = Form.create()(props => {
       start_time: value ? value.valueOf() : ""
     });
   };
+
+  let scene = formValues.scene;
 
   return (
     <Modal
@@ -189,6 +241,8 @@ const NewOrder = Form.create()(props => {
                   ? "接机/站"
                   : formValues.scene === "SONGJI"
                   ? "送机/站"
+                  : formValues.scene === "DAY_PRIVATE"
+                  ? "按天包车"
                   : "单次用车"}
               </span>
             ) : (
@@ -199,6 +253,7 @@ const NewOrder = Form.create()(props => {
                 <Select style={{ width: "100%" }} onChange={changeScene}>
                   <Option value="JIEJI">接机/站</Option>
                   <Option value="SONGJI">送机/站</Option>
+                  <Option value="DAY_PRIVATE">按天包车</Option>
                 </Select>
               )
             )}
@@ -228,6 +283,29 @@ const NewOrder = Form.create()(props => {
             )}
           </FormItem>
         </Col>
+        {scene === "DAY_PRIVATE" && !readonly && (
+          <Col>
+            <FormItem {...labelLayout} label="套餐选择">
+              {readonly ? (
+                <span>
+                  {formValues.taocan === "meal_1"
+                    ? "套餐一(8小时100公里)"
+                    : "套餐二(8小时200公里)"}
+                </span>
+              ) : (
+                form.getFieldDecorator("taocan", {
+                  initialValue: formValues.taocan || "",
+                  rules: [{ required: true, message: "请选择套餐" }]
+                })(
+                  <Select style={{ width: "100%" }} onChange={changeTaocan}>
+                    <Option value="meal_1">套餐一(8小时100公里)</Option>
+                    <Option value="meal_2">套餐二(8小时200公里)</Option>
+                  </Select>
+                )
+              )}
+            </FormItem>
+          </Col>
+        )}
         <Col>
           <FormItem {...labelLayout} label="车型">
             {readonly ? (
@@ -240,7 +318,12 @@ const NewOrder = Form.create()(props => {
             ) : (
               form.getFieldDecorator("chexing_id", {
                 rules: [{ required: true, message: "请选择车型" }],
-                initialValue: formValues.chexing_id || ""
+                initialValue:
+                  formValues.scene === "DAY_PRIVATE"
+                    ? formValues.taocan
+                      ? formValues.chexing_id || ""
+                      : ""
+                    : formValues.chexing_id || ""
               })(
                 <Select style={{ width: "100%" }} onChange={changeChexing}>
                   {consumeArr.map(item => (
@@ -317,56 +400,84 @@ const NewOrder = Form.create()(props => {
             )}
           </FormItem>
         </Col>
-        <Col>
-          <FormItem {...labelLayout} label="目的地">
-            {readonly ? (
-              <span>{formValues.target_place || ""}</span>
-            ) : (
-              form.getFieldDecorator("end_location", {
-                rules: [
-                  {
-                    required: true,
-                    message: "请选择目的地"
-                  }
-                ],
-                initialValue:
-                  type === "edit"
-                    ? {
-                        address: formValues.target_place,
-                        location: {
-                          longitude: formValues.target_longitude,
-                          latitude: formValues.target_latitude
-                        }
-                      }
-                    : undefined
-              })(
-                <LocationInput
-                  isShop
-                  origin={origin}
-                  onChange={destinationChange}
-                />
-              )
-            )}
-          </FormItem>
-        </Col>
-        {formValues.price && (
+        {scene === "DAY_PRIVATE" && (
           <Col>
-            <FormItem {...labelLayout} label="价格">
-              <span>{formValues.price || ""}</span>
+            <FormItem {...labelLayout} label="包车天数">
+              {readonly ? (
+                <span>{`${formValues.days || 0}天`}</span>
+              ) : (
+                form.getFieldDecorator("days", {
+                  initialValue: formValues.days || 1,
+                  rules: [{ required: true, message: "请输入包车天数" }]
+                })(
+                  <NumberInput
+                    onChange={changeDays}
+                    addonAfter="天"
+                    numberType="integer"
+                    placeholder="请输入包车天数"
+                  />
+                )
+              )}
             </FormItem>
           </Col>
         )}
-        <Col>
-          <FormItem {...labelLayout} label="航班号">
-            {readonly ? (
-              <span>{formValues.air_no || ""}</span>
-            ) : (
-              form.getFieldDecorator("air_no", {
-                initialValue: formValues.air_no || ""
-              })(<Input />)
-            )}
-          </FormItem>
-        </Col>
+        {scene !== "DAY_PRIVATE" && (
+          <Col>
+            <FormItem {...labelLayout} label="目的地">
+              {readonly ? (
+                <span>{formValues.target_place || ""}</span>
+              ) : (
+                form.getFieldDecorator("end_location", {
+                  rules: [
+                    {
+                      required: true,
+                      message: "请选择目的地"
+                    }
+                  ],
+                  initialValue:
+                    type === "edit"
+                      ? {
+                          address: formValues.target_place,
+                          location: {
+                            longitude: formValues.target_longitude,
+                            latitude: formValues.target_latitude
+                          }
+                        }
+                      : undefined
+                })(
+                  <LocationInput
+                    isShop
+                    origin={origin}
+                    onChange={destinationChange}
+                  />
+                )
+              )}
+            </FormItem>
+          </Col>
+        )}
+        {(formValues.price && formValues.scene === "DAY_PRIVATE") ||
+          (formValues.scene === "DAY_PRIVATE" &&
+            formValues.taocan &&
+            formValues.price && (
+              <Col>
+                <FormItem {...labelLayout} label="价格">
+                  <span>{formValues.price || ""}</span>
+                </FormItem>
+              </Col>
+            ))}
+        {scene !== "DAY_PRIVATE" && (
+          <Col>
+            <FormItem {...labelLayout} label="航班号">
+              {readonly ? (
+                <span>{formValues.air_no || ""}</span>
+              ) : (
+                form.getFieldDecorator("air_no", {
+                  initialValue: formValues.air_no || ""
+                })(<Input />)
+              )}
+            </FormItem>
+          </Col>
+        )}
         <Col>
           <FormItem {...labelLayout} label="乘客姓名">
             {readonly ? (
@@ -520,6 +631,8 @@ class Book extends PureComponent {
           ? "接机/站"
           : text === "SONGJI"
           ? "送机/站"
+          : text === "DAT_PRIVATE"
+          ? "按天包车"
           : "单次用车"
     },
     {
@@ -724,6 +837,9 @@ class Book extends PureComponent {
   }
 
   getCancelInfo = record => {
+    if (!record.driver_user_id) {
+      return "确定取消该订单吗?";
+    }
     const { config } = this.props;
     const {
       before_first_time,
@@ -743,7 +859,7 @@ class Book extends PureComponent {
     }
     const fundFee = Math.max(fundFee1, fundFee2);
     if (fundFee) {
-      return `取消该订单将产生${fundFee.toFixed(2)}退款,确认取消吗?`;
+      return `取消该订单将产生${fundFee.toFixed(2)}手续费,确认取消吗?`;
     }
     return "确定取消该订单吗?";
   };
@@ -993,7 +1109,7 @@ class Book extends PureComponent {
     const {
       start_time,
       start_location,
-      end_location,
+      end_location = "",
       route,
       ...others
     } = value;
@@ -1002,9 +1118,9 @@ class Book extends PureComponent {
       start_place: start_location.address,
       start_longitude: start_location.location.longitude,
       start_latitude: start_location.location.latitude,
-      target_place: end_location.address,
-      target_longitude: end_location.location.longitude,
-      target_latitude: end_location.location.latitude
+      target_place: end_location ? end_location.address : "",
+      target_longitude: end_location ? end_location.location.longitude : "",
+      target_latitude: end_location ? end_location.location.latitude : ""
     };
     if (route && route.time && route.kilo) {
       params.priceParams = {
@@ -1012,6 +1128,11 @@ class Book extends PureComponent {
         time: route.time
       };
     }
+
+    console.log({
+      ...others,
+      ...params
+    });
 
     dispatch({
       type: "order/createOrder",
@@ -1043,7 +1164,7 @@ class Book extends PureComponent {
       start_time,
       chexing_id,
       start_location,
-      end_location,
+      end_location = "",
       route,
       ...others
     } = info;
@@ -1054,9 +1175,9 @@ class Book extends PureComponent {
       start_place: start_location.address,
       start_longitude: start_location.location.longitude,
       start_latitude: start_location.location.latitude,
-      target_place: end_location.address,
-      target_longitude: end_location.location.longitude,
-      target_latitude: end_location.location.latitude
+      target_place: end_location ? end_location.address : "",
+      target_longitude: end_location ? end_location.location.longitude : "",
+      target_latitude: end_location ? end_location.location.latitude : ""
     };
 
     if (route && route.time && route.kilo) {
@@ -1125,7 +1246,7 @@ class Book extends PureComponent {
     });
   };
 
-  updateFormValue = params => {
+  updateFormValue = (params, singlePrice) => {
     const { formValues } = this.state;
     const newFormValues = {
       ...formValues,
@@ -1144,9 +1265,17 @@ class Book extends PureComponent {
       kilo,
       time,
       start_time,
-      city_id
+      city_id,
+      days = 1
     } = newFormValues;
-    if (scene && chexing_id && kilo && time && city_id) {
+    if (
+      scene &&
+      scene !== "DAY_PRIVATE" &&
+      chexing_id &&
+      kilo &&
+      time &&
+      city_id
+    ) {
       dispatch({
         type: "order/getPrice",
         payload: {
@@ -1167,6 +1296,14 @@ class Book extends PureComponent {
               }
             });
           }
+        }
+      });
+    }
+    if (scene === "DAY_PRIVATE" && days && singlePrice) {
+      this.setState({
+        formValues: {
+          ...newFormValues,
+          price: days * singlePrice
         }
       });
     }

@@ -110,7 +110,8 @@ models: () => [
           "shopaccount",
           "shopaddress",
           "visitorders",
-          "visitusers"
+          "visitusers",
+          "shoppercentage"
         ],
         "routes": [
           {
@@ -124,6 +125,21 @@ models: () => [
   import(/* webpackChunkName: 'p__Shop__models__visitusers.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/visitusers.js').then(m => { return { namespace: 'visitusers',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Shop__Book" */'../Shop/Book'),
+  LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/shop/shoppercentage",
+            "name": "shoppercentage",
+            "authority": "shoppercentage",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Shop__models__shopAddress.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/shopAddress.js').then(m => { return { namespace: 'shopAddress',...m.default}}),
+  import(/* webpackChunkName: 'p__Shop__models__visitusers.js' */'/Volumes/Storage_T5/tourking/src/pages/Shop/models/visitusers.js').then(m => { return { namespace: 'visitusers',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Shop__ShopPercentage" */'../Shop/ShopPercentage'),
   LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true
@@ -212,6 +228,7 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
+  import(/* webpackChunkName: 'p__Order__models__percentage.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/percentage.js').then(m => { return { namespace: 'percentage',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
 ],
@@ -227,6 +244,7 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
+  import(/* webpackChunkName: 'p__Order__models__percentage.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/percentage.js').then(m => { return { namespace: 'percentage',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
 ],
@@ -242,6 +260,7 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
+  import(/* webpackChunkName: 'p__Order__models__percentage.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/percentage.js').then(m => { return { namespace: 'percentage',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
 ],
@@ -257,6 +276,7 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
+  import(/* webpackChunkName: 'p__Order__models__percentage.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/percentage.js').then(m => { return { namespace: 'percentage',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
 ],
@@ -272,10 +292,27 @@ models: () => [
             "component": _dvaDynamic({
   app: window.g_app,
 models: () => [
+  import(/* webpackChunkName: 'p__Order__models__percentage.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/percentage.js').then(m => { return { namespace: 'percentage',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
   import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
 ],
   component: () => import(/* webpackChunkName: "p__Order__Dispatch" */'../Order/Dispatch'),
+  LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,
+}),
+            "exact": true
+          },
+          {
+            "path": "/order/percentage",
+            "name": "percentage",
+            "authority": "percentage",
+            "component": _dvaDynamic({
+  app: window.g_app,
+models: () => [
+  import(/* webpackChunkName: 'p__Order__models__percentage.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/percentage.js').then(m => { return { namespace: 'percentage',...m.default}}),
+  import(/* webpackChunkName: 'p__Order__models__shuttle.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/shuttle.js').then(m => { return { namespace: 'shuttle',...m.default}}),
+  import(/* webpackChunkName: 'p__Order__models__warning.js' */'/Volumes/Storage_T5/tourking/src/pages/Order/models/warning.js').then(m => { return { namespace: 'warning',...m.default}})
+],
+  component: () => import(/* webpackChunkName: "p__Order__Percentage" */'../Order/Percentage'),
   LoadingComponent: require('/Volumes/Storage_T5/tourking/src/components/PageLoading/index').default,
 }),
             "exact": true

@@ -205,6 +205,10 @@ const NewLevel = Form.create()(props => {
                 ? "接机/站"
                 : formValues.consume.scene === "SONGJI"
                 ? "送机/站"
+                : formValues.consume.scene === "JINGDIAN_PRIVATE"
+                ? "景点包车"
+                : formValues.consume.scene === "MEISHI_PRIVATE"
+                ? "美食包车"
                 : "按天包车"}
             </span>
           ) : (
@@ -266,7 +270,7 @@ const NewLevel = Form.create()(props => {
             )}
           </FormItem>
         )}
-{isBAOCHE && (
+        {isBAOCHE && (
           <FormItem {...labelLayout} label="套餐价格">
             {readonly ? (
               <span>
@@ -279,8 +283,12 @@ const NewLevel = Form.create()(props => {
                 initialValue: formValues.consume.show_price || "",
                 rules: [{ required: true, message: "套件价格" }]
               })(
-                <NumberInput value={formValues.consume.show_price}  prefix="￥" suffix="/起" numberType="integer" />
-            
+                <NumberInput
+                  value={formValues.consume.show_price}
+                  prefix="￥"
+                  suffix="/起"
+                  numberType="integer"
+                />
               )
             )}
           </FormItem>
@@ -391,7 +399,14 @@ export default class CarManager extends PureComponent {
       message.error("该用车类型已有用车服务");
       return;
     }
-    const { car_levels, scene, description, city_id, taocan, show_price } = fields;
+    const {
+      car_levels,
+      scene,
+      description,
+      city_id,
+      taocan,
+      show_price
+    } = fields;
     const params = {
       car_levels,
       consume: {

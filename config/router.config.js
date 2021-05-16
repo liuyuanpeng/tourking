@@ -42,13 +42,19 @@ export default [
         path: "/shop",
         name: "shop",
         icon: "shop",
-        authority: ["book", "shopaccount", "shopaddress", "visitorders", "visitusers"],
+        authority: ["book", "shopaccount", "shopaddress", "visitorders", "visitusers", "shoppercentage"],
         routes: [
           {
             path: "/shop/book",
             name: "book",
             authority: "book",
             component: "./Shop/Book"
+          },
+          {
+            path: "/shop/shoppercentage",
+            name: "shoppercentage",
+            authority: "shoppercentage",
+            component: "./Shop/ShopPercentage"
           },
           {
             path: "/shop/visitorders",
@@ -111,6 +117,12 @@ export default [
             name: "dispatch",
             authority: "dispatch",
             component: "./Order/Dispatch"
+          },
+          {
+            path: "/order/percentage",
+            name: "percentage",
+            authority: "percentage",
+            component: "./Order/Percentage"
           }
         ]
       },

@@ -20,7 +20,7 @@ import { connect } from "dva";
 import LocationInput from "@/components/LocationInput";
 import moment from "moment";
 import NumberInput from "@/components/NumberInput";
-import ORDER_STATUS from "../Order/orderStatus";
+import ORDER_STATUS from "./orderStatus";
 import styles from "../index.less";
 import ShopInput from "../Settlement/shopInput";
 import DriverInput from "../Base/DriverInput";
@@ -30,7 +30,63 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const INIT_SCENE = ["JIEJI", "SONGJI", "ORDER_SCENE"].toString();
+
+const INIT_SCENE = ["JIEJI", "SONGJI", "DAY_PRIVATE", "JINGDIAN_PRIVATE", "MEISHI_PRIVATE"].toString();
+
+const PercentageSetting = Form.create()(props => {
+  const {
+    modalVisible,
+    form,
+    handleModalVisible,
+    formValues,
+    handleConfig
+  } = props;
+
+  const okHandle = () => {
+    form.validateFields((err, fieldsValue) => {
+      if (err) return;
+      form.resetFields();
+      handleConfig(fieldsValue);
+    });
+  };
+
+  const checkPercent = (rule, value, callback) => {
+    if (value < 0 || value > 100) {
+      callback("请输入0~100的整数")
+    }
+    callback();
+  };
+
+  return (
+    <Modal
+      destroyOnClose
+      width={window.MODAL_WIDTH}
+      title="预约用车退款设置"
+      visible={modalVisible}
+      onOk={okHandle}
+      onCancel={() => {
+        handleModalVisible();
+      }}
+    >
+      <Form>
+        <FormItem label="提成比例">
+          {form.getFieldDecorator("percent", {
+            rules: [{ required: true, message: "请输入提成比例" }, {
+              validator: checkPercent
+            }],
+            initialValue: formValues.percent || ""
+          })(
+            <NumberInput
+              addonAfter="%"
+              numberType="integer"
+              placeholder="请输入提成比例"
+            />
+          )}
+        </FormItem>
+      </Form>
+    </Modal>
+  );
+});
 
 const NewOrder = Form.create()(props => {
   const {
@@ -434,7 +490,7 @@ const NewOrder = Form.create()(props => {
   );
 });
 
-@connect(({ consume, order, car_type, loading, city, user }) => ({
+@connect(({ consume, order, car_type, loading, city, percentage }) => ({
   loading: loading.effects["order/fetchOrderPage"],
   historyLoading: loading.effects["order/fetchOrderHistory"],
   data: order.list,
@@ -444,17 +500,17 @@ const NewOrder = Form.create()(props => {
   orderHistory: order.history,
   consumeList: consume.list,
   city: city.list,
-  shop_id: user.shopId
+  percent: percentage.percent
 }))
 @Form.create()
-class VisitOrders extends PureComponent {
+class Percentage extends PureComponent {
   static propTypes = {};
 
   state = {
+    settingVisible: false,
     modalVisible: false,
     historyVisible: false,
     formValues: {},
-    timeType: undefined,
     type: "readonly"
   };
 
@@ -467,6 +523,17 @@ class VisitOrders extends PureComponent {
         const status = ORDER_STATUS.find(item => item.name === text);
         return text && status ? status.desc : "";
       }
+    },
+    {
+      title: "提成金额",
+      dataIndex: "percenrage",
+      key: "percenrage"
+    },
+    {
+      title: "完成时间",
+      dataIndex: "done_time",
+      key: "done_time",
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
       title: "司机电话",
@@ -575,12 +642,6 @@ class VisitOrders extends PureComponent {
       width: 200
     },
     {
-      title: "下单时间",
-      dataIndex: "create_time",
-      key: "create_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
-    },
-    {
       title: "价格",
       dataIndex: "price",
       key: "price"
@@ -623,27 +684,8 @@ class VisitOrders extends PureComponent {
     }
   ];
 
-  componentWillReceiveProps(nextProps) {
-    const { shop_id, dispatch } = this.props;
-    if (shop_id !== nextProps.shop_id) {
-      this.searchKeys = { ...this.searchKeys };
-      nextProps.shop_id && dispatch({
-        type: "order/fetchOrderPage",
-        payload: {
-          page: 0,
-          size: 10,
-          ...this.searchKeys,
-          source_shop_id: nextProps.shop_id,
-          onFailure: msg => {
-            message.error(msg || "获取订单列表失败");
-          }
-        }
-      });
-    }
-  }
-
   componentDidMount() {
-    const { dispatch, shop_id } = this.props;
+    const { dispatch } = this.props;
     this.searchKeys = { scene: INIT_SCENE };
     dispatch({
       type: "city/fetchCityList"
@@ -665,13 +707,22 @@ class VisitOrders extends PureComponent {
         }
       }
     });
-    shop_id && dispatch({
+    dispatch({
+      type: 'percentage/fetchPercentage'
+    })
+    dispatch({
       type: "order/fetchOrderPage",
       payload: {
         page: 0,
         size: 10,
         ...this.searchKeys,
-        source_shop_id: shop_id,
+        order_status_list: "DONE",
+        sort_data_list: [
+          {
+            direction: "DESC",
+            property: "doneTime"
+          }
+        ],
         onFailure: msg => {
           message.error(msg || "获取订单列表失败");
         }
@@ -720,9 +771,43 @@ class VisitOrders extends PureComponent {
     });
   };
 
+  handleSettingVisible = flag => {
+    this.setState({
+      settingVisible: !!flag
+    });
+  };
+
+  handleSettingEdit = values => {
+    const { dispatch, percentage } = this.props;
+    dispatch({
+      type: "percentage/savePercentage",
+      payload: {
+        data: {
+          name: (values.percent/100 || 0).toString()
+        },
+        onSuccess: () => {
+          message.success("设置成功");
+        },
+        onFailure: msg => {
+          message.error(msg || "设置失败");
+        }
+      }
+    });
+    this.handleSettingVisible();
+  };
+
   handleHistoryVisible = flag => {
     this.setState({
       historyVisible: !!flag
+    });
+  };
+
+  handleSetting = e => {
+    e.stopPropagation();
+    const { percent } = this.props;
+    this.setState({
+      formValues: { percent },
+      settingVisible: true
     });
   };
 
@@ -775,7 +860,7 @@ class VisitOrders extends PureComponent {
   };
 
   handleSearch = e => {
-    const { dispatch, form, shop_id } = this.props;
+    const { dispatch, form } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
@@ -796,7 +881,8 @@ class VisitOrders extends PureComponent {
         this.searchKeys = {
           ...this.searchKeys,
           start: values.time_range[0].startOf("day").valueOf(),
-          end: values.time_range[1].endOf("day").valueOf()
+          end: values.time_range[1].endOf("day").valueOf(),
+          type: 3
         };
       }
       dispatch({
@@ -805,7 +891,13 @@ class VisitOrders extends PureComponent {
           page: 0,
           size: 10,
           ...this.searchKeys,
-          source_shop_id: shop_id,
+          order_status_list: "DONE",
+          sort_data_list: [
+            {
+              direction: "DESC",
+              property: "doneTime"
+            }
+          ],
           onFailure: msg => {
             message.error(msg || "获取订单列表失败!");
           }
@@ -815,7 +907,7 @@ class VisitOrders extends PureComponent {
   };
 
   handleReset = () => {
-    const { dispatch, form, shop_id } = this.props;
+    const { dispatch, form } = this.props;
     form.resetFields();
     this.searchKeys = { scene: INIT_SCENE };
     dispatch({
@@ -824,7 +916,13 @@ class VisitOrders extends PureComponent {
         page: 0,
         size: 10,
         ...this.searchKeys,
-        source_shop_id: shop_id,
+        order_status_list: "DONE",
+        sort_data_list: [
+          {
+            direction: "DESC",
+            property: "doneTime"
+          }
+        ],
         onFailure: msg => {
           message.error(msg || "获取订单列表失败!");
         }
@@ -833,14 +931,20 @@ class VisitOrders extends PureComponent {
   };
 
   handleRefresh = () => {
-    const { dispatch, page, shop_id } = this.props;
+    const { dispatch, page } = this.props;
     dispatch({
       type: "order/fetchOrderPage",
       payload: {
         page,
         size: 10,
         ...this.searchKeys,
-        source_shop_id: shop_id,
+        order_status_list: "DONE",
+        sort_data_list: [
+          {
+            direction: "DESC",
+            property: "doneTime"
+          }
+        ],
         onFailure: msg => {
           message.error(msg || "获取订单列表失败!");
         }
@@ -848,15 +952,7 @@ class VisitOrders extends PureComponent {
     });
   };
 
-  onTypeChange = type => {
-    this.setState({
-      timeType: type
-    });
-  };
-
   disabledDate = current => {
-    const { timeType } = this.state;
-    if (timeType === "2") return false;
     return current && current > moment().endOf("day");
   };
 
@@ -935,14 +1031,20 @@ class VisitOrders extends PureComponent {
   };
 
   handlePageChange = (page, size) => {
-    const { dispatch, shop_id } = this.props;
+    const { dispatch } = this.props;
     dispatch({
       type: "order/fetchOrderPage",
       payload: {
         page,
         size,
         ...this.searchKeys,
-        source_shop_id: shop_id,
+        order_status_list: "DONE",
+        sort_data_list: [
+          {
+            direction: "DESC",
+            property: "doneTime"
+          }
+        ],
         onFailure: msg => {
           message.error(msg || "获取订单列表失败");
         }
@@ -964,7 +1066,14 @@ class VisitOrders extends PureComponent {
     });
 
     const { dispatch } = this.props;
-    const { scene, chexing_id, kilo, time, start_time, city_id } = newFormValues;
+    const {
+      scene,
+      chexing_id,
+      kilo,
+      time,
+      start_time,
+      city_id
+    } = newFormValues;
     if (scene && chexing_id && kilo && time && city_id) {
       dispatch({
         type: "order/getPrice",
@@ -1016,8 +1125,6 @@ class VisitOrders extends PureComponent {
       form: { getFieldDecorator }
     } = this.props;
 
-    const { timeType } = this.state;
-
     const labelLayout = {
       labelCol: { span: 6 },
       wrapperCol: { span: 15 }
@@ -1027,76 +1134,36 @@ class VisitOrders extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="flex">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
           <Col>
-            <FormItem {...labelLayout} label="订单状态">
-              {getFieldDecorator("order_status_list")(
-                <Select
-                  placeholder="请选择"
-                  allowClear
+            <FormItem label="订单完成时间">
+              {getFieldDecorator("time_range")(
+                <RangePicker
+                  disabledDate={this.disabledDate}
                   style={{ width: "200px" }}
-                >
-                  {ORDER_STATUS.map(item => (
-                    <Option key={item.name} value={item.name}>
-                      {item.desc}
-                    </Option>
-                  ))}
-                </Select>
+                  placeholder={[
+                    formatMessage({ id: "form.date.placeholder.start" }),
+                    formatMessage({ id: "form.date.placeholder.end" })
+                  ]}
+                />
               )}
             </FormItem>
           </Col>
-          <Col>
-            <FormItem label="时间类型">
-              {getFieldDecorator("type")(
-                <Select
-                  placeholder="请选择"
-                  allowClear
-                  onChange={this.onTypeChange}
-                  style={{ width: "200px" }}
-                >
-                  <Option value="1">下单时间</Option>
-                  <Option value="2">上车时间</Option>
-                </Select>
-              )}
-            </FormItem>
-          </Col>
-          {timeType && (
-            <Col>
-              <FormItem label="选择时间">
-                {getFieldDecorator("time_range", {
-                  rules: [
-                    {
-                      required: true,
-                      message: formatMessage({ id: "validation.date.required" })
-                    }
-                  ]
-                })(
-                  <RangePicker
-                    disabledDate={this.disabledDate}
-                    style={{ width: "200px" }}
-                    placeholder={[
-                      formatMessage({ id: "form.date.placeholder.start" }),
-                      formatMessage({ id: "form.date.placeholder.end" })
-                    ]}
-                  />
-                )}
-              </FormItem>
-            </Col>
-          )}
           <Col>
             <FormItem label="订单类型">
               {getFieldDecorator("scene")(
-                <Select placeholder="请选择订单类型" 
-                style={{ width: "200px" }}>
+                <Select placeholder="请选择订单类型" style={{ width: "200px" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
-                  {/* <Option key="ORDER_SCENE">单次用车</Option> */}
+                  <Option key="JINGDIAN_PRIVATE">景点包车</Option>
+                  <Option key="MEISHI_PRIVATE">美食包车</Option>
+                  <Option key="DAY_PRIVATE">按天包车</Option>
                 </Select>
               )}
             </FormItem>
           </Col>
           <Col>
-            <FormItem label="输入查找">
-              {getFieldDecorator("value")(
-                <Input placeholder="姓名/手机号/订单ID" />
+            <FormItem label="扫码商家">
+              {getFieldDecorator("source_shop_id")(
+                <ShopInput style={{ width: "200px" }} allowClear />
               )}
             </FormItem>
           </Col>
@@ -1125,7 +1192,13 @@ class VisitOrders extends PureComponent {
       consumeList,
       city
     } = this.props;
-    const { modalVisible, formValues, type, historyVisible } = this.state;
+    const {
+      modalVisible,
+      formValues,
+      type,
+      historyVisible,
+      settingVisible
+    } = this.state;
 
     const parentMethods = {
       type,
@@ -1144,8 +1217,15 @@ class VisitOrders extends PureComponent {
       handleModalVisible: this.handleHistoryVisible
     };
 
+    const percentageMethods = {
+      modalVisible: settingVisible,
+      handleConfig: this.handleSettingEdit,
+      handleModalVisible: this.handleSettingVisible,
+      formValues
+    };
+
     return (
-      <PageHeaderWrap title="扫码用户订单">
+      <PageHeaderWrap title="接送机/站管理">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>
@@ -1155,6 +1235,13 @@ class VisitOrders extends PureComponent {
               </Button>
               <Button icon="export" type="primary" onClick={this.handleExport}>
                 导出查询
+              </Button>
+              <Button
+                icon="setting"
+                type="primary"
+                onClick={this.handleSetting}
+              >
+                设置提成比例
               </Button>
             </div>
             <div className={styles.tableWrapper}>
@@ -1176,10 +1263,14 @@ class VisitOrders extends PureComponent {
             </div>
           </div>
         </Card>
+        <PercentageSetting
+          {...percentageMethods}
+          modalVisible={settingVisible}
+        />
         <NewOrder {...parentMethods} modalVisible={modalVisible} />
         <OrderHistory {...historyMethod} />
       </PageHeaderWrap>
     );
   }
 }
-export default VisitOrders;
+export default Percentage;

@@ -895,7 +895,7 @@ class ScenicFood extends PureComponent {
                 }}
                 dataSource={data}
                 columns={this.columns}
-                scroll={{ x: 2080 }}
+                scroll={{ x: 3000 }}
               />
             </div>
           </div>

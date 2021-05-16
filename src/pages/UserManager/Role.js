@@ -116,6 +116,10 @@ const PermissionSetting = Form.create()(props => {
           key: 'visitusers'
         },
         {
+          title: "提成订单",
+          key: 'shoppercentage'
+        },
+        {
           title: "扫码订单",
           key: 'visitorders'
         },
@@ -152,6 +156,10 @@ const PermissionSetting = Form.create()(props => {
         {
           title: "派单预警",
           key: "dispatch"
+        },
+        {
+          title: "提成订单",
+          key: "percentage"
         }
       ]
     },

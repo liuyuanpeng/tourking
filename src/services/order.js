@@ -3,7 +3,9 @@ import queryString from "querystring";
 
 // 订单历史
 export async function queryOrderHistory(params) {
-  return request(`/server/travel/order/get_history?${queryString.stringify(params)}`);
+  return request(
+    `/server/travel/order/get_history?${queryString.stringify(params)}`
+  );
 }
 
 // 导出订单
@@ -49,12 +51,12 @@ export async function updateOrder(params) {
 // 获取订单分页
 export async function queryOrderPage(params) {
   const { page, size, onSuccess, onFailure, ...others } = params;
-  const {order_status_list, ...otherParams} = others
-  const querys = otherParams
-  if (order_status_list === 'WAIT_APPROVAL_OR_PAY') {
-    querys.has_pay = false
+  const { order_status_list, sort_data_list, ...otherParams } = others;
+  const querys = otherParams;
+  if (order_status_list === "WAIT_APPROVAL_OR_PAY") {
+    querys.has_pay = false;
   } else if (order_status_list) {
-    querys.order_status_list = order_status_list
+    querys.order_status_list = order_status_list;
   }
   return request(
     `/server/travel/order/order_page?${queryString.stringify(querys)}`,
@@ -63,7 +65,7 @@ export async function queryOrderPage(params) {
       data: {
         page,
         size,
-        sort_data_list: [
+        sort_data_list: sort_data_list || [
           {
             direction: "DESC",
             property: "createTime"
@@ -184,7 +186,7 @@ export async function saveRefundConfig(params) {
     method: "POST",
     data: {
       ...params,
-      code: 'order'
+      code: "order"
     }
   });
 }
@@ -200,7 +202,7 @@ export async function saveRefundCharteredConfig(params) {
     method: "POST",
     data: {
       ...params,
-      code: 'private'
+      code: "private"
     }
   });
 }
@@ -243,19 +245,24 @@ export async function querySettledPage(params) {
   );
 }
 
-
 // 改变订单状态
 export async function changeOrderStatus(params) {
-  return request(`/server/travel/order/change_status?${queryString.stringify(params)}`,
-  {
-    method: "POST"
-  })
+  return request(
+    `/server/travel/order/change_status?${queryString.stringify(params)}`,
+    {
+      method: "POST"
+    }
+  );
 }
 
 // 改变订单状态
 export async function changeExpressNumber(params) {
-  return request(`/server/travel/order/change_express_number?${queryString.stringify(params)}`,
-  {
-    method: "POST"
-  })
+  return request(
+    `/server/travel/order/change_express_number?${queryString.stringify(
+      params
+    )}`,
+    {
+      method: "POST"
+    }
+  );
 }
