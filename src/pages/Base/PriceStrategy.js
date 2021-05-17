@@ -594,7 +594,7 @@ export default class PriceStrategy extends PureComponent {
                 loading={loading}
                 dataSource={data}
                 columns={this.columns}
-                scroll={{ x: 3000 }}
+                // scroll={{ x: 600 }}
               />
             </div>
           </div>

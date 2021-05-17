@@ -704,9 +704,22 @@ class Book extends PureComponent {
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
     {
+      title: "价格",
+      dataIndex: "price",
+      key: "price"
+    },
+    {
       title: "手续费",
       dataIndex: "refund_fee",
       key: "refund_fee"
+    },
+    {
+      title: "实收金额",
+      dataIndex: "final_price",
+      key: "final_price",
+      render: (text, record) => {
+        return record.refund_fee ? record.refund_fee : record.price;
+      }
     },
     {
       title: "订单ID",

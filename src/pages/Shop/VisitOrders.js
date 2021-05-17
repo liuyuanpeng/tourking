@@ -30,7 +30,15 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-const INIT_SCENE = ["JIEJI", "SONGJI", "ORDER_SCENE"].toString();
+const INIT_SCENE = [
+  "JIEJI",
+  "SONGJI",
+  "ORDER_SCENE",
+  "JINGDIAN_PRIVATE",
+  "MEISHI_PRIVATE",
+  "DAY_PRIVATE",
+  "ROAD_PRIVATE"
+].toString();
 
 const NewOrder = Form.create()(props => {
   const {
@@ -181,6 +189,14 @@ const NewOrder = Form.create()(props => {
                   ? "接机/站"
                   : formValues.scene === "SONGJI"
                   ? "送机/站"
+                  : formValues.scene === "DAY_PRIVATE"
+                  ? "按天包车"
+                  : formValues.scene === "ROAD_PRIVATE"
+                  ? "线路包车"
+                  : formValues.scene === "JINGDIAN_PRIVATE"
+                  ? "景点包车"
+                  : formValues.scene === "MEISHI_PRIVATE"
+                  ? "美食包车"
                   : "单次用车"}
               </span>
             ) : (
@@ -191,6 +207,9 @@ const NewOrder = Form.create()(props => {
                 <Select style={{ width: "100%" }} onChange={changeScene}>
                   <Option value="JIEJI">接机/站</Option>
                   <Option value="SONGJI">送机/站</Option>
+                  <Option value="DAY_PRIVATE">按天包车</Option>
+                  <Option value="JINGDIAN_PRIVATE">景点包车</Option>
+                  <Option value="MEISHI_PRIVATE">美食包车</Option>
                 </Select>
               )
             )}
@@ -504,6 +523,14 @@ class VisitOrders extends PureComponent {
           ? "接机/站"
           : text === "SONGJI"
           ? "送机/站"
+          : text === "DAY_PRIVATE"
+          ? "按天包车"
+          : text === "ROAD_PRIVATE"
+          ? "线路包车"
+          : text === "JINGDIAN_PRIVATE"
+          ? "景点包车"
+          : text === "MEISHI_PRIVATE"
+          ? "美食包车"
           : "单次用车"
     },
     {
@@ -627,18 +654,19 @@ class VisitOrders extends PureComponent {
     const { shop_id, dispatch } = this.props;
     if (shop_id !== nextProps.shop_id) {
       this.searchKeys = { ...this.searchKeys };
-      nextProps.shop_id && dispatch({
-        type: "order/fetchOrderPage",
-        payload: {
-          page: 0,
-          size: 10,
-          ...this.searchKeys,
-          source_shop_id: nextProps.shop_id,
-          onFailure: msg => {
-            message.error(msg || "获取订单列表失败");
+      nextProps.shop_id &&
+        dispatch({
+          type: "order/fetchOrderPage",
+          payload: {
+            page: 0,
+            size: 10,
+            ...this.searchKeys,
+            source_shop_id: nextProps.shop_id,
+            onFailure: msg => {
+              message.error(msg || "获取订单列表失败");
+            }
           }
-        }
-      });
+        });
     }
   }
 
@@ -665,18 +693,19 @@ class VisitOrders extends PureComponent {
         }
       }
     });
-    shop_id && dispatch({
-      type: "order/fetchOrderPage",
-      payload: {
-        page: 0,
-        size: 10,
-        ...this.searchKeys,
-        source_shop_id: shop_id,
-        onFailure: msg => {
-          message.error(msg || "获取订单列表失败");
+    shop_id &&
+      dispatch({
+        type: "order/fetchOrderPage",
+        payload: {
+          page: 0,
+          size: 10,
+          ...this.searchKeys,
+          source_shop_id: shop_id,
+          onFailure: msg => {
+            message.error(msg || "获取订单列表失败");
+          }
         }
-      }
-    });
+      });
   }
 
   onReadonly = record => {
@@ -964,7 +993,14 @@ class VisitOrders extends PureComponent {
     });
 
     const { dispatch } = this.props;
-    const { scene, chexing_id, kilo, time, start_time, city_id } = newFormValues;
+    const {
+      scene,
+      chexing_id,
+      kilo,
+      time,
+      start_time,
+      city_id
+    } = newFormValues;
     if (scene && chexing_id && kilo && time && city_id) {
       dispatch({
         type: "order/getPrice",
@@ -1084,10 +1120,13 @@ class VisitOrders extends PureComponent {
           <Col>
             <FormItem label="订单类型">
               {getFieldDecorator("scene")(
-                <Select placeholder="请选择订单类型" 
-                style={{ width: "200px" }}>
+                <Select placeholder="请选择订单类型" style={{ width: "200px" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
+                  <Option key="DAY_PRIVATE">按天包车</Option>
+                  <Option key="ROAD_PRIVATE">线路包车</Option>
+                  <Option key="JINGDIAN_PRIVATE">景点包车</Option>
+                  <Option key="MEISHI_PRIVATE">美食包车</Option>
                   {/* <Option key="ORDER_SCENE">单次用车</Option> */}
                 </Select>
               )}

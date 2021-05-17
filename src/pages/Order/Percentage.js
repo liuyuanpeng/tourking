@@ -30,8 +30,14 @@ const FormItem = Form.Item;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 
-
-const INIT_SCENE = ["JIEJI", "SONGJI", "DAY_PRIVATE", "JINGDIAN_PRIVATE", "MEISHI_PRIVATE"].toString();
+const INIT_SCENE = [
+  "JIEJI",
+  "SONGJI",
+  "DAY_PRIVATE",
+  "ROAD_PRIVATE",
+  "JINGDIAN_PRIVATE",
+  "MEISHI_PRIVATE"
+].toString();
 
 const PercentageSetting = Form.create()(props => {
   const {
@@ -52,7 +58,7 @@ const PercentageSetting = Form.create()(props => {
 
   const checkPercent = (rule, value, callback) => {
     if (value < 0 || value > 100) {
-      callback("请输入0~100的整数")
+      callback("请输入0~100的整数");
     }
     callback();
   };
@@ -71,9 +77,12 @@ const PercentageSetting = Form.create()(props => {
       <Form>
         <FormItem label="提成比例">
           {form.getFieldDecorator("percent", {
-            rules: [{ required: true, message: "请输入提成比例" }, {
-              validator: checkPercent
-            }],
+            rules: [
+              { required: true, message: "请输入提成比例" },
+              {
+                validator: checkPercent
+              }
+            ],
             initialValue: formValues.percent || ""
           })(
             <NumberInput
@@ -237,6 +246,14 @@ const NewOrder = Form.create()(props => {
                   ? "接机/站"
                   : formValues.scene === "SONGJI"
                   ? "送机/站"
+                  : formValues.scene === "DAY_PRIVATE"
+                  ? "按天包车"
+                  : formValues.scene === "ROAD_PRIVATE"
+                  ? "线路包车"
+                  : formValues.scene === "JINGDIAN_PRIVATE"
+                  ? "景点包车"
+                  : formValues.scene === "MEISHI_PRIVATE"
+                  ? "美食包车"
                   : "单次用车"}
               </span>
             ) : (
@@ -571,6 +588,14 @@ class Percentage extends PureComponent {
           ? "接机/站"
           : text === "SONGJI"
           ? "送机/站"
+          : text === "DAY_PRIVATE"
+          ? "按天包车"
+          : text === "ROAD_PRIVATE"
+          ? "线路包车"
+          : text === "JINGDIAN_PRIVATE"
+          ? "景点包车"
+          : text === "MEISHI_PRIVATE"
+          ? "美食包车"
           : "单次用车"
     },
     {
@@ -708,8 +733,8 @@ class Percentage extends PureComponent {
       }
     });
     dispatch({
-      type: 'percentage/fetchPercentage'
-    })
+      type: "percentage/fetchPercentage"
+    });
     dispatch({
       type: "order/fetchOrderPage",
       payload: {
@@ -783,7 +808,7 @@ class Percentage extends PureComponent {
       type: "percentage/savePercentage",
       payload: {
         data: {
-          name: (values.percent/100 || 0).toString()
+          name: (values.percent / 100 || 0).toString()
         },
         onSuccess: () => {
           message.success("设置成功");
@@ -1134,7 +1159,7 @@ class Percentage extends PureComponent {
       <Form onSubmit={this.handleSearch} layout="flex">
         <Row gutter={16} type="flex" monospaced="true" arrangement="true">
           <Col>
-            <FormItem label="订单完成时间">
+            <FormItem label="完成时间">
               {getFieldDecorator("time_range")(
                 <RangePicker
                   disabledDate={this.disabledDate}
@@ -1153,9 +1178,10 @@ class Percentage extends PureComponent {
                 <Select placeholder="请选择订单类型" style={{ width: "200px" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
+                  <Option key="DAY_PRIVATE">按天包车</Option>
+                  <Option key="ROAD_PRIVATE">线路包车</Option>
                   <Option key="JINGDIAN_PRIVATE">景点包车</Option>
                   <Option key="MEISHI_PRIVATE">美食包车</Option>
-                  <Option key="DAY_PRIVATE">按天包车</Option>
                 </Select>
               )}
             </FormItem>
@@ -1225,7 +1251,7 @@ class Percentage extends PureComponent {
     };
 
     return (
-      <PageHeaderWrap title="接送机/站管理">
+      <PageHeaderWrap title="提成订单">
         <Card bordered={false}>
           <div className={styles.tableList}>
             <div className={styles.tableListForm}>{this.renderForm()}</div>

@@ -589,7 +589,6 @@ class Shuttle extends PureComponent {
       dataIndex: "refund_fee",
       key: "refund_fee"
     },
-    ,
     {
       title: "实收金额",
       dataIndex: "final_price",
