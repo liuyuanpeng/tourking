@@ -336,7 +336,8 @@ class ScenicFood extends PureComponent {
             style={{
               width: "200px",
               overflow: "hidden",
-              textOverflow: "ellipsis"
+              textOverflow: "ellipsis",
+              textAlign: "center"
             }}
           >
             {text}

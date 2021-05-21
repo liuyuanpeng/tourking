@@ -645,7 +645,8 @@ class Book extends PureComponent {
             style={{
               width: "200px",
               overflow: "hidden",
-              textOverflow: "ellipsis"
+              textOverflow: "ellipsis",
+              textAlign: "center"
             }}
           >
             {text}
@@ -669,7 +670,8 @@ class Book extends PureComponent {
             style={{
               width: "200px",
               overflow: "hidden",
-              textOverflow: "ellipsis"
+              textOverflow: "ellipsis",
+              textAlign: "center"
             }}
           >
             {text}

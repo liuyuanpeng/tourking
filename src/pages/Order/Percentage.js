@@ -542,44 +542,6 @@ class Percentage extends PureComponent {
       }
     },
     {
-      title: "提成金额",
-      dataIndex: "percenrage",
-      key: "percenrage"
-    },
-    {
-      title: "完成时间",
-      dataIndex: "done_time",
-      key: "done_time",
-      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
-    },
-    {
-      title: "司机电话",
-      dataIndex: "driver_mobile",
-      key: "driver_mobile"
-    },
-    {
-      title: "车牌号",
-      dataIndex: "driver_car_no",
-      key: "driver_car_no"
-    },
-    {
-      title: "来源",
-      dataIndex: "source",
-      key: "source",
-      textWrap: "word-break",
-      render: (text, record) => record.shop_name || record.mobile
-    },
-    {
-      title: "扫码商家",
-      dataIndex: "source_shop_name",
-      key: "source_shop_name"
-    },
-    {
-      title: "扫码司机",
-      dataIndex: "source_driver_user_name",
-      key: "source_driver_user_name"
-    },
-    {
       title: "类型",
       dataIndex: "scene",
       key: "scene",
@@ -599,9 +561,60 @@ class Percentage extends PureComponent {
           : "单次用车"
     },
     {
+      title: "价格",
+      dataIndex: "price",
+      key: "price"
+    },
+    {
+      title: "实收金额",
+      dataIndex: "final_price",
+      key: "final_price",
+      render: (text, record) => {
+        return record.refund_fee ? record.refund_fee : record.price;
+      }
+    },
+    {
+      title: "提成金额",
+      dataIndex: "percenrage",
+      key: "percenrage"
+    },
+    {
+      title: "完成时间",
+      dataIndex: "done_time",
+      key: "done_time",
+      render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
+    },
+    {
+      title: "来源",
+      dataIndex: "source",
+      key: "source",
+      textWrap: "word-break",
+      render: (text, record) => record.shop_name || record.mobile
+    },
+    {
       title: "乘车人姓名",
       dataIndex: "username",
       key: "username"
+    },
+    {
+      title: "司机电话",
+      dataIndex: "driver_mobile",
+      key: "driver_mobile"
+    },
+    {
+      title: "车牌号",
+      dataIndex: "driver_car_no",
+      key: "driver_car_no"
+    },
+    {
+      title: "扫码商家",
+      dataIndex: "source_shop_name",
+      key: "source_shop_name"
+    },
+    {
+      title: "扫码司机",
+      dataIndex: "source_driver_user_name",
+      key: "source_driver_user_name"
     },
     {
       title: "电话",
@@ -634,7 +647,8 @@ class Percentage extends PureComponent {
             style={{
               width: "200px",
               overflow: "hidden",
-              textOverflow: "ellipsis"
+              textOverflow: "ellipsis",
+              textAlign: "center"
             }}
           >
             {text}
@@ -652,7 +666,8 @@ class Percentage extends PureComponent {
             style={{
               width: "200px",
               overflow: "hidden",
-              textOverflow: "ellipsis"
+              textOverflow: "ellipsis",
+              textAlign: "center"
             }}
           >
             {text}
@@ -667,23 +682,9 @@ class Percentage extends PureComponent {
       width: 200
     },
     {
-      title: "价格",
-      dataIndex: "price",
-      key: "price"
-    },
-    {
       title: "手续费",
       dataIndex: "refund_fee",
       key: "refund_fee"
-    },
-    ,
-    {
-      title: "实收金额",
-      dataIndex: "final_price",
-      key: "final_price",
-      render: (text, record) => {
-        return record.refund_fee ? record.refund_fee : record.price;
-      }
     },
     {
       title: "订单ID",
