@@ -1181,6 +1181,8 @@ class Book extends PureComponent {
       start_location,
       end_location = "",
       route,
+      price,
+      total_price,
       ...others
     } = info;
 
@@ -1395,6 +1397,7 @@ class Book extends PureComponent {
                 <Select placeholder="请选择订单类型" style={{ width: "100%" }}>
                   <Option key="JIEJI">接机/站</Option>
                   <Option key="SONGJI">送机/站</Option>
+                  <Option key="DAY_PRIVATE">按天包车</Option>
                   {/* <Option key="ORDER_SCENE">单次用车</Option> */}
                 </Select>
               )}
