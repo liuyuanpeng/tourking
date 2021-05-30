@@ -254,8 +254,8 @@ const NewLevel = Form.create()(props => {
             {readonly ? (
               <span>
                 {formValues.consume.taocan === "meal_1"
-                  ? "套餐一(8小时100公里)"
-                  : "套餐二(8小时200公里)"}
+                  ? "套餐一(8小时200公里)"
+                  : "套餐二(8小时400公里)"}
               </span>
             ) : (
               form.getFieldDecorator("taocan", {
@@ -263,8 +263,8 @@ const NewLevel = Form.create()(props => {
                 rules: [{ required: true, message: "请选择套餐" }]
               })(
                 <Select style={{ width: "100%" }}>
-                  <Option value="meal_1">套餐一(8小时100公里)</Option>
-                  <Option value="meal_2">套餐二(8小时200公里)</Option>
+                  <Option value="meal_1">套餐一(8小时200公里)</Option>
+                  <Option value="meal_2">套餐二(8小时400公里)</Option>
                 </Select>
               )
             )}
@@ -275,8 +275,8 @@ const NewLevel = Form.create()(props => {
             {readonly ? (
               <span>
                 {formValues.consume.taocan === "meal_1"
-                  ? "套餐一(8小时100公里)"
-                  : "套餐二(8小时200公里)"}
+                  ? "套餐一(8小时200公里)"
+                  : "套餐二(8小时400公里)"}
               </span>
             ) : (
               form.getFieldDecorator("show_price", {

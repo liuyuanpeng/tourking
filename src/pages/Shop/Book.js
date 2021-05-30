@@ -289,8 +289,8 @@ const NewOrder = Form.create()(props => {
               {readonly ? (
                 <span>
                   {formValues.taocan === "meal_1"
-                    ? "套餐一(8小时100公里)"
-                    : "套餐二(8小时200公里)"}
+                    ? "套餐一(8小时200公里)"
+                    : "套餐二(8小时400公里)"}
                 </span>
               ) : (
                 form.getFieldDecorator("taocan", {
@@ -298,8 +298,8 @@ const NewOrder = Form.create()(props => {
                   rules: [{ required: true, message: "请选择套餐" }]
                 })(
                   <Select style={{ width: "100%" }} onChange={changeTaocan}>
-                    <Option value="meal_1">套餐一(8小时100公里)</Option>
-                    <Option value="meal_2">套餐二(8小时200公里)</Option>
+                    <Option value="meal_1">套餐一(8小时200公里)</Option>
+                    <Option value="meal_2">套餐二(8小时400公里)</Option>
                   </Select>
                 )
               )}
@@ -455,16 +455,16 @@ const NewOrder = Form.create()(props => {
             </FormItem>
           </Col>
         )}
-        {(formValues.price && formValues.scene === "DAY_PRIVATE") ||
+        {((formValues.price && formValues.scene !== "DAY_PRIVATE") ||
           (formValues.scene === "DAY_PRIVATE" &&
             formValues.taocan &&
-            formValues.price && (
-              <Col>
-                <FormItem {...labelLayout} label="价格">
-                  <span>{formValues.price || ""}</span>
-                </FormItem>
-              </Col>
-            ))}
+            formValues.price)) && (
+          <Col>
+            <FormItem {...labelLayout} label="价格">
+              <span>{formValues.price || ""}</span>
+            </FormItem>
+          </Col>
+        )}
         {scene !== "DAY_PRIVATE" && (
           <Col>
             <FormItem {...labelLayout} label="航班号">
@@ -631,7 +631,7 @@ class Book extends PureComponent {
           ? "接机/站"
           : text === "SONGJI"
           ? "送机/站"
-          : text === "DAT_PRIVATE"
+          : text === "DAY_PRIVATE"
           ? "按天包车"
           : "单次用车"
     },
