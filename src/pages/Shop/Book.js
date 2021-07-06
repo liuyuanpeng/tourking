@@ -1148,11 +1148,6 @@ class Book extends PureComponent {
       };
     }
 
-    console.log({
-      ...others,
-      ...params
-    });
-
     dispatch({
       type: "order/createOrder",
       payload: {
@@ -1274,7 +1269,6 @@ class Book extends PureComponent {
       ...params
     };
     
-    console.log(newFormValues)
     this.setState({
       formValues: {
         ...newFormValues,

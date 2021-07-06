@@ -266,8 +266,6 @@ export default {
           onFailure && onFailure("获取用车服务失败!");
           return;
         }
-        console.log(payload)
-        console.log(consume)
         const carLevel = consume.data[0].car_levels.find(
           item => item.chexing.id === others.chexing_id
         );
@@ -425,9 +423,6 @@ export default {
           onFailure && onFailure("获取用车服务失败!");
           return;
         }
-
-        console.log(payload)
-        console.log(consume)
 
         const carLevel = consume.data[0].car_levels.find(
           item => item.chexing.id === others.chexing_id
