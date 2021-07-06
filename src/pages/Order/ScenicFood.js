@@ -609,7 +609,6 @@ class ScenicFood extends PureComponent {
     const { formValues } = this.state;
     const {
       start_time,
-      car_config_id,
       start_location,
       end_location,
       route,
@@ -631,23 +630,6 @@ class ScenicFood extends PureComponent {
         kilo: route.kilo,
         time: route.time
       };
-    }
-
-    if (
-      car_config_id !== formValues.car_config_id ||
-      others.scene !== formValues.scene
-    ) {
-      if (!params.priceParams) {
-        if (formValues.kilo && formValues.time) {
-          params.priceParams = {
-            kilo: formValues.kilo,
-            time: formValues.time
-          };
-        } else {
-          message.error("上车地点或者目的地数据有误，请重新编辑!");
-          return;
-        }
-      }
     }
 
     dispatch({
@@ -704,32 +686,6 @@ class ScenicFood extends PureComponent {
         price: undefined
       }
     });
-
-    const { dispatch } = this.props;
-    const { scene, car_config_id, kilo, time, start_time } = newFormValues;
-    if (scene && car_config_id && kilo && time) {
-      dispatch({
-        type: "order/getPrice",
-        payload: {
-          scene,
-          car_config_id,
-          kilo,
-          time,
-          start_time,
-          onFailure: msg => {
-            message.error(msg || "获取价格失败!");
-          },
-          onSuccess: price => {
-            this.setState({
-              formValues: {
-                ...newFormValues,
-                price
-              }
-            });
-          }
-        }
-      });
-    }
   };
 
   showHistory = record => {

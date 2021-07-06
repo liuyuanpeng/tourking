@@ -1,3 +1,6 @@
+/* eslint-disable no-script-url */
+/* eslint-disable no-nested-ternary */
+/* eslint-disable camelcase */
 import React, { PureComponent } from "react";
 import {
   Modal,
@@ -110,6 +113,7 @@ const NewOrder = Form.create()(props => {
         handleEdit({ ...fieldsValue, zuowei_id, price, total_price: price });
       } else {
         handleAddOrder({
+          ...formValues,
           ...fieldsValue,
           zuowei_id,
           price,
@@ -219,7 +223,7 @@ const NewOrder = Form.create()(props => {
     });
   };
 
-  let scene = formValues.scene;
+  const {scene} = formValues;
 
   return (
     <Modal
@@ -240,10 +244,10 @@ const NewOrder = Form.create()(props => {
                 {formValues.scene === "JIEJI"
                   ? "接机/站"
                   : formValues.scene === "SONGJI"
-                  ? "送机/站"
-                  : formValues.scene === "DAY_PRIVATE"
-                  ? "按天包车"
-                  : "单次用车"}
+                    ? "送机/站"
+                    : formValues.scene === "DAY_PRIVATE"
+                      ? "按天包车"
+                      : "单次用车"}
               </span>
             ) : (
               form.getFieldDecorator("scene", {
@@ -312,7 +316,7 @@ const NewOrder = Form.create()(props => {
               <span>
                 {formValues.chexing_id && formValues.city_id
                   ? carTypes.find(item => item.id === formValues.chexing_id)
-                      .name
+                    .name
                   : ""}
               </span>
             ) : (
@@ -383,12 +387,12 @@ const NewOrder = Form.create()(props => {
                 initialValue:
                   type === "edit"
                     ? {
-                        address: formValues.start_place,
-                        location: {
-                          longitude: formValues.start_longitude,
-                          latitude: formValues.start_latitude
-                        }
+                      address: formValues.start_place,
+                      location: {
+                        longitude: formValues.start_longitude,
+                        latitude: formValues.start_latitude
                       }
+                    }
                     : undefined
               })(
                 <LocationInput
@@ -437,12 +441,12 @@ const NewOrder = Form.create()(props => {
                   initialValue:
                     type === "edit"
                       ? {
-                          address: formValues.target_place,
-                          location: {
-                            longitude: formValues.target_longitude,
-                            latitude: formValues.target_latitude
-                          }
+                        address: formValues.target_place,
+                        location: {
+                          longitude: formValues.target_longitude,
+                          latitude: formValues.target_latitude
                         }
+                      }
                       : undefined
                 })(
                   <LocationInput
@@ -459,12 +463,12 @@ const NewOrder = Form.create()(props => {
           (formValues.scene === "DAY_PRIVATE" &&
             formValues.taocan &&
             formValues.price)) && (
-          <Col>
-            <FormItem {...labelLayout} label="价格">
-              <span>{formValues.price || ""}</span>
-            </FormItem>
-          </Col>
-        )}
+            <Col>
+              <FormItem {...labelLayout} label="价格">
+                <span>{formValues.price || ""}</span>
+              </FormItem>
+            </Col>
+          )}
         {scene !== "DAY_PRIVATE" && (
           <Col>
             <FormItem {...labelLayout} label="航班号">
@@ -630,10 +634,10 @@ class Book extends PureComponent {
         text === "JIEJI"
           ? "接机/站"
           : text === "SONGJI"
-          ? "送机/站"
-          : text === "DAY_PRIVATE"
-          ? "按天包车"
-          : "单次用车"
+            ? "送机/站"
+            : text === "DAY_PRIVATE"
+              ? "按天包车"
+              : "单次用车"
     },
     {
       title: "上车地点",
@@ -748,27 +752,27 @@ class Book extends PureComponent {
           {(record.order_status === "WAIT_APPROVAL_OR_PAY" ||
             record.order_status === "AUTO" ||
             record.order_status === "ACCEPTED") && (
-            <a href="javascript:;" onClick={() => this.onEdit(record)}>
-              编辑
-            </a>
-          )}
+              <a href="javascript:;" onClick={() => this.onEdit(record)}>
+                编辑
+              </a>
+            )}
           {(record.order_status === "WAIT_ACCEPT" ||
             record.order_status === "AUTO" ||
             record.order_status === "ACCEPTED") && <Divider type="vertical" />}
           {(record.order_status === "WAIT_ACCEPT" ||
             record.order_status === "AUTO" ||
             record.order_status === "ACCEPTED") && (
-            <Popconfirm
-              title={this.getCancelInfo(record)}
-              onConfirm={() => {
-                this.handleCancel(record);
-              }}
-              okText="是"
-              cancelText="否"
-            >
-              <a href="javascript:;">取消</a>
-            </Popconfirm>
-          )}
+              <Popconfirm
+                title={this.getCancelInfo(record)}
+                onConfirm={() => {
+                  this.handleCancel(record);
+                }}
+                okText="是"
+                cancelText="否"
+              >
+                <a href="javascript:;">取消</a>
+              </Popconfirm>
+            )}
           {record.order_status === "WAIT_APPROVAL_OR_PAY" && (
             <Divider type="vertical" />
           )}
@@ -1000,7 +1004,7 @@ class Book extends PureComponent {
   };
 
   handleExport = e => {
-    const { dispatch, page, form, shop_id } = this.props;
+    const { dispatch, form, shop_id } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
@@ -1043,7 +1047,7 @@ class Book extends PureComponent {
   };
 
   handleSearch = e => {
-    const { dispatch, page, form, shop_id } = this.props;
+    const { dispatch, form, shop_id } = this.props;
     e.preventDefault();
     form.validateFieldsAndScroll((err, values) => {
       if (err) return;
@@ -1120,7 +1124,7 @@ class Book extends PureComponent {
   };
 
   handleAddOrder = value => {
-    const { dispatch, page, shop_id, shop_name } = this.props;
+    const { dispatch, shop_id } = this.props;
     const {
       start_time,
       start_location,
@@ -1269,6 +1273,8 @@ class Book extends PureComponent {
       ...formValues,
       ...params
     };
+    
+    console.log(newFormValues)
     this.setState({
       formValues: {
         ...newFormValues,

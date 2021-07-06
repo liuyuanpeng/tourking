@@ -266,9 +266,10 @@ export default {
           onFailure && onFailure("获取用车服务失败!");
           return;
         }
-
+        console.log(payload)
+        console.log(consume)
         const carLevel = consume.data[0].car_levels.find(
-          item => item.config_id === others.car_config_id
+          item => item.chexing.id === others.chexing_id
         );
         if (!carLevel) {
           onFailure && onFailure("没有对应的用车服务!");
@@ -425,8 +426,11 @@ export default {
           return;
         }
 
+        console.log(payload)
+        console.log(consume)
+
         const carLevel = consume.data[0].car_levels.find(
-          item => item.config_id === others.car_config_id
+          item => item.chexing.id === others.chexing_id
         );
         if (!carLevel) {
           onFailure && onFailure("没有对应的用车服务!");

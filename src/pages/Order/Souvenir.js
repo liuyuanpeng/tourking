@@ -536,46 +536,6 @@ class Souvenir extends PureComponent {
     });
   };
 
-  updateFormValue = params => {
-    const { formValues } = this.state;
-    const newFormValues = {
-      ...formValues,
-      ...params
-    };
-    this.setState({
-      formValues: {
-        ...newFormValues,
-        price: undefined
-      }
-    });
-
-    const { dispatch } = this.props;
-    const { scene, car_config_id, kilo, time, start_time } = newFormValues;
-    if (scene && car_config_id && kilo && time) {
-      dispatch({
-        type: "order/getPrice",
-        payload: {
-          scene,
-          car_config_id,
-          kilo,
-          time,
-          start_time,
-          onFailure: msg => {
-            message.error(msg || "获取价格失败!");
-          },
-          onSuccess: price => {
-            this.setState({
-              formValues: {
-                ...newFormValues,
-                price
-              }
-            });
-          }
-        }
-      });
-    }
-  };
-
   showHistory = record => {
     const { dispatch } = this.props;
     const { id } = record;
@@ -728,8 +688,7 @@ class Souvenir extends PureComponent {
       type,
       formValues,
       handleModalVisible: this.handleModalVisible,
-      handleEdit: this.handleEdit,
-      updateFormValue: this.updateFormValue
+      handleEdit: this.handleEdit
     };
 
     const expressMethods = {

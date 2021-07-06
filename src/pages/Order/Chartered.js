@@ -35,12 +35,10 @@ const INIT_SCENE = ["DAY_PRIVATE", "ROAD_PRIVATE"].toString();
 const NewOrder = Form.create()(props => {
   const {
     type,
-    handleEdit,
     modalVisible,
     form,
     handleModalVisible,
     formValues,
-    updateFormValue,
     city,
     carTypes,
     consumeList
@@ -58,15 +56,7 @@ const NewOrder = Form.create()(props => {
     form.validateFields((err, fieldsValue) => {
       if (err) return;
       form.resetFields();
-      handleEdit(fieldsValue);
-    });
-  };
-
-  const originChange = value => {
-    updateFormValue({
-      start_longitude: value.location.longitude,
-      start_latitude: value.location.latitude,
-      start_place: value.address
+      console.log(fieldsValue)
     });
   };
 
@@ -132,7 +122,7 @@ const NewOrder = Form.create()(props => {
                 <span>
                   {formValues.chexing_id && formValues.city_id
                     ? carTypes.find(item => item.id === formValues.chexing_id)
-                        .name
+                      .name
                     : ""}
                 </span>
               ) : (
@@ -198,12 +188,12 @@ const NewOrder = Form.create()(props => {
                 initialValue:
                   type === "edit"
                     ? {
-                        address: formValues.start_place,
-                        location: {
-                          longitude: formValues.start_longitude,
-                          latitude: formValues.start_latitude
-                        }
+                      address: formValues.start_place,
+                      location: {
+                        longitude: formValues.start_longitude,
+                        latitude: formValues.start_latitude
                       }
+                    }
                     : undefined
               })(<LocationInput onChange={originChange} />)
             )}
@@ -319,7 +309,6 @@ class Shuttle extends PureComponent {
       dataIndex: "source_driver_user_name",
       key: "source_driver_user_name"
     },
-
     {
       title: "类型",
       dataIndex: "scene",
@@ -372,7 +361,6 @@ class Shuttle extends PureComponent {
       key: "create_time",
       render: text => (text ? moment(text).format("YYYY-MM-DD HH:mm") : "")
     },
-
     {
       title: "价格",
       dataIndex: "price",
@@ -383,7 +371,6 @@ class Shuttle extends PureComponent {
       dataIndex: "refund_fee",
       key: "refund_fee"
     },
-    ,
     {
       title: "实收金额",
       dataIndex: "final_price",
@@ -456,14 +443,6 @@ class Shuttle extends PureComponent {
       formValues: { ...record },
       modalVisible: true,
       type: "readonly"
-    });
-  };
-
-  onEdit = record => {
-    this.setState({
-      formValues: { ...record },
-      modalVisible: true,
-      type: "edit"
     });
   };
 
@@ -626,79 +605,6 @@ class Shuttle extends PureComponent {
     return current && current > moment().endOf("day");
   };
 
-  handleEdit = info => {
-    const { dispatch, page } = this.props;
-    const { formValues } = this.state;
-    const {
-      start_time,
-      car_config_id,
-      start_location,
-      end_location,
-      route,
-      ...others
-    } = info;
-
-    const params = {
-      start_time: start_time.valueOf(),
-      start_place: start_location.address,
-      start_longitude: start_location.location.longitude,
-      start_latitude: start_location.location.latitude,
-      target_place: end_location.address,
-      target_longitude: end_location.location.longitude,
-      target_latitude: end_location.location.latitude
-    };
-
-    if (route && route.time && route.kilo) {
-      params.priceParams = {
-        kilo: route.kilo,
-        time: route.time
-      };
-    }
-
-    if (
-      car_config_id !== formValues.car_config_id ||
-      others.scene !== formValues.scene
-    ) {
-      if (!params.priceParams) {
-        if (formValues.kilo && formValues.time) {
-          params.priceParams = {
-            kilo: formValues.kilo,
-            time: formValues.time
-          };
-        } else {
-          message.error("上车地点或者目的地数据有误，请重新编辑!");
-          return;
-        }
-      }
-    }
-
-    dispatch({
-      type: "order/updateOrder",
-      payload: {
-        data: {
-          ...formValues,
-          ...others,
-          ...params,
-          searchParams: {
-            ...this.searchKeys,
-            page,
-            size: 10
-          }
-        },
-        onSuccess: () => {
-          message.success("操作成功");
-        },
-        onFailure: msg => {
-          message.error(msg || "操作失败");
-        }
-      }
-    });
-    this.setState({
-      formValues: {},
-      modalVisible: false
-    });
-  };
-
   handlePageChange = (page, size) => {
     const { dispatch } = this.props;
     dispatch({
@@ -712,46 +618,6 @@ class Shuttle extends PureComponent {
         }
       }
     });
-  };
-
-  updateFormValue = params => {
-    const { formValues } = this.state;
-    const newFormValues = {
-      ...formValues,
-      ...params
-    };
-    this.setState({
-      formValues: {
-        ...newFormValues,
-        price: undefined
-      }
-    });
-
-    const { dispatch } = this.props;
-    const { scene, car_config_id, kilo, time, start_time } = newFormValues;
-    if (scene && car_config_id && kilo && time) {
-      dispatch({
-        type: "order/getPrice",
-        payload: {
-          scene,
-          car_config_id,
-          kilo,
-          time,
-          start_time,
-          onFailure: msg => {
-            message.error(msg || "获取价格失败!");
-          },
-          onSuccess: price => {
-            this.setState({
-              formValues: {
-                ...newFormValues,
-                price
-              }
-            });
-          }
-        }
-      });
-    }
   };
 
   showHistory = record => {
@@ -902,9 +768,7 @@ class Shuttle extends PureComponent {
       carTypes,
       consumeList,
       city,
-      handleModalVisible: this.handleModalVisible,
-      handleEdit: this.handleEdit,
-      updateFormValue: this.updateFormValue
+      handleModalVisible: this.handleModalVisible
     };
 
     const historyMethod = {
